@@ -1,0 +1,45 @@
+Solving environment: ...working... done
+
+## Package Plan ##
+
+  environment location: /home/tbeleyur/anaconda2/envs/mhbc
+
+  added / updated specs: 
+    - bokeh
+
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    lz4-c-1.9.2                |       heb0550a_3         203 KB
+
+The following NEW packages will be INSTALLED:
+
+    blas:              1.0-mkl              
+    bokeh:             2.2.1-py37_0         
+    intel-openmp:      2020.2-254           
+    libtiff:           4.1.0-h2733197_1     
+    lz4-c:             1.9.2-heb0550a_3     
+    mkl:               2020.2-256           
+    mkl-service:       2.3.0-py37he904b0f_0 
+    mkl_fft:           1.2.0-py37h23d657b_0 
+    mkl_random:        1.1.1-py37h0573a6f_0 
+    numpy:             1.19.1-py37hbc911f0_0
+    numpy-base:        1.19.1-py37hfa32c7d_0
+    olefile:           0.46-py_0            
+    pillow:            7.1.2-py37hb39fc2d_0 
+    typing_extensions: 3.7.4.3-py_0         
+    zstd:              1.4.5-h9ceee32_0     
+
+The following packages will be UPDATED:
+
+    ca-certificates:   2020.1.1-0            --> 2020.7.22-0     
+    certifi:           2020.4.5.1-py37_0     --> 2020.6.20-py37_0
+
+Proceed ([y]/n)? 
+
+Downloading and Extracting Packages
+Preparing transaction: ...working... done
+Verifying transaction: ...working... done
+Executing transaction: ...working... done
