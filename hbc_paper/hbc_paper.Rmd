@@ -1,0 +1,265 @@
+---
+title: "How we studied the horseshoe bat craziness - (FORMAL TITLE to be agreed on)"
+author: |
+  | Neetash Mysuru Rajagopalachari$^1,^*$ Thejasvi Beleyur$^1,^*$, Aditya Krishna$^1,^2$, Holger R Goerlitz$^1$
+  | $^1$: Acoustic and Functional Ecology, Max Planck Institute for Ornithology, Seewiesen, Germany
+  | $^2$: Indian Institute of Science   Education and Research, Mohali, India
+  | $^*$: *joint first authors*
+  
+date: 'Last Updated : `r Sys.Date()`'
+
+output:
+  bookdown::word_document2: 
+    fig_caption: yes
+    number_sections: true
+
+abstract: Echocating bats emit loud calls and listen for returning echoes to detect their surroundings. When echolocating in groups, the returning echoes may not be detected due to the loud calls coming from each bat in a group. Bats a show a variety of echolocation responses in the presence of such acoustically challenging conditions. To date however, most studies have been performed on low duty-cycle FM bats. High duty-cycle CF-FM bats have been understudied to date despite their higher chances of call-echo overlap. Studying high duty-cycle CF-FM bats has also been hindered by absence of methods to analyse overlapping calls and a predominance of flightroom and playback studies. We present methods to analyse and extract call parameters from audio with overlapping calls, and study the echolocation of a multiple CF-FM bats in the field. Our results show that bats do not seem to alter their call parameters even in the presence of conspecifics. This lack of response is in contradiction to a previous study. We contextualise our results in the light of the fact that it is an observational study done in the field. 
+
+bibliography: references.bib
+
+# Notes working with Rmarkdown ---> word file
+# managed to get the figure labelling working on the Ubuntu comp thanks to the help of colton @
+# https://stackoverflow.com/a/51677100/4955732
+
+# sometimes adding line spaces above and below the include_graphics functions helps the captions to appear.
+
+---
+
+```{r echo=FALSE}
+library(knitr)
+```
+
+## Potential titles 
+
+1. CF bats do not show changes in echolocation calls in the presence of conspecifics
+1. Echolocation remains unaltered in the presence of conspecifics in CF bats
+1. Echolocation calls in the field remain unaltered even in groups of CF bats
+1. Echolocation calls in the field remain unaltered in the presence of CF bats
+1. Conspecifics do not affect echolocation call structure in CF bats
+
+
+## 1.0 Introduction 
+
+Active sensing animals like echolocating bats face a sensory challenge when engaging in social behaviours like group emergences or foraging with conspecifics [@ulanovsky2008bat;@gillambrasiliensis]. Echolocating bats emit loud ultrasonic calls and detect their surroundings by listening for the echoes reflecting off objects around them[Griffing;FentonBrock]. In groups however, a bat's returning echoes can be overlapped by calls and echoes from other bats, preventing detection of its surroundings. [@surlykke;;@ulanovsky2008bat;maskingstudies]. A combination of laboratory and field studies have shown the diverse responses bats show in groups and similar situations with loud sounds like noise or playbacks. Bats increase their call emission levels, alter temporal features such as call rate, duration and duty cycle [@amichai2015calling;@jarvis2013groups, @lu2020echolocating;@hage2013ambient;@lin2016bats], along with spectral properties such as bandwidth and terminal frequency [@hase2018bats;@cvikel2015board;@gotze2016no;@fawcett2015clutter]. Each of these responses however seem to be species specific, with different species showing seemingly opposite responses to similar situations [@ulanovsky2004dynamics;@amichai2015calling;@jarvis2013groups;@adams2017suppression]. A wider variety of species need to be studied, to understand the myriad of echolocation responses in context of their ecology and auditory systems.
+
+
+There are two broad groups of echolocating bats [@fenton2012evolution] characterised by their duty cycle, or the fraction of time spent emitting calls. The first and major group of bats are low-duty cycle bats, which typically emit frequency-modulated (FM) calls. The second group is the high-duty cycle bats which typically emit calls with both FM and constant-frequency (CF) components in them, also called CF-FM calls. From a temporal perspective, low-duty cycle bats typically emit calls of a few milliseconds (1 to 20ms) duration at duty cycles between 5-20%. In contrast, high-duty cycle bats emit relatively longer calls (10 to $\geq$ 50ms), at much higher duty cycles of 25% upwards. Echolocation duty cycle is directly proportional to the probability of calls overlapping echoes [@Beleyur26662]. High-duty cycle bats such as rhinolophids and hipposiderids are thus likely to be more affected in group echolocation than low-duty cycle bats, making them a particularly valuable study system to understand the sensory strategies echolocators use in challenging conditions.
+
+A typical CF-FM call may consist of upto three call components (sensu @tian1997echolocation) consisting of an initial upwards FM sweep (iFM), leading to the CF segment (CF), and a terminal downward FM sweep (tFM). The CF component is used for the flutter detection of prey wingbeats [@??], and the auditory system of high-duty cycle bats shows a pronounced sensitivity to a narrow band of frequencies around the frequency component [@neuweiler2000biology] called the acoustic fovea. Bats show inter-individual variation in the frequency tuning of their acoustic foveas [@schnitzler1976peripheral]. Bats compensate for flight-induced Doppler shifts to maintain the frequency of the CF component's returning echo within the acoustic foveal range [@schnitzler1973control;@schoeppler2018precise]. Previous investigations  [@jones1994individual;@jones1993echolocation;@furusawa2012convergence] of group echolocation in CF-FM bats centred around whether CF-FM bat showed 'jamming avoidance' type responses [sensu @ulanovsky2004dynamics], where individual bats may shift the spectral ranges of their calls to reduce overlap. Previous studies have not found support [@jones1994individual;@jones1993echolocation;@fawcett2015echolocation]  for changes in CF frequencies. While the CF component is involved in prey detection, the FM components are thought to be involved in distance ranging [@tian1997echolocation;@neuweiler1987foraging]. The role of the iFM is relatively ambiguous, while the tFM has been strongly linked with distance ranging. CF-FM bats show rapid alterations in tFM bandwidth and duration based on the behavioural context at hand, eg. resting, landing or prey capture [@neuweiler1987foraging;@schoeppler2018precise;@tian1997echolocation]. Due to the historical focus on the CF call component, alterations in the FM components in group flight have not been quantified in most studies. There has been only one study [@fawcett2015echolocation] to our knowledge that has quantified FM components, and found an increased tFM duration and bandwidth in the presence of conspecifics. Given the tFM's malleability and role in ranging , there is a strong need for its explicit quantification in multi-bat contexts. The tFM may show the same kinds of changes in multi-bat contexts as shown in low-duty cycle bats, which also use their FM calls primarily for ranging [@fawcett2015echolocation;@amichai2015calling;@hase2018bats].
+
+A majority of studies on group echolocation have so far investigated low-duty cycle bats [@lin2016bats;@fawcett2015clutter;@gotze2016no], likely due to their speciosity (most bats except the ~160/1428 species are high-duty cycle species [@fenton2012evolution;@mammdivdatabase]) and ease of call analysis. Studying group echolocation in high-duty cycle bats entails analysing audio with overlapping calls. The analysis of recordings with overlapping calls is a nascent field [but see @izadi2019segmentation], and call parameter estimation has not been attempted before to the best of our knowledge. Even studies with multiple high-duty cycle bats have been limited to 2-3 bats in flightroom conditions [@fawcett2015echolocation;@jones1994individual;@jones1993echolocation;]. Flightrooms provide controlled conditions that can allow direct interpretation of results. However the echolocation of animals is also affected by familiarity [@von2020shrew;@chen2015variation;@yamada2020modulation], and properties of the experimental room [@surlykke2009echolocating]. Studying multi-bat echolocation in the wild provides a direct glimpse into the acoustic challenge animals face in a familiar environment and how they respond to changes in group size.
+
+In our study we fill the gaps by 1) shedding light on the group echolocation in the understudied high-duty cycle bats 2) presenting a methodology to quantify echolocation parameters in the presence of overlapping calls and 3) studying group echolocation in the field. 
+
+## 2.0 Methods
+
+### 2.1 Study species and site
+Two species of rhinolophid bats *Rhinolophus mehelyi* and *R. euryale* were recorded  their natural environment. Both study species emit CF-FM calls [sensu @tian1997echolocation] with peak frequencies between 102-112 kHz, and are not acoustically distinguishable  due to the overlap of their call characteristics [@dietz2016bats]. While phylogenetically different species, for the purposes of this study we treat them as a single group of bats that may face the problem of acoustic jamming due to the major overlap in CF frequencies and similar spectro-temporal call structure.
+
+We used an audio-video recording setup positioned in a dome-shaped cave (Figure 1) next to the main entrance of the Orlova Chuka cave system, Bulgaria. The cave was 5x3x1.6m (lxbxh) in dimensions. The cave had only one opening with roosting sites on the inside where most bats flew in and out of. 
+
+### 2.2 Experimental setup
+
+The experimental setup consisted of an audio-video recording system consisting of three microphones and two infrared cameras. The audio and video feeds were synchronised using the low-cost method described in Laurijssen et al. 2018. ON-OFF signals between 0.08-0.5 s were generated by a portable computer (Raspberry Pi 3). The voltage signal was directly fed into one of the channels of the soundcard. The same voltage signal was also used to drive the ON-OFF blinking of an LED that was recorded by  the two cameras. (See Supplementary Information for signal generation script, electronic circuit and associated notes).
+
+For the video recording, two consumer grade CCTV cameras with infrared lamps were connected to a digital video recorder to record the flight of bats as they flew in and out of the cave. The system recorded video mostly at 22 Hz, however there was frame rate variation between 18-27 Hz. The video stream of the two cameras was not frame-synchronised, however, we were still able to view the same bat flight on both cameras due to the common timestamps burnt-in on each frame. The two cameras were placed in approximately the same position on every recording night. The cameras were so placed to maximise the total cave volume recorded while also capturing the audio-video-sync signal in the form of a blinking LED light. Only sections of the video that had stable camera positions were analysed. Video was recorded continuously through the night and resulted in two video files (one per camera) for each recorded hour.
+
+Three Avisoft CM16 microphones (Avisoft Bioacoustics, Germany) were connected to an Avisoft 416H (Avisoft Bioacoustics, Germany) recording at 250kHz sampling rate. Horseshoe bat calls are known to be directional (Matsuta et al. 2013), and the three microphones were placed at different positions in the cave to increase the number of on-axis calls captured. Microphones were placed in the same location with an estimated +/- 10cm error in the cave across multiple nights. The fourth channel of the Avisoft 416H was used to record the audio sync signal. Audio was recorded continuously through the night in the form of consecutive multichannel files of 1 minute length. Our audio recordings showed that the dome was visited by multiple species of bats aside from our two main study species, and we only analysed audio data with R. euryale and/or R. mehelyi calls in it.
+
+
+```{r cavesetupschematic, echo=FALSE,  fig.cap="\\label{fig:cavesetupschematic} Schematic of how the three microphones and two cameras were placed in the recording volume/Klaus will send a more processed version OR Neetash to make a better one? 3D scanning by Klaus Hochradel, UMIT Tirol"}
+
+include_graphics('figures/point_cloud_KlausHochradel.png')
+```
+
+## 3. Data analysis
+
+
+### 3.1 Video analysis to determine group sizes
+
+Bat activity in the cave was recorded for a total of about 12hours across four nights in the cave. Bats flew in and out of  the cave often showing different flight behaviors such as circling, approaching and following. Sometimes however, bats spent time in the roosting sites within the cave and exited after having spent a few seconds to several minutes. The start and end of all bat flight bouts in each video were manually annotated following a series of pre-defined criteria to ensure repeatability (See Supplementary Information). Each flight bout annotation recorded the number of flying bats as seen in the two camera views.
+
+
+### 3.2 Matching video annotation to obtain synchronised audio 
+
+For each video annotation, we attempted to match the corresponding region of recorded audio. For each successfully matched video annotation, we created a separate audio file. Audio matching was done by cross-correlating the blinking ON/OFF LED signal over the video annotation with the recorded ON/OFF voltage signal in the audio. We managed to successfully find audio matches for 1181 video annotations, ($N_{total video annotations=2132}$ i.e., 55% of all video annotations). The low match rate is primarily due to the fluctuating camera frame rates, and also since many of the matched audio files had non-target bat species. Multiple species were seen in the audio files as during video annotation it was not possible to distinguish bat species by their flight behaviour. The other observed bat species were R. ferrumequinum, vespertilionid and miniopterid FM bats, all of which are known to occur in the main Orlova Chuka cave system (Ivanova 2005). For the acoustic analysis we chose matched audio files that only had R. euryale or R. meheyli. The audio files varied in duration between 0.08-62.08 seconds ($N_{matched \:audio \:files}=1181$, median duration: 1.04s , 95%ile range: 0.5-8.54s). 
+
+## 4.0 Acoustic parameter analysis
+
+All matched audio files were first forward-backward high-pass filtered at 70 kHz. Even though audio was recorded from three microphones simultaneously, later inspection showed that all three microphones had picked up the echolocation call. For the analysis we used recordings from the first microphone, as it appeared to consistently have captured calls with the least reverberance of the three channels. The first microphone was located facing the cave opening, perhaps capturing calls of  both entering and exiting bats.
+
+We quantified frequency, duration and amplitude across different parts of the echolocation call (iFM,CF and tFM) using two complementary acoustic analyses. The first analysis is the ‘individual call analysis, where we measured parameters of one horseshoe bat call that was not overlapped by other bat  calls from each matched audio. The second analysis is the ‘window’ analysis.Each matched audio was divided into 50ms windows. We measured the acoustic parameters from all windows of the matched audio. In recordings with multiple bats, the 50 ms windows can have overlapping calls. 
+
+The advantage of the individual call analysis is that the measurements made on the calls are directly interpretable. On the other hand, the disadvantage of the individual call analysis is that in multi-bat contexts, it can be difficult to find a non-overlapping call. The window analysis complements individual call analysis by enabling measurements even on audio with overlapping calls. Window analysis also allows a kind of null-hypothesis testing where ‘virtual’ multi-bat audio files can be created by adding multiple single bat audio files. The disadvantage with window analysis is the lack of call-level measurements. Ultimately, using the two approaches simultaneously strengthens the interpretation of results.
+
+### 4.1 Individual call measurements
+
+Individual calls which were not overlapped by other calls and with sufficient signal-to-noise ratio (Figure \@ref(fig:itsFMdemo)) were manually chosen through a random search protocol (Supp. Info.). Briefly, an experimenter began searching from a randomly chosen time point in an audio file for an individual call. From this point in the file, the experimenter randomly began searching to the left or right until a suitable horseshoebat call could be identified. The start and end time of this call in the audio file were noted. We were able to find a total of 232 individual calls ($N_{single \:bat}$: 180, $N_{multi \:bat}$: 52) across all the synchronised audio files.  Calls were automatically segmented into their corresponding parts iFM, tFM or CF [@tian1997echolocation] (Figure \@ref(fig:itsFMdemo)) using the *itsfm* package [@itsfmcitation;*biorxivpaper*]. Most approaches to date focus on indirectly segmenting CF-FM calls into their components by high/low pass filtering around the peak frequency of the call [@siemers2005species;@schuchmann2012horseshoe;@tian1997echolocation;@lu2020echolocating;@schoeppler2018precise].
+For an accurate estimate of the peak frequency, this approach requires an on-axis recording of the call with a prominent CF component in the audio. While suitable for laboratory studies, filtering around the peak frequency fails in the analysis of CF-FM calls recorded in the field under a variety of conditions eg. calls with loud FM and faint CF components. *itsfm* overcomes these limitations by tracking the change in frequency over tiem to segment calls into FM or CF components. 
+
+
+```{r itsFMdemo,echo=FALSE, fig.cap="\\label{fig:itsFMdemo} Example of a single CF-FM call with automatically segmented iFM, CF and tFM regions. The raw data is a manually selected audio segment, which is then automatically segmented by the *itsFM* package based on frequency modulation across the call. The *itsFM* package allows accurate segmentation into call parts under challenging recording conditions"}
+
+
+include_graphics('figures/fig1_labelled_original_from_20180816_21502300_30.png')
+
+#\begin{figure}
+#\includegraphics{figures/fig1_labelled_original_from_20180816_21502300_30.png}
+#\caption{Example of a single CF-FM call with automatically segmented iFM, CF and tFM regions. The raw data is a manually selected audio segment, which is then automatically segmented by the *itsFM* #package based on frequency modulation across the call. The *itsFM* package allows accurate segmentation into call parts under challenging recording conditions}
+#\label{itsFM_demo}
+#\end{figure}
+```
+
+From the segmented CF and FM components of a call we measured the following parameters. In the CF component, we measured the peak frequency, RMS amplitude and duration. The peak frequency was quantified as bats may shift their frequencies in groups. ‘Jamming avoidance’ type reponses have been a parameter of investigation in previous studies [@habersetzer1981adaptive;@jones1994individual;@jones1993echolocation;@fawcett2015echolocation;
+@lu2020echolocating]. From the FM components, we measured the lower frequency (-10 dB peak frequency of the FM audio segment), bandwidth (defined as difference between the CF peak frequency and  of the lower frequency of the FM segment), RMS amplitude and duration. The bandwidth is important for target ranging in  and an increase has been shown in at least one previous study [@fawcett2015echolocation]. We also calculated the relative i/tFM-CF amplitude ratios (in dB). The relative call component measures were calculated as CF-FM bats are known to independently vary the level of different parts of the calls in a context specific manner [@tian1997echolocation;@lu2020echolocating].
+
+
+### 4.2 Window measurements
+
+Each audio file was split into consecutive windows of 50ms, including terminal windows that were 50 ms long (refer Supp. Info.). The time window of 50ms was chosen as it provided high spectral resolution (20Hz for 12500 samples at 250kHz sampling rate) to distinguish multiple CF components that may be in it. Often in the multi bat contexts, the 50 ms windows consisted of one to many horseshoe bat calls. Initial observations showed that 50 ms was about the longest duration of a bat call in our data, and was also about twice the length of typical calls. This allowed a 50 ms window to contain one long call or multiple short calls. 
+
+
+Over the course of an audio file, there may be multiple windows without calls or very faint calls in them. These 'silent' windows were removed from the analysis, and only the 'non-silent' windows with bat calls in them were analysed. Non-silent windows were defined as those that were 20 dB RMS more than manually annotated silent audio segments (Supp. Info.). On each non-silent window, the following acoustic measurements were performed: 1)peak amplitude, 2) RMS, 3) dominant frequencies 4) FM terminal frequencies. Dominant frequencies here are defined as frequency peaks in the smoothed power spectrum that are within 14 dB of the peak frequency's power. Dominant frequencies are extracted from the various peaks of the power spectrum and are thus a proxy measurement for the CF frequencies of calls in a window. FM terminal frequencies were determined by a spectrogram based method which identified FM regions and chose the lowest frequency in each FM region of a given audio window (Supp Info.). All measurements chosen in the whole audio analysis were done in an attempt to be analogous to the measurements performed in the individual call analyses. For instance, the dominant frequencies in the whole audio analysis complements the CF peak frequencies of the individual call analysis. The FM terminal frequencies and RMS measurements are again a direct comparison to the bandwidth and RMS of the individual call analysis.
+
+### 4.3 Virtual multi-bat data
+
+The advantage of the whole audio analysis is the possibility to make ‘virtual multi-bat’ data [@fawcett2015echolocation;@ratcliffe2004conspecifics] by combining observed single bat data. We created virtual multi-bat audio files by combining single bat files that were of similar file lengths (Supp. Info.). This allowed us to create a ‘null’ dataset where multiple bats were echolocating, but not responding to each other’s presence. The virtual multi-bat audio was analysed in the same way as in the whole audio analysis.
+
+## 5.0 Statistical analysis 
+
+### 5.1 Statistical analysis of individual call measurements
+
+We calculated the median difference ($median_{multi}-median_{single}$) between multi and single bat call parameters for all parameters except CF peak frequency. Bootstrapped confidence intervals were calculated using the bias-corrected and accelarated method using 10,000 runs. We compared  the CF peak frequency range difference ($range_{multi}-range_{single}$) between single and multi bat call groups. Bootstrapped confidence intervals were also calculated for the range  difference as described before. 
+
+Our dataset has calls from a group of resident bats that may have visited the cave site multiple times over the course of a night. Moreover, bat activity over the course of a single night was relatively clustered in time, and bat activity annotations were thus fairly close to each other (inter-annotation times median: 54 s, 95%ile range: 1.7-745 s). Due to the clustered nature of activity, our dataset may have had a disproportionate representation of a few individuals, leading to pseudo replication, and thus a lowering of variation in the data.
+
+To account for the temporal pseudo-replication in our data, we performed a series of temporal subsampling and creating multiple subsets of the original data where each subset had calls from annotations separated by a minimum inter-annotation interval. The median difference and confidence interval was estimated for each of subsets as described in the previous paragraph. The overall median difference and confidence intervals for a given inter-annotation interval were obtained by taking the median of the median difference, lower and upper confidence intervals. We chose to perform the median difference analysis for inter-annotation intervals of one minute (~median inter-annotation interval) and 15 minutes (outside of 95%ile inter-annotation interval). While performing the temporal subsampling does not eliminate individual bat-level and temporal pseudoreplication, it is likely to reduce the overall amount pseudo-replication. 
+
+
+### 5.2 Statistical analysis of window measurements
+
+
+
+
+### Software packages used in this paper
+This paper was enabled by a series of open-source packages. Signal analysis, data manipulation and visualisation were done in Python [@van1995python] through its scientific ecosystem: the scipy, numpy, matplotlib, soundfile and pandas packages [@2020SciPy;@numpy;@matplotlib;@soundfile;@pandas]. Median difference and confidence interval estimation was performed with the dabest [@ho2019moving] and scikits-bootstrap packages [@skbootstrap]. Reproducible analysis, documentation and presentation were enabled by the Jupyter Notebook and rmarkdown projects[@jupyter;@rmarkdown]. Audio visualisation, preliminary measurements and single call annotations were done with Audacity [@audacity].
+
+## 6.0 Results
+
+### 6.1 Individual call analysis
+The raw data of all acoustic parameters measured are shown in Figure \@ref(fig:indcallrawdata). 
+
+```{r indcallrawdata, echo=FALSE, fig.cap="\\label{fig:indcallrawdata} Measured acoustic parameters for the CF, iFM and tFM components of individual calls emitted under single and multi bat conditions. Each column shows the measurements on a call component, while each row shows a group of related measurements A-C) duration  D-F) spectral measurements G-I) received level J-K) relative FM-CF ratios L-M) FM component bandwidths"}
+
+
+include_graphics('../combined_analysis/measurements_and_derivedparams_multipanel.png')
+
+#\begin{figure}[H]
+#\includegraphics{../combined_analysis/figures/plot_indcall_rawdata.png}
+#\caption{}
+#\label{indcall_rawdata}
+#\end{figure}
+```
+
+
+
+
+```{r,indcalldeltamedian, echo=FALSE, fig.cap="\\label{fig:indcalldeltamedian} Comparison of various call parameters between single and multi bat context calls. A-H: The bootstrapped median difference of call parameters in calls recorded in single and multi bat contexts. The 95 percentile interval of the bootstrapped median for all variables contains 0, supporting the conclusion that call parameters from both groups belong to the same distribution. I: The observed Hellinger distance for CF peak frequency between single and multi bat contexts, in comparison to the distances generated from shuffled datasets. The observed Hellinger distance is placed at 93.3 percentile of the shuffled distribution, and is thus within the 95 percentile range of the shuffled data. This supports the possibility that the observed Hellinger distance is within the range of what would be expected if single and multi bat calls were from the same distribution" }
+
+include_graphics('../combined_analysis/figures/plot_indcall_panel.png')
+
+#\begin{figure}[H]
+#    \includegraphics{../combined_analysis/figures/plot_indcall_panel.png}
+#
+#    \caption{Comparison of various call parameters between single and multi bat context calls. A-H: The bootstrapped median difference of call parameters in calls recorded in single and multi bat #contexts. The 95 percentile interval of the bootstrapped median for all variables contains 0, supporting the conclusion that call parameters from both groups belong to the same distribution. I: The #observed Hellinger distance for CF peak frequency between single and multi bat contexts, in comparison to the distances generated from shuffled datasets. The observed Hellinger distance is placed at 93.3 #percentile of the shuffled distribution, and is thus within the 95 percentile range of the shuffled data. This supports the possibility that the observed Hellinger distance is within the range of what #would be expected if single and multi bat calls were from the same distribution}
+#
+#    \label{indcall_deltamedian}
+#\end{figure}
+```
+
+
+All measured call parameters (Figure \@ref(fig:indcallrawdata)) appear to be very similar across single and multi bat contexts. The 95 percentile range of the bootstrapped difference of medians for all measured parameters (Figure \@ref(fig:indcalldeltamedian) A-H) include zero, which strongly suggests that the call parameters originate from one distribution. The observed Hellinger distance between single and multi bat calls is positioned in the 93rd of the shuffled Hellinger distances (Figure \@ref(fig:indcalldeltamedian) I). The observed overlap's location is within the 95 percentile range (2.5-97.5), indicating that the observed overlap is indistinguishable from a scenario where there is no change in CF peak distribution across single and multi bat contexts.
+
+### Whole audio analysis 
+
+All measured whole audio parameters (received level, dominant frequencies, terminal frequencies) for both single-multi and multi-virtual multi bootstrapped median difference (Figure \@ref(fig:wholeaudiodeltamedian)) included zero in the 95 percentile interval. The bootstrapped median difference 95 percentile intervals for all comparisons and parameters contained zero in them.  The inclusion of zero in the 95 percentile hints 
+
+
+```{r wholeaudiodeltamedian, echo=FALSE, fig.cap="\\label{fig:wholeaudiodeltamedian}Comparisons of 50ms audio windows across audio with single and multi bat flights."}
+
+include_graphics('../combined_analysis/figures/plot_wholeaudio_panel.png')
+
+#\begin{figure}[H]
+#    \includegraphics{../combined_analysis/figures/plot_wholeaudio_panel.png}
+#    \caption{Comparisons of 50ms audio windows across audio with single and multi bat flights.}
+#    \label{wholeaudio_deltamedian}
+#\end{figure}
+```
+
+## Discussion 
+
+
+```{r echo=FALSE}
+# broad overview of what we did and that we didnt find any difference
+```
+We quantified the difference in horseshoe bat echolocation calls when alone and with a conspecific under field conditions. Our results suggest no difference in echolocation calls with reference to group size for all of the call parameters measured using two different approaches. This may seem somewhat unexpected, especially considering the fact that bats in our field site were flying in an enclosed reverberant volume - which would only amplify the problem of masking in multi-bat echolocation. We interpret our results below in more detail.
+
+
+```{r echo=FALSE}
+# The CF peak frequency + dominant frequency story
+```
+The idea that bats may alter their call frequencies to reduce spectral overlap in groups has been investigated with mixed results over many studies [@jones1993echolocation;@jones1994individual;@ulanovsky2004dynamics]. Specifically in CF-FM bats [@jones1993echolocation;@jones1994individual;@fawcett2015clutter;@pye1972bimodal]  the results do not support the idea that bats may alter their CF frequencies. [@habersetzer1981adaptive] seems to suggest CF frequency shifting in a quasi-CF bat, *Rhinopoma hardwickei* (but see @cvikel2015board). However, the echolocation of *R. hardwickei* [@simmons1984echolocation] is not entirely comparable with those of the hipposiderids and rhinolophids in previous studies. Hipposiderids and rhinolophids are more constrained in their echolocation as they show a marked acoustic fovea that does not vary over short periods of time[REFS]. CF-FM bats are thus constrained to emit calls so that the Doppler-shifted echoes arrive within the acoustic fovea. Our data (Figures \@ref(fig:indcalldeltamedian)*I*, \@ref(fig:wholeaudiodeltamedian)*B*) also supports previous studies showing an absence of CF frequency shifting in the presence of conspecifics. Our CF peak frequency and dominant frequency measurements are estimated to be Doppler shifted away from the emission frequency by $\pm$ 200-600 Hz (Supplementary Information). However, if bats were showing a systematic alteration of their CF components we would have been able to detect it with our distribution similarity analyses.
+
+
+```{r echo=FALSE}
+# The received level story -- needs a bit more work
+```
+Bats are known to increase their call levels in the presence of experimental playbacks [@hage2013ambient;@hage2014ambient;@lu2020echolocating;]. In our study, we did not have access to the source level of the calls as we did not track the bats' position in 3D. We only had access to the *received* level at the microphone, which is modulated by 1) the bat-microphone distance, and 2) source level of the call. We found no major difference ($\\pm$2dB, Figures \@ref(fig:indcalldeltamedian), \@ref(fig:wholeaudiodeltamedian))  between the received levels of individual calls or audio segments compared between single and multi bat contexts. Why was there no major difference in received levels even in the audio-segment analysis, despite that overlapping sounds are expected to have a higher received level? The similarity in received levels of audio-segments can be explained by the dominance of the call from the nearest bat to the microphone. Due to the spherical spreading of sound, the received level at the microphone primarily reflects that of the bat calling closest to the microphone. Thus, even when there are multiple bats - the nearest bats' call dominates the received level measurements. This nearest-bat dominance means we effectively measure the received level of one bat's call even when the audio has overlapping calls. Single and multi bat audio-segments having similar received levels thus indirectly suggests there is no change in source level even in the presence of another bat.
+
+```{r echo=FALSE}
+# What new things did we bring to the field?
+```
+
+We introduce two automated analyses that can be performed on audio recordings of multiple CF-FM bats. Automated individual call analyses using the open-source ```itsfm``` package allows call component segmentation in a sound agnostic manner according to the actual rate of frequency modulation.  The frequency-modulation based segmentation method in our experience is also more robust to field recordings with fainter CF components, and thus performs better than approaches used in previous studies. To analyse recordings with overlapping calls in them we resorted to measuring broad properties of audio segments without assigning the measurements to individual calls. While coarser than the individual call analysis, the audio-segment based approach still provides important supporting evidence to the individual call analyses. 
+
+```{r echo=FALSE}
+# WHAT WE DID NOT MEASURE --- POINTING IT OUT 
+```
+There are a set of parameters that we were not able to measure and thus excluded in our analyses. We did not measure call-sequence related parameters such as inter-call-intervals or duty-cycle. Bats in acoustically difficult situations are known to alter their call rate [@amichai2015calling;@jarvis2013groups;], and thus their duty cycle. Measuring inter-call-intervals is possible in single bat contexts, but extremely challenging in multi-bat recordings with overlaps and reverberation. The study of call-sequence related measures in multi-bat contexts is hindered by the difficulty in call identity assignment. In our individual call analyses we specifically avoided audio recordings with only overlapping calls, and this represents an unavoidable observational bias in our dataset. The use of a full microphone array with at least four microphones to assign calls to the emitting bats is the next step in the investigation of group echolocation in CF-FM bats. With the acoustically localised positions of each bat in the group, estimates of flight speed, and thus Doppler shift could also be directly made from the audio recordings. 
+
+
+```{r echo=FALSE}
+# Why did we not see anything? Discussing possibilities
+```
+What are the possible explanations for the absence of a response? The main explanation we posit is that situations with 2-3 bats may not be very challenging echolocation-wise for multiple reasons. CF-FM bats rely on the tFM component to detect the distance of objects around them [@tian1997echolocation]. The tFM components were short (3.4ms, 95 percentile value), and likely emitted every 40-50 ms (including call duration and inter-pulse interval), which is equivalent to a tFM duty cycle between 6.3-7.8%. At these duty cycles, the probability of one echo being overlapped by a conspecific call is relatively low and between 0.4-0.6%. Even if a single echo is overlapped, the bat may still be able to detect it if the signal-to-noise ratio is sufficient. Bats in small groups are unlikely to face major detriments to their echolocation [@Beleyur26662], and thus not show specific alterations from solitary echolocation. Secondly, Fawcett et al. 2015 observed an increased tFM duration and bandwidth in *R. capensis* flying in pairs in a flight room. This result highlighs the importance of the tFM component in CF-FM echolocation. Their experiments were done in a novel flight room setting. The combination of flight room characteristics [@surlykkebatsinvolumes] and species differences, may perhaps have led to the responses seen in this studies. Bats show long-term spatial memory [@barchi2013spatial] and familiarity with the cave's structure may have allowed them to easily recognise their location over time.  Bats also use echoes across multiple calls and are thus resistant to occasional disruptions in echo arrival [@Salles202011719]. The combination of spatial memory and multi-echo integration may have allowed our bats to continue echolocating with conspecifics without altering their calls drastically. 
+
+Previous manipulative studies [@hage2013ambient;@hage2014ambient;@lu2020echolocating;] have revealed the exquisite control bats have over each call component. However, these call alterations are typically elicited in response to artifical stimuli with little resemblance to their natural auditory scenes. Our results suggest that bats may not regularly be employing strategies observed from playback and flightroom studies to enhance their echo detection while flying with conspecifics. We highlight the importance of observational studies in field settings to understand the frequency with which sensory strategies are actually employed in ecological contexts. 
+
+
+
+```{r, other-comments, echo=FALSE}
+#1. ONE VERY IMPORTANT FACTOR TO CONSIDER -- overlapping calls -- the FM segments are relatively short (2-5ms), and at group sizes of 2-5, there's very unlikely to be an issue with detecting objects in their surroundings. ref Beleyur & Goerlitz. Even though Fawcett et al. 2015 see a difference..
+#1. An important reason we don't see any difference between single and multi bat calls may also be because the bats are flying in a familiar natural setting. This may exclude the need for bats to 'compensate'.
+
+#Our results stand in contrast to other comparable studies that show differences in echolocation call parameters based on conspecific presence in CF-FM and quasi-CF bats [@fawcett2015echolocation;@habersetzer1981adaptive;@cvikel2015board]. 
+
+
+#1. **importance of field studies**: Bats may not show the same kinds of dramatic responses to conspecifics when studied in their natural habitat. Despite its challenging nature, we stress the importance of observing echolocation/behaviour in the wild. 
+#1. We also present a method to assess differences in call behaviour with overlapping calls in the form of 'windows' than can incorporate a few calls. 
+#1. One important aspect of the dataset missing in our study is the position of the bats as they called. 
+#1. It maybe surprising that single and multi-bat audio windows didn't seem to show very much difference. This does not mean that bats did  not change their source level, and may be explained by a simple geometric consideration. The simplest factor is that when two sounds overlap, their dB received level is often dominated by the loudest sound. This means that in our case, when two bats fly past each other, one bat is always closer to the microphone - and its call is likely to dominate the measured received level (See Supplementary Information). Assessing source levels from the received levels requires knowledge of the bat positions. The source level calculations are in turn challenging due to the overlap of calls. One solution despite the presence of overlap is to exploit the slight interindividual difference in CF peak frequencies, and infer the individual call received levels from the power spectrum, and thus back calculate the source levels of the two overlapping calls. 
+
+#1. Our study has the advantage of wild bats flying in relatively small volumes. Unlike observational studies done in the wild, where it is difficult to assess how far away the bats may have been - we can be sure that the bats were flying at most +/-X m away from each other. 
+#1. Our measurement methods advance the state of the art a bit, but there is still a long way to go. All of our whole audio analysis methods include a lot of noise from echoes and reverberation. It would be good to be able to account/exclude such things. 
+```
+
+## Data and code availability
+All data and code used process data and generate the results and figures in the paper are available in the Zenodo repository [INSERT DOI HERE].
+
+## Acknowledgements 
+The authors would like to specially thank the electronics team (Markus Abels, Hannes Sagunsky, Reinhard Biller) at the MPIO workshop for help preparing the electronic circuits to run the ON/OFF signal splitting. We would also like to thank Antoniya Hubancheva for logistical support, Stefan Greif for help collecting the data, the 2018 Tabachka field crew, Diana Schoeppler and Hans-Ulrich Schnitzler for their helpful discussions. We also thank Manjari Jain for her support and and encouragement of the project. TB was funded by a DAAD doctoral fellowship and the IMPRS for Organismal Biology, HRG was funded by the Emmy Noether program of the DFG (German Research Foundation) *INCLUDEDFGGRANTNUMBERHERE????*. 
+
+## Author Contributions 
+Study design and conception: TB,NMR Data collection: NMR, TB, AK, Audio and video annotation: AK,NM Audio-video synchronisation: TB Analysis: TB,NMR,HRG Interpretation of results: NMR, TB, HRG Manuscript preparation: NMR, TB, HRG. All authors read and approved the final draft of this paper
+
+## References 
