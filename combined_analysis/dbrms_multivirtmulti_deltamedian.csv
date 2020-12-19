@@ -1,0 +1,13 @@
+,deltamedian,num_folds,interval,measurement
+0,-1.3088310489408577,19,6,dbrms_deltamed_multivirtmulti
+1,-0.19597620647316916,19,6,dbrms_deltamed_multivirtmulti
+2,0.876293797011686,19,6,dbrms_deltamed_multivirtmulti
+0,-2.415374310124369,43,60,dbrms_deltamed_multivirtmulti
+1,-0.9583734906670607,43,60,dbrms_deltamed_multivirtmulti
+2,0.8936606983278312,43,60,dbrms_deltamed_multivirtmulti
+0,-3.492688504810883,65,300,dbrms_deltamed_multivirtmulti
+1,-1.4156515228322988,65,300,dbrms_deltamed_multivirtmulti
+2,0.7329668915156047,65,300,dbrms_deltamed_multivirtmulti
+0,-3.9328312764288733,72,600,dbrms_deltamed_multivirtmulti
+1,-0.7130367750869269,72,600,dbrms_deltamed_multivirtmulti
+2,2.377538658904097,72,600,dbrms_deltamed_multivirtmulti

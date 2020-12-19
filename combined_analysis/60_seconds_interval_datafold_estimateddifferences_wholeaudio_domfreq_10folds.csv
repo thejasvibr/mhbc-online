@@ -1,0 +1,11 @@
+,ci_has_zero,ci_above_zero,ci_below_zero,perm_pvalue,difference,perm_pvalue_signif,bca_low,bca_high,measurement,fold_number
+0,False,True,False,0.0,1.9050000000000011,True,1.019999999999996,3.305000000000007,file_value_range,1
+0,False,True,False,0.0,1.9499999999999886,True,1.0,3.0100000000000193,file_value_range,2
+0,False,True,False,0.0,1.9499999999999886,True,0.9399999999999977,3.010000000000005,file_value_range,3
+0,False,True,False,0.0,1.9449999999999932,True,1.0149999999999935,3.055000000000007,file_value_range,4
+0,False,True,False,0.0,1.9499999999999886,True,1.0,3.0100000000000193,file_value_range,5
+0,False,True,False,0.0,1.9499999999999886,True,1.009999999999991,3.0100000000000193,file_value_range,6
+0,False,True,False,0.0,2.009999999999991,True,1.2299999999999969,3.2099999999999937,file_value_range,7
+0,False,True,False,0.0,1.9499999999999886,True,1.0,3.0100000000000193,file_value_range,8
+0,False,True,False,0.0,2.009999999999991,True,1.2299999999999969,2.9750000000000085,file_value_range,9
+0,False,True,False,0.0,1.9050000000000011,True,1.2350000000000065,2.970000000000006,file_value_range,10

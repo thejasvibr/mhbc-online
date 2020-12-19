@@ -1,0 +1,14 @@
+,ci_has_zero,ci_above_zero,ci_below_zero,perm_pvalue,difference,perm_pvalue_signif,bca_low,bca_high,measurement,interval
+0,False,False,True,0.0048,-3.216000000000001,True,-4.586,-1.9640000000000022,cf_duration,clustered
+0,True,False,False,0.0202,0.2619999999999998,True,-0.1180000000000001,0.4980000000000002,tfm_duration,clustered
+0,True,False,False,0.619,-0.06000000000000005,False,-0.32000000000000006,0.19199999999999995,ifm_duration,clustered
+0,False,False,True,,-2.5112651714425738,False,-5.146859514499852,-1.1708596311336095,cf_peak_frequency,clustered
+0,True,False,False,0.9222,0.05214654126213247,False,-1.9132653061224403,1.5946585714027748,tfm_terminal_frequency,clustered
+0,True,False,False,0.3536,1.1137316561845125,False,-2.1518086669115064,3.456392836923783,ifm_terminal_frequency,clustered
+0,False,False,True,0.1662,-2.104148277285354,False,-4.121980963142871,-0.34463029098275655,cf_dbrms,clustered
+0,True,False,False,0.0384,-2.6981544676110545,True,-4.709575154404213,0.4267626142198466,tfm_dbrms,clustered
+0,True,False,False,0.3208,-2.1035605843140317,False,-5.099295598759213,1.7974737348242016,ifm_dbrms,clustered
+0,True,False,False,0.2962,-0.9231928469261508,False,-1.8677525845163174,0.7221304671264797,tfm-cf_dbratio,clustered
+0,True,False,False,0.5492,0.31717785120505493,False,-0.9060865423512885,1.7133426315188043,ifm-cf_dbratio,clustered
+0,True,False,False,0.2816,1.186345507595819,False,-0.4332567289442526,3.6628554683039116,tfm_bw,clustered
+0,True,False,False,0.9056,0.1684533264592165,False,-3.0723155840818652,2.9365169871680123,ifm_bw,clustered

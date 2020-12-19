@@ -1,0 +1,13 @@
+,deltamedian,num_folds,interval,measurement
+0,2.1200000000000045,64,6,domfreq_deltamed_multisingle
+1,2.2700000000000102,64,6,domfreq_deltamed_multisingle
+2,2.3412500000000165,64,6,domfreq_deltamed_multisingle
+0,1.9050000000000011,179,60,domfreq_deltamed_multisingle
+1,1.9499999999999886,179,60,domfreq_deltamed_multisingle
+2,2.0429999999999913,179,60,domfreq_deltamed_multisingle
+0,2.900000000000002,263,300,domfreq_deltamed_multisingle
+1,3.0500000000000043,263,300,domfreq_deltamed_multisingle
+2,3.200000000000003,263,300,domfreq_deltamed_multisingle
+0,3.1055000000000064,279,600,domfreq_deltamed_multisingle
+1,3.240000000000009,279,600,domfreq_deltamed_multisingle
+2,3.490000000000002,279,600,domfreq_deltamed_multisingle
