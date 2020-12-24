@@ -220,25 +220,155 @@ include_graphics('../combined_analysis/measurements_and_derivedparams_multipanel
 
 ```
 
+## 6.0 Temporal subsets: individual call statistical analysis 
 
-## Calculating estimated Doppler shifts in our study
-
-The amount of Doppler shift in our audio recordings is primarily affected by two factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone. In our recordings, most of the flights were with bats flying past the microphone, and the flight direction is thus an important variable to investigate. Our calculations (Figure \@ref(fig:dopplershift))  show that our audio recordings may have between ~200-600 Hz of Doppler shift in it, considering an emitted frequency of 100kHz. This calculation was done across a range of flight speeds (1-3m/s) and relative flight directions (45-135$^{\circ}$). It is very unlikely that bats would fly head-on to the microphone, and this was thus not included. 'Head-on' flight calculations over or under estimate the amount of Doppler shift in the data.	
-
-```{r dopplershift, echo=FALSE,fig.cap="\\label{fig:dopplershift}Calculating the estimated amount of Doppler shift in the CF peak and dominant frequency estimates. This calculation applies only to the direct calls incident onto the microphone. The relative angle can be thought of as the progressive shift in position of a bat as it flies from the right to the left. 180deg is when the bat is the bat is very far away and on the right of the microhpone, 90deg is when the bat is exactly opposite the microphone, and 0 degrees is when it is very far away on the left of the microphone. The range between 45-135deg is chosen to match the relative positions of bats as they fly by the microphone in the field-site." }
-
-include_graphics('associated_docs/SI_dopplershift.png')
-#\begin{figure}[H]
-#    \includegraphics{associated_docs/SI_dopplershift.png}
-#    \caption{Calculating the estimated amount of Doppler shift in the CF peak and dominant frequency estimates. This calculation applies only to #the direct calls incident onto the microphone. The relative angle can be thought of as the progressive shift in position of a bat as it flies #from the right to the left.180$^{\circ}$} is when the bat is the bat is very far away and on the right of the microhpone, 90$^{\circ}$ is when #the bat is exactly opposite the microphone, and 0 degrees is when it is very far away on the left of the microphone. The range between #45-135$^{\circ}$ is chosen to match the relative positions of bats as they fly by the microphone in the field-site.
-#    \label{dopplershift}
-#\end{figure}
+#### 6.1 'Clustered' data subset results 
+```{r clusteredsampsizes, echo=FALSE}
+clustindcalls <- read.csv('../combined_analysis/clustered_indcall.csv')
+clustindcalls.n <- as.data.frame(table(clustindcalls$groupsize))
 ```
 
-The code used to generate this figure is in the Supplementary Information B, and is called ```doppler_shift_estimation.py```
+All individual calls from annotations that are less than 1 minute away from adjacent annotations are included in this subset. $N_{single}$=`r clustindcalls.n[2,2]`,  $N_{multi}$=`r clustindcalls.n[1,2]`.
+
+```{r indcallclustered, echo=FALSE, tab.cap="\\label{tab:indcallclustered}*Difference between multi and single bat call parameters using the clustered data subset. The median difference is reported for all parameters except CF peak frequency, where the difference in range is reported.*"}
+library(flextable)
+indcall.analysis <- read.csv('../combined_analysis/clustered_subset_clusteringbased_bootci.csv')
+msmt.names <- c("CF duration (median ms)", "tFM duration (median ms)", "iFM duration (median ms)",
+                "CF peak frequency (range kHz)", "tFM lower frequency (median kHz)", "iFM lower frequency (median kHz)",
+                "CF level (median dB RMS)", "tFM level (median dB RMS)", "iFM level (median dB RMS)",
+                "tFM-CF ratio (median dB)", "iFM-CF ratio (median dB)", "tFM bandwidth (median kHz)", "iFM bandwidth (median kHz)")
+
+pvalues <- round(indcall.analysis$perm_pvalue,2)
+meddiff <- round(indcall.analysis$difference,2)
+
+meddiff.table<- data.frame(cbind(msmt.names, meddiff, pvalues))
+colnames <- c("Measurement","Difference (Multi-Single)","Permutation test p-value")
+medditab <- flextable(meddiff.table)
+medditab <- set_header_labels(medditab, msmt.names= colnames[1], 
+    meddiff = colnames[2], pvalues= colnames[3]
+    )
+medditab <- autofit(medditab)
+medditab
+```
+
+#### 6.2 'Isolated' data subset results 
+
+```{r isolatedsampsizes, echo=FALSE}
+isolatedindcalls <- read.csv('../combined_analysis/isolated_indcall.csv')
+isolatedcalls.n <- as.data.frame(table(isolatedindcalls$groupsize))
+```
+
+All individual calls from annotations that are more than or equal to 1 minute away from adjacent annotations are included in this subset. $N_{single}$=`r isolatedcalls.n[2,2]`, $N_{multi}$=`r isolatedcalls.n[1,2]`.
+
+The low sample size of the multi-bat calls must be kept in mind while interpreting the results in Table 2 cautiously.
+
+```{r isolatedindcall, echo=FALSE, tab.cap="\\label{tab:isolatedindcall}*Difference between multi and single bat call parameters using the isolated data subset. The median difference is reported for all parameters except CF peak frequency, where the difference in range is reported.*"}
+indcall.analysis <- read.csv('../combined_analysis/isolated_subset_clusteringbased_bootci.csv')
+
+pvalues <- round(indcall.analysis$perm_pvalue,2)
+meddiff <- round(indcall.analysis$difference,2)
+
+meddiff.table<- data.frame(cbind(msmt.names, meddiff, pvalues))
+colnames <- c("Measurement","Difference (Multi-Single)","Permutation test p-value")
+medditab <- flextable(meddiff.table)
+medditab <- set_header_labels(medditab, msmt.names= colnames[1], 
+    meddiff = colnames[2], pvalues= colnames[3]
+    )
+medditab <- autofit(medditab)
+medditab
+```
+
+## 7.0 Temporal subsets: window statistical analysis 
+```{r echo=FALSE}
+get.window.samplesizes <- function(df)
+  {
+  n_samples <- as.data.frame(table(df$groupsize))
+  n_samples
+  }
+
+
+# for clustered data
+domfreq_clust_singlemulti <- read.csv('../combined_analysis/clust_domfreq_singlemulti.csv')
+domfreq_clust_multivirt <- read.csv('../combined_analysis/clust_domfreq_multivirt.csv')
+
+domfreq_isol_singlemulti <- read.csv('../combined_analysis/isolated_domfreq_singlemulti.csv')
+domfreq_isol_multivirt <- read.csv('../combined_analysis/isolated_domfreq_multivirt.csv')
+
+nclust_singlemulti <- get.window.samplesizes(domfreq_clust_singlemulti)
+nclust_multivirt <- get.window.samplesizes(domfreq_clust_multivirt)
+  
+
+nisol_singlemulti <- get.window.samplesizes(domfreq_isol_singlemulti)
+nisol_multivirt <- get.window.samplesizes(domfreq_isol_multivirt)
+
+```
+
+
+#### 7.1 Clustered subset results 
+```{r capsetting, echo=FALSE}
+cap.nclust = paste("\\label{tab:clustered} *Difference in window parameters  in clustered annotations between single and multi-bat audio.*","$Nfiles_{single}$=",nclust_singlemulti[2,2],", $Nfiles_{multi}=$",nclust_singlemulti[1,2],", $Nfiles_{multi \\:virtual}=$",nclust_multivirt[2,2])
+
+cap.nisol = paste("\\label{tab:isolated} *Difference in window parameters  in isolated annotations between single and multi-bat audio.*","$Nfiles_{single}$=",nisol_singlemulti[2,2],", $Nfiles_{multi}=$",nisol_singlemulti[1,2],", $Nfiles_{multi \\:virtual}=$",nisol_multivirt[2,2])
+
+```
+
+```{r clustered, echo=FALSE, tab.cap=cap.nclust}
+library(flextable)
+clusteredwindow.results <- read.csv('../combined_analysis/clustered_window_summary.csv')
+clusteredwindow.results <- clusteredwindow.results[,-1]
+window.colnames <- c("Parameter",
+                     "Difference",
+                     "Permutation test p-value",
+                     "Median difference (2.5%ile)",
+                     "Median difference (97.5%ile)",
+                     "comparison")
+colnames(clusteredwindow.results)<- window.colnames
+
+#singlemulti.wholewindow <- subset(clusteredwindow.results,comparison=='multi-single')
+ft.sm.ww <- flextable(clusteredwindow.results)
+ft.sm.ww <- autofit(ft.sm.ww)
+
+ft.sm.ww
+```
+
+#### 7.2 Isolated subset results 
+
+```{r isolated, echo=FALSE, tab.cap=cap.nisol}
+isolatedwindow.results <- read.csv('../combined_analysis/isolated_window_summary.csv')
+isolatedwindow.results <- isolatedwindow.results[,-1]
+window.colnames <- c("Parameter",
+                     "Difference",
+                     "Permutation test p-value",
+                     "Median difference (2.5%ile)",
+                     "Median difference (97.5%ile)",
+                     "comparison")
+colnames(isolatedwindow.results)<- window.colnames
+
+#singlemulti.wholewindow <- subset(isolatedwindow.results,comparison=='multi-single')
+ft.sm.ww <- flextable(isolatedwindow.results)
+ft.sm.ww <- autofit(ft.sm.ww)
+
+ft.sm.ww
+```
 
 
 
+## 8.0 Calculating estimated Doppler shifts in our study
+
+The amount of Doppler shift in our audio recordings is primarily affected by multiple factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone 3) active Doppler shift compensation carried out by the bats and 4) the acoustic fovea of each individual bat. These factors may combine to give rise to a dominant frequency (DF) max-min range of upto around 3 kHz even when a single bat flies by the microphone. For example, a bat echolocating with a very high acoustic fovea that flies fast will result in a larger DF range than a slow flying bat with the same foveal frequency but flying slower. 
+
+Our simulations recreated the frequency recorded at the micrphone at the 'start' and 'end' of the bat's flight past the microphone. The start position was assumed to be 45 degrees and end position was 135 degrees relative to the microphone (where 90 deg. corresponds to the bat flying exactly perpendicular to the microphone's direction). The speed at the start and end flight positions of the bat was assumed to be between 1.5-4.5 m/s, and the acoustic fovea's of the bat population was assumed to be between 100-111 kHz, matching the range of the study species' *R. euryale/mehelyi*. Figure \@ref(fig:singledomfreqrangesim) shows that our the DF ranges from simulations match the observed DF ranges well for the single bat case.
+
+```{r singledomfreqrangesim, echo=FALSE, fig.cap="\\label{fig:singledomfreqrangesim} Calculated (left) and observed (right) dominant frequency range for a single bat flying past the microphone. The calculated and observed ranges match fairly well, indicating the broad processes behind the observed  dominant frequency range have been captured."}
+include_graphics('../combined_analysis/domfreq_range_single.png')
+```
+
+When two or more bats echolocate in the same volume, it is expected that the DF range will increase because of the unique acoustic fovea's each bat has. What is the range of expected range increase when the two bats echolocate independently however? To understand the expected DF range when multiple bats are flying we simulated the case of two bats echolocating independently in the same volume. The acoustic fovea of both bats was randomly chosen, and so were their start and end speeds. The DF range for the two bat case was thus calculated over a series of 1,000 random parameter combinations to reveal the range of dominant frequency ranges expected in two bat cases. Figure \@ref(fig:multidomfreqsim) shows the dominant frequency ranges expected from single and a pair of bats. The median difference of the multi-single DF ranges is expected to be around 3.9 kHz, even though there is a wide variation in the observed DF ranges. The experimentally observed multi-single DF range difference of ~2 kHz falls within the range difference shown in Figure \@ref(fig:multidomfreqsim), however more detailed parametrisation of the flight speeds and relative positions may lead to a better match of the observed data. 
+
+
+```{r multidomfreqsim, echo=FALSE, fig.cap="\\label{fig:multidomfreqsim} The distribution of dominant frequency ranges expected when a single bat echolocates (left), observed when a single bat (middle), and calculated when two bats fly."}
+include_graphics('../combined_analysis/domfreqrange_singlemultisim.png')
+```
 
 ## References 
 
