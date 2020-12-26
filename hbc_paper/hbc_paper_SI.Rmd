@@ -370,6 +370,20 @@ When two or more bats echolocate in the same volume, it is expected that the DF 
 include_graphics('../combined_analysis/domfreqrange_singlemultisim.png')
 ```
 
+## 9.0 tFM echo-call overlap probabilities
+```{r echocall, echo=FALSE}
+
+# load simulation results
+overlap.probs <- read.csv('associated_docs/2-3bat_tfm_overlap_prob.csv')
+overlap.probs3 <- subset(overlap.probs,num_bats==2)
+tfm.probs <- round(sort(overlap.probs3$tfm_overlap_prob),3)*100
+```
+
+The probability of a tFM echo overlapping with the tFM portion of another bat's call was derived through simulation. The echo/call duration was fixed at 3.4ms and the inter-tFM duration was set to 40 and 50ms. A tFM echo was placed randomly in a time-span between 0-(echo + inter-tFM duration). A tFM call was also randomly placed in the same time-span, and a temporal overlap was checked. The random placement and overlap checking was done 20,000 times to derive a probability of echo-call overlap at the two inter-tFM intervals. 
+
+For *3* bats, an echo may be overlapped by two calls. The probability of echo-call overlap here is between `r tfm.probs[1]-tfm.probs[2]`%. Further details are in the Jupyter notebook titled ```tFM-overlaps.ipynb```.
+
+
 ## References 
 
 
