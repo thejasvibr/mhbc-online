@@ -21,7 +21,7 @@ library(knitr)
 
 ## 1.0 Audio-video synchronisation: hardware and software implementations
 
-The audio and video data were synchronised using the protocol of [@laurijssen2018low]. A Raspberry Pi 3 was used to drive an ON/OFF signal from an GPIO port. This ON/OFF signal was then split between an LED and a circuit linked to capacitor. The capacitor converted the DC ON/OFF signal into positive and negative spikes - thus allowing the signal to be correctly digitised. Not all soundcards are capable of digitising DC voltages, and thus the capacitors helps in making the protocol independent of soundcard type. The entire circuit can be assembled from easily available parts (Figures \@ref(fig:breadboard), \@ref(fig:circuitschematic))
+The audio and video data were synchronised using the protocol of [@laurijssen2018low]. A Raspberry Pi 3 was used to drive an ON/OFF signal from a GPIO port. This ON/OFF signal was then split between an LED and a circuit linked to capacitor. The capacitor converted the DC ON/OFF signal into positive and negative spikes - thus allowing the signal to be correctly digitised. Not all soundcards are capable of digitising DC voltages, and thus the capacitor helps in making the protocol independent of soundcard type. The entire circuit can be assembled from easily available parts (Figures \@ref(fig:breadboard), \@ref(fig:circuitschematic))
 
 ```{r breadboard, echo=FALSE, fig.cap="\\label{fig:breadboard} The experimental realisation of the audio-video synchronisation signal splitting. The components can easily be assembled onto a hobby breadboard, and are easily portable. Here the breadboard is pasted on the inside of a lunch box lid, allowing easy and safe transport of the breadboard and the Raspberry Pi in the box itself."}
 
@@ -91,28 +91,16 @@ fixed. A fixed seed however means that the output signal is the same across all 
 audio and video recordings from different sessions difficult, though not exclude it.
 
 Another important aspect to pay attention to is the ```time_ranges``` variable. In this experiment it was assumed that the camera frame rate
-was going to be 25 Hz, and thus the lowest ON/OFF time was set to 0.08s, which corresponds to a signal with 12.5Hz periodicity of the Nyquist frequency. However, as [@laurijssen2018low] suggest, it would have been better to set the lowest duration to a longer period, which was a few times lower than the Nyquist frequency of 12.5 Hz, eg. 0.2s (5 Hz). In our experiments, the cameras turned out to have a frame rate of 22Hz, which meant that the LED signal was aliased. However, despite the
+was going to be 25 Hz, and thus the lowest ON/OFF time was set to 0.08s, which corresponds to a signal with 12.5Hz periodicity of the Nyquist frequency. However, as @laurijssen2018low suggest, it would have been better to set the lowest duration to a longer period, which was a few times lower than the Nyquist frequency of 12.5 Hz, eg. 0.2s (5 Hz). In our experiments, the cameras turned out to have a frame rate of 22Hz, which meant that the LED signal was aliased. However, despite the
 aliasing, we were still able to synchronise audio and video - showing the robustness of the methodology. 
 
 
 
 
-## 2.0 Video annotation of bat flights in the cave
-The start and end of bat flights, along with the number of bats flying during the period were noted across all recorded video data. A series of pre-defined criterion were used during the annotation, as defined below:
+## 2.0 Video annotation of bat flights in the cave (*Needs cleaning and finalisation from N and Aditya*)
+Manual annotation of the video data was carried out to determine the group sizes of free-flying horseshoe bats in their natural habitat. To annotate, the video feeds from both IR cameras were viewed simultaneously on Shotcut [@shotcut]. The following information was documented from the video: the start and end times of bat flight activity from the burnt in timestamps from either camera 1 or 2 in “yyyy-mm-dd hh:mm:ss” format, frame number, number of bats flying, flight behavior. To have an unbiased approach at annotating video flight behaviors, for a given hour of recording eight random numbers were generated using “star trek”, an online tool, to generate random numbers (https://stattrek.com/statistics/random-number-generator.aspx#error). For each of the random numbers, 2 minutes from the random number were annotated. We defined the start of bat activity as the moment a bat is visible/observed to fly in either camera views. Similarly, the end of bat flight activity was when a bat is not observed in either camera view. In multi-bat contexts that can have dynamic transitions in the number of bats, we annotated the multi-bat activity start and end times with parts of the video that had the maximum number of bats showing flight behaviour. In order to separate one flight activity from another, we ensured a difference of at least 6 frames between successive bat activity annotations. A gap of 6 frames was chosen because it corresponds to a duration of about (240-)273 ms for a frame rate of 22 fps. This time gap corresponds to the length of 2-3 horseshoe bat calls and we considered a gap of this length to be sufficient to separate one event from the next. 
 
-*THIS NEEDS SOME MORE FINALISATION AND WORKING -- BUT PASTING IT IN HERE FOR NOW...*
-
-1. Annotate behaviours by viewing cam1 and cam2 videos playing simultaneously. 
-1. For each annotation row, use the burnt timestamps on either cam1 or cam2 and NEVER both to log the start and end times of observed flight activity. The time is logged in “yyyy-mm-dd hh:mm:ss” format, with frame number in an adjacent column.  
-1. The moment a bat is observed to fly in any camera view, that time is considered as the start time of the activity. Similarly, the moment bat is not observed in either camera view, that time is logged as end of activity. The timestamp to log is chosen from the view that shows most of the behavior that can be observed from the start to the end. - Thinking of scrapping the previous reasoning and introducing - Use camera 2/1 burnt timestamps to log the behaviour as it is the wide angle camera/has clear LED on/off signals for cross-correlation. This way, one will not have to describe another objective way to quantify which of the two views showed most of the behaviour. (A decision is required ASAP)
-1. If there are multiple bats flying and involves several transitions. From 1-2-1-2-1-1-1, choose the parts of the video with maximum number of bats showing flight behaviour to annotate. 
-1. To separate one activity from the next, ensure a difference of at least 6 frames. 6 frames was chosen because it corresponds to a duration of about 240-273 ms. This time gap could have a 2-3 horseshoe bat calls. 
-1. Whenever it is extremely difficult to classify bat events (to 1 bat, 2 or more bats) because of how dynamic (= craziness) the flights of many bats are, drop them from annotating. Instead focus on obtaining a clean data set. 
-1. While generating data set for 8 randomly chosen 2 mins of videos to annotate, use “star trek”, an online tool, to generate random numbers (https://stattrek.com/statistics/random-number-generator.aspx#error)
-Include annotating no flight activity windows (control) to account for potential bats calling from the roost.
-1. For control data set, annotate the parts of video where there are no flying bats observed. These annotations will be used for parameter extraction too and will serve as a measure to account for bats calling from the roost or perching sites in the cave space or the bats that are vocalising just outside the cave space and yet the calls are being picked up by the microphones inside the cave.
-1. On how to annotate the control events: For each annotation, choose 1 second long video start and end timestamps from either camera 1 or camera 2 and never a combination of the two. How many to annotate for each 2 minute window?: Choose at least more than half of the number of bat flight annotations for those 2 minutes. (2 minute with reference to the 8 random selections of 2 minutes of video). 
-
+We prioritized obtaining a clean data set and refrained from annotating extremely difficult bat flight annotations because of how dynamic the group size shifts can be in groups of horseshoe bats flying in a tight cave space like in our field site. We also annotated the parts of video where there are no flying bats observed as control data set. These control data annotations were used for parameter extraction to serve as a measure to account for bats calling from the roost or perching sites in the cave space or the bats that are vocalising just outside the cave space and yet the calls are picked up by the microphones inside the cave. We chose to annotate at least half the number of bat flight annotations and annotated no bat activity for 1 s long. 
 
 
 ## 3.0 Individual call analysis 
@@ -125,7 +113,7 @@ Individual calls were selected from the audio files based on a set of pre-define
 * dB rms measurements made with the 'Contrast' function in Audacity. Highpassing done with the inbuilt highpass filter. The SNR is calculated by difference between the foreground (bat call region) and background (silent region)
 
     1. Load annotation audio file, and delete all non-target channels. 
-    1. View audio in spectrogram mode. Set dynamic range of audio to 60dB. 
+    1. View audio in spectrogram mode. Set dynamic range of spectrogram to 60dB. 
     1. Highpass filter audio file with 12 dB roll off/octave at 80 kHz cutoff frequency
     1. For given audio file, choose  a start point using a random number generator between 0-1. 
     1. Go to that fraction of time corresponding to the length of the annotation audio file 
@@ -353,22 +341,31 @@ ft.sm.ww
 
 
 
-## 8.0 Calculating estimated Doppler shifts in our study
+## 8.0 Calculating expected dominant frequency ranges due to Doppler shift
 
 The amount of Doppler shift in our audio recordings is primarily affected by multiple factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone 3) active Doppler shift compensation carried out by the bats and 4) the acoustic fovea of each individual bat. These factors may combine to give rise to a dominant frequency (DF) max-min range of upto around 3 kHz even when a single bat flies by the microphone. For example, a bat echolocating with a very high acoustic fovea that flies fast will result in a larger DF range than a slow flying bat with the same foveal frequency but flying slower. 
 
-Our simulations recreated the frequency recorded at the micrphone at the 'start' and 'end' of the bat's flight past the microphone. The start position was assumed to be 45 degrees and end position was 135 degrees relative to the microphone (where 90 deg. corresponds to the bat flying exactly perpendicular to the microphone's direction). The speed at the start and end flight positions of the bat was assumed to be between 1.5-4.5 m/s, and the acoustic fovea's of the bat population was assumed to be between 100-111 kHz, matching the range of the study species' *R. euryale/mehelyi*. Figure \@ref(fig:singledomfreqrangesim) shows that our the DF ranges from simulations match the observed DF ranges well for the single bat case.
+```{r, dopplerschematic, echo=FALSE,fig.cap="Schematic showing the simple model used to calculate the expected dominant frequency variation arising from a single bat flying past the microphone. $F_{e}$ is the doppler compensated emitted frequency. $F_{rec \\:start}$ is the received frequency at the start of the flight, $F_{rec \\:end}$ the received frequency at the end of the flight. $v_{start}$ and $v_{end}$ are the speed of the bat at the start and end of the flight. $F_{rec}$ is a function of the emitted frequency, relative flight angle and flight speed at the start and end of the fly by."}
+include_graphics('../combined_analysis/doppler_shift_schematic.png')
+```
+
+
+Our simulations recreated the frequency recorded at the micrphone at the 'start' and 'end' of the bat's flight past the microphone (Figure \@ref(fig:dopplerschematic)). The start position was assumed to be 45 degrees and end position was 135 degrees relative to the microphone (where 90 deg. corresponds to the bat flying exactly perpendicular to the microphone's direction). The speed at the start and end flight positions of the bat was assumed to be between 1.5-4.5 m/s, and the acoustic fovea's of the bat population was assumed to be between 100-111 kHz, matching the range of the study species' *R. euryale/mehelyi*. The frequency recorded at the microphone due to Doppler shift from the bat flying at an angle was calculated by: $\frac{v_{sound}}{v_{sound}-v_{bat}cos(\theta)}$. The bat's Doppler shift compensation was modelled by assuming the bat perfectly compensated for Doppler shift due to it's own flight speed. The $F_{e}$ was calculated at the start and end points as $F_{e}=\frac{F_{o}}{\frac{v_{sound}+v_{bat}}{v_{sound}-v_{bat}}}$, where $v_{bat}$ depended on the flight speed at the start and end points, $v_{sound}=330$m/s, and $F_{o}$ was a randomly chosen value between 100-111 kHz.The DF range was calculated as $DF_{range}=abs(F_{rec\:start}-F_{rec\:end})$. Figure \@ref(fig:singledomfreqrangesim) shows that our the DF ranges from simulations match the observed DF ranges well for the single bat case.
 
 ```{r singledomfreqrangesim, echo=FALSE, fig.cap="\\label{fig:singledomfreqrangesim} Calculated (left) and observed (right) dominant frequency range for a single bat flying past the microphone. The calculated and observed ranges match fairly well, indicating the broad processes behind the observed  dominant frequency range have been captured."}
 include_graphics('../combined_analysis/domfreq_range_single.png')
 ```
 
-When two or more bats echolocate in the same volume, it is expected that the DF range will increase because of the unique acoustic fovea's each bat has. What is the range of expected range increase when the two bats echolocate independently however? To understand the expected DF range when multiple bats are flying we simulated the case of two bats echolocating independently in the same volume. The acoustic fovea of both bats was randomly chosen, and so were their start and end speeds. The DF range for the two bat case was thus calculated over a series of 1,000 random parameter combinations to reveal the range of dominant frequency ranges expected in two bat cases. Figure \@ref(fig:multidomfreqsim) shows the dominant frequency ranges expected from single and a pair of bats. The median difference of the multi-single DF ranges is expected to be around 3.9 kHz, even though there is a wide variation in the observed DF ranges. The experimentally observed multi-single DF range difference of ~2 kHz falls within the range difference shown in Figure \@ref(fig:multidomfreqsim), however more detailed parametrisation of the flight speeds and relative positions may lead to a better match of the observed data. 
+When two or more bats echolocate in the same volume, it is expected that the DF range will increase because of the unique acoustic fovea's each bat has. What is the range of expected range increase when the two bats echolocate independently however? To understand the expected DF range when multiple bats are flying we simulated the case of two bats echolocating independently in the same volume. The acoustic fovea of both bats was randomly chosen, and so were their start and end speeds. The DF range for the two bat case was thus calculated over a series of 1,000 random parameter combinations to reveal the range of dominant frequency ranges expected in two bat cases. In the two bat case, $DF_{range}=max(F_{rec})-min(F_{rec})$ without reference to when or which bat emitted the call. 
+
+Figure \@ref(fig:multidomfreqsim) shows the dominant frequency ranges expected from single and a pair of bats. The median difference of the multi-single DF ranges is expected to be around 3.9 kHz, even though there is a wide variation in the observed DF ranges. The experimentally observed multi-single DF range difference of ~2 kHz falls within the range difference shown in Figure \@ref(fig:multidomfreqsim), however more detailed parametrisation of the flight speeds and relative positions may lead to a better match of the observed data. 
 
 
 ```{r multidomfreqsim, echo=FALSE, fig.cap="\\label{fig:multidomfreqsim} The distribution of dominant frequency ranges expected when a single bat echolocates (left), observed when a single bat (middle), and calculated when two bats fly."}
 include_graphics('../combined_analysis/domfreqrange_singlemultisim.png')
 ```
+
+The code to implement this calculation is in the ```Combined analysis notebook.ipynb``` and its HTML version. 
 
 ## 9.0 tFM echo-call overlap probabilities
 ```{r echocall, echo=FALSE}
@@ -381,7 +378,7 @@ tfm.probs <- round(sort(overlap.probs3$tfm_overlap_prob),3)*100
 
 The probability of a tFM echo overlapping with the tFM portion of another bat's call was derived through simulation. The echo/call duration was fixed at 3.4ms and the inter-tFM duration was set to 40 and 50ms. A tFM echo was placed randomly in a time-span between 0-(echo + inter-tFM duration). A tFM call was also randomly placed in the same time-span, and a temporal overlap was checked. The random placement and overlap checking was done 20,000 times to derive a probability of echo-call overlap at the two inter-tFM intervals. 
 
-For *3* bats, an echo may be overlapped by two calls. The probability of echo-call overlap here is between `r tfm.probs[1]-tfm.probs[2]`%. Further details are in the Jupyter notebook titled ```tFM-overlaps.ipynb```.
+For *3* bats, an echo may be overlapped by two calls. The probability of echo-call overlap here is between `r tfm.probs[1]` to `r tfm.probs[2]`%. Further details are in the Jupyter notebook titled ```tFM-overlaps.ipynb```.
 
 
 ## References 
