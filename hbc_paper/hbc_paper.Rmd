@@ -12,7 +12,7 @@ output:
 
 abstract: Echocating bats emit loud calls and listen for returning echoes to detect their surroundings. When echolocating in groups, bats may not be able to detect their own returning echoes due to the loud calls coming from neighbours. Bats a show a variety of echolocation responses in the presence of such acoustically challenging conditions. To date however, most studies have been performed on low duty-cycle FM bats. High duty-cycle CF-FM bats remain understudied despite the higher chances of call-echo overlap during echolocation. Studying high duty-cycle CF-FM bats has also been hindered by a lack of methods to analyse overlapping calls and a predominance of flightroom and playback studies. We present methods to analyse and extract call parameters from audio with overlapping calls, and study the echolocation of a multiple CF-FM bats in the field. Our results show that bats do not seem to alter their call parameters even in the presence of conspecifics. This lack of response is in contradiction to a previous flightroom study. Our results highlight the robustness of bat echolocation, and the important of studying behaviour in a field setting. 
 
-bibliography: references.bib
+bibliography: hbc-references.bib
 
 # Notes working with Rmarkdown ---> word file
 # managed to get the figure labelling working on the Ubuntu comp thanks to the help of colton @

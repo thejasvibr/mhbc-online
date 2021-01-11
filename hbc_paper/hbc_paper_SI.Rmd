@@ -10,7 +10,7 @@ output:
   pdf_document:
     extra_dependencies: ['float']
 
-bibliography: references.bib
+bibliography: hbc-references.bib
 ---
 
 ```{r echo=FALSE}
