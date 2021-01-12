@@ -200,17 +200,10 @@ Virtual multi bat audio files (Figure \@ref(fig:virtualmultibat)) were created w
 
 The code to execute this function is available in the ```Making virtual multi bat audio.ipynb``` notebook and its HTML printout. 
 
-## 5.0 Group-wise individual call measurements
 
+## 5.0 Temporal subsets: individual call statistical analysis 
 
-```{r indcallwgroupsize, echo=FALSE,fig.cap="\\label{fig:indcallwgroupsize} Individual call measurements according to group size. The low sample sizes in >=2 bat group sizes led us to combine the calls into single and multi categories." }
-include_graphics('../combined_analysis/measurements_and_derivedparams_multipanel_w_groupsize.png')
-
-```
-
-## 6.0 Temporal subsets: individual call statistical analysis 
-
-#### 6.1 'Clustered' data subset results 
+### 5.1 'Clustered' data subset results 
 ```{r clusteredsampsizes, echo=FALSE}
 clustindcalls <- read.csv('../combined_analysis/clustered_indcall.csv')
 clustindcalls.n <- as.data.frame(table(clustindcalls$groupsize))
@@ -227,7 +220,9 @@ msmt.names <- c("CF duration (median ms)", "tFM duration (median ms)", "iFM dura
                 "tFM-CF ratio (median dB)", "iFM-CF ratio (median dB)", "tFM bandwidth (median kHz)", "iFM bandwidth (median kHz)")
 
 pvalues <- round(indcall.analysis$perm_pvalue,2)
+pvalues[4] <- round(indcall.analysis$perm_pvalue[4],3)
 meddiff <- round(indcall.analysis$difference,2)
+meddiff[9] <- round(indcall.analysis$difference[9],3)
 
 meddiff.table<- data.frame(cbind(msmt.names, meddiff, pvalues))
 colnames <- c("Measurement","Difference (Multi-Single)","Permutation test p-value")
@@ -239,7 +234,7 @@ medditab <- autofit(medditab)
 medditab
 ```
 
-#### 6.2 'Isolated' data subset results 
+### 5.2 'Isolated' data subset results 
 
 ```{r isolatedsampsizes, echo=FALSE}
 isolatedindcalls <- read.csv('../combined_analysis/isolated_indcall.csv')
@@ -254,6 +249,8 @@ The low sample size of the multi-bat calls must be kept in mind while interpreti
 indcall.analysis <- read.csv('../combined_analysis/isolated_subset_clusteringbased_bootci.csv')
 
 pvalues <- round(indcall.analysis$perm_pvalue,2)
+pvalues[4] <- round(indcall.analysis$perm_pvalue[4],3)
+
 meddiff <- round(indcall.analysis$difference,2)
 
 meddiff.table<- data.frame(cbind(msmt.names, meddiff, pvalues))
@@ -266,7 +263,7 @@ medditab <- autofit(medditab)
 medditab
 ```
 
-## 7.0 Temporal subsets: window statistical analysis 
+## 6.0 Temporal subsets: window statistical analysis 
 ```{r echo=FALSE}
 get.window.samplesizes <- function(df)
   {
@@ -292,7 +289,7 @@ nisol_multivirt <- get.window.samplesizes(domfreq_isol_multivirt)
 ```
 
 
-#### 7.1 Clustered subset results 
+#### 6.1 Clustered subset results 
 ```{r capsetting, echo=FALSE}
 cap.nclust = paste("\\label{tab:clustered} *Difference in window parameters  in clustered annotations between single and multi-bat audio.*","$Nfiles_{single}$=",nclust_singlemulti[2,2],", $Nfiles_{multi}=$",nclust_singlemulti[1,2],", $Nfiles_{multi \\:virtual}=$",nclust_multivirt[2,2])
 
@@ -319,7 +316,7 @@ ft.sm.ww <- autofit(ft.sm.ww)
 ft.sm.ww
 ```
 
-#### 7.2 Isolated subset results 
+### 6.2 Isolated subset results 
 
 ```{r isolated, echo=FALSE, tab.cap=cap.nisol}
 isolatedwindow.results <- read.csv('../combined_analysis/isolated_window_summary.csv')
@@ -341,7 +338,7 @@ ft.sm.ww
 
 
 
-## 8.0 Calculating expected dominant frequency ranges due to Doppler shift
+## 7.0 Calculating expected dominant frequency ranges due to Doppler shift
 
 The amount of Doppler shift in our audio recordings is primarily affected by multiple factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone 3) active Doppler shift compensation carried out by the bats and 4) the acoustic fovea of each individual bat. These factors may combine to give rise to a dominant frequency (DF) max-min range of upto around 3 kHz even when a single bat flies by the microphone. For example, a bat echolocating with a very high acoustic fovea that flies fast will result in a larger DF range than a slow flying bat with the same foveal frequency but flying slower. 
 
@@ -367,7 +364,7 @@ include_graphics('../combined_analysis/domfreqrange_singlemultisim.png')
 
 The code to implement this calculation is in the ```Combined analysis notebook.ipynb``` and its HTML version. 
 
-## 9.0 tFM echo-call overlap probabilities
+## 8.0 tFM echo-call overlap probabilities
 ```{r echocall, echo=FALSE}
 
 # load simulation results
