@@ -1,6 +1,6 @@
 ---
-title: "FORMAL TITLE to be agreed on"
-author: "Neetash Mysuru Rajagopalachari$^{*}$$^{1}$, Thejasvi Beleyur$^{*}$$^{1}$, Aditya Krishna$^{1,2}$, Holger R Goerlitz$^{1}$; \n $^{*}$: joint first authors; 1: MPI Ornithology, Seewiesen; 2: IISER Mohali"
+title: "High duty-cycle bats in the field do not alter echolocation calls in groups"
+author: "Neetash Mysuru Rajagopalachari$^{*}$$^{1}$, Thejasvi Beleyur$^{*}$$^{1}$, Aditya Krishna$^{1,2}$, Holger R Goerlitz$^{1}$; \n $^{*}$: joint first authors"
    
 
 date: 'Last Updated : `r Sys.Date()`'
@@ -154,13 +154,29 @@ This paper was enabled by a series of open-source packages. Signal analysis, dat
 
 ## 6.0 Results
 
-### 6.1 Individual call analysis
+### 6.1 Individual call measurements
 
 ```{r indcallsampsizes,echo=FALSE}
 indcall <- read.csv('../combined_analysis/indcall_final.csv')
 nindcalls <- as.data.frame(table(indcall$groupsize))
 nmulti_indcall <- nindcalls[1,2]
 nsingle_indcall <- nindcalls[2,2]
+```
+
+```{r include=FALSE, echo=FALSE}
+singleind <- subset(indcall, num_bats==1)
+multiind <- subset(indcall, num_bats>1)
+
+getminmax<-function(X){c(min(X,na.rm=TRUE), max(X,na.rm=TRUE))}
+
+# ifm durns
+single.ifmdurn <- getminmax(singleind$ifm_duration)
+multi.ifmdurn <- getminmax(multiind$ifm_duration)
+
+# tfm durns
+single.tfmdurn <- getminmax(singleind$tfm_duration)
+multi.tfmdurn <- getminmax(multiind$tfm_duration)
+
 ```
 
 ```{r indcallrawdata, echo=FALSE, fig.cap=paste("\\label{fig:indcallrawdata} Measured acoustic parameters for the CF, iFM and tFM components of individual calls emitted under single and multi bat conditions. Each column shows the measurements on a call component, while each row shows a group of related measurements A-C) duration  D-F) spectral measurements G-I) received level J-K) relative FM-CF ratios L-M) FM component bandwidths. $Ncalls_{single}=$",nsingle_indcall, ", $Ncalls_{multi}$=",nmulti_indcall)}
@@ -211,6 +227,11 @@ domfreq_multivirt_whole <- read.csv('../combined_analysis/multivirtmulti_domfreq
 ndomfreq_multivirt_whole <- get.window.samplesizes(domfreq_multivirt_whole)
 
 
+```
+
+```{r domfreqranges,echo=FALSE,fig.cap="\\label{fig:domfreqranges} Measured dominant frequency range (max-min) across flight activities in single-bats, multi-bat and virtual multi-bat conditions. Variation in dominant frequency in single-bat condition arises from the combination of active Doppler-shift compensation by the bat and Doppler-shift due to bat flight past the microphone. The dominant frequency range in multi-bat and virtual multi-bat is larger because of there are more than one bat. The median multi-bat dominant frequency range is greater than single-bat range by 2.2 kHz (p<10-4). Virtual multi-bat and multi-bat median range difference was much lower and negligible at 0.48 kHz (p=0.16)."}
+
+include_graphics('../combined_analysis/domfreqranges.png')
 ```
 
 Multi-single comparisons (Table \@ref(tab:windowsinglemulti)) revealed an increased dominant frequency range in multi bat audio windows by around 2 kHz. The estimated median differences for received level and FM terminal frequency showed no systematic trend, indicating no relative increase or decrease. Subset analysis also revealed similar trends (SI 7.0).

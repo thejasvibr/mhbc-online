@@ -19,7 +19,7 @@ library(knitr)
 
 
 
-## 1.0 Audio-video synchronisation: hardware and software implementations
+## Audio-video synchronisation: hardware and software implementations
 
 The audio and video data were synchronised using the protocol of [@laurijssen2018low]. A Raspberry Pi 3 was used to drive an ON/OFF signal from a GPIO port. This ON/OFF signal was then split between an LED and a circuit linked to capacitor. The capacitor converted the DC ON/OFF signal into positive and negative spikes - thus allowing the signal to be correctly digitised. Not all soundcards are capable of digitising DC voltages, and thus the capacitor helps in making the protocol independent of soundcard type. The entire circuit can be assembled from easily available parts (Figures \@ref(fig:breadboard), \@ref(fig:circuitschematic))
 
@@ -97,15 +97,15 @@ aliasing, we were still able to synchronise audio and video - showing the robust
 
 
 
-## 2.0 Video annotation of bat flights in the cave (*Needs cleaning and finalisation from N and Aditya*)
+## Video annotation of bat flights in the cave (*Needs cleaning and finalisation from N and Aditya*)
 Manual annotation of the video data was carried out to determine the group sizes of free-flying horseshoe bats in their natural habitat. To annotate, the video feeds from both IR cameras were viewed simultaneously on Shotcut [@shotcut]. The following information was documented from the video: the start and end times of bat flight activity from the burnt in timestamps from either camera 1 or 2 in “yyyy-mm-dd hh:mm:ss” format, frame number, number of bats flying, flight behavior. To have an unbiased approach at annotating video flight behaviors, for a given hour of recording eight random numbers were generated using “star trek”, an online tool, to generate random numbers (https://stattrek.com/statistics/random-number-generator.aspx#error). For each of the random numbers, 2 minutes from the random number were annotated. We defined the start of bat activity as the moment a bat is visible/observed to fly in either camera views. Similarly, the end of bat flight activity was when a bat is not observed in either camera view. In multi-bat contexts that can have dynamic transitions in the number of bats, we annotated the multi-bat activity start and end times with parts of the video that had the maximum number of bats showing flight behaviour. In order to separate one flight activity from another, we ensured a difference of at least 6 frames between successive bat activity annotations. A gap of 6 frames was chosen because it corresponds to a duration of about (240-)273 ms for a frame rate of 22 fps. This time gap corresponds to the length of 2-3 horseshoe bat calls and we considered a gap of this length to be sufficient to separate one event from the next. 
 
 We prioritized obtaining a clean data set and refrained from annotating extremely difficult bat flight annotations because of how dynamic the group size shifts can be in groups of horseshoe bats flying in a tight cave space like in our field site. We also annotated the parts of video where there are no flying bats observed as control data set. These control data annotations were used for parameter extraction to serve as a measure to account for bats calling from the roost or perching sites in the cave space or the bats that are vocalising just outside the cave space and yet the calls are picked up by the microphones inside the cave. We chose to annotate at least half the number of bat flight annotations and annotated no bat activity for 1 s long. 
 
 
-## 3.0 Individual call analysis 
+## Individual call analysis 
 
-#### Individual call selection 
+### Individual call selection 
 
 Individual calls were selected from the audio files based on a set of pre-defined search protocol:
 
@@ -131,16 +131,16 @@ Individual calls were selected from the audio files based on a set of pre-define
 Audacity version 2.3.3 was used during the manual call selection.
 
 
-## 4.0 Window analysis 
+##  Window analysis 
 
-#### 4.1 Choosing the 'silent window threshold'
+### Choosing the 'silent window threshold'
 
 A series of manually annotated audio clips were used to set the reference silent window threshold. The manually annotated audio clips were the same as those used to calculate the reference 'silence' segments in the individual call analysis ($N_{files}=406$, min-max duration=0.002-0.03s). The threshold for a window to be chosen as silent was set at 20dB above the maximum measured dB rms of all silent windows. This resulted in any window that was less than -23 dB rms as being considered 'silent'. This is a conservative approach that prevents windows with poor signal-to-noise ratio from being analysed. 
 
 The code to execute this analysis is available in the ```what qualifies as a silent audio segment.ipynb``` notebook and its HTML printout. 
 
 
-#### 4.2 Dominant frequency measurement
+### Dominant frequency measurement
 Unlike typical measures used to quantify echolocation calls like peak frequency or-10 dB frequency, the dominant frequencies provide a glimpse of what may be happening in the presence of multiple calls. 
 
 The dominant frequency was determined with the following steps:
@@ -152,7 +152,7 @@ The dominant frequency was determined with the following steps:
 The code to execute this function is available in the ```inbuilt_measurement_functions.py``` module. 
 
 
-#### 4.3 FM terminal frequency measurement
+###  FM terminal frequency measurement
 
 The FM terminal frequency (Figure \@ref(fig:fmterminal)) is determined in the following steps:
 
@@ -176,7 +176,7 @@ include_graphics('figures/fm_terminal_0_matching_annotaudio_Aditya_2018-08-16_23
 ```
 
 
-#### 4.4 Making virtual multi bat audio files
+### 4.4 Making virtual multi bat audio files
 
 
 ```{r virtualmultibat, echo=FALSE, fig.cap="\\label{fig:virtualmultibat} Example showing the steps involved in creating a virtual multi bat file. Shown here are spectrograms of the first 500ms of two single bat audio files (A), (B), along with the resulting virtual multi bat audio file. Vertical lines delineate 50ms windows that are used for acoustic measurements"}
@@ -201,9 +201,58 @@ Virtual multi bat audio files (Figure \@ref(fig:virtualmultibat)) were created w
 The code to execute this function is available in the ```Making virtual multi bat audio.ipynb``` notebook and its HTML printout. 
 
 
-## 5.0 Temporal subsets: individual call statistical analysis 
+## Individual call measurements: parameter ranges
 
-### 5.1 'Clustered' data subset results 
+```{r indcallsampsizes,echo=FALSE}
+indcall <- read.csv('../combined_analysis/indcall_final.csv')
+```
+
+```{r include=FALSE, echo=FALSE}
+singleind <- subset(indcall, num_bats==1)
+multiind <- subset(indcall, num_bats>1)
+
+getminmax<-function(X){ round(c(min(X,na.rm=TRUE), max(X,na.rm=TRUE)),2)}
+
+# durns
+single.cfdurn <- getminmax(singleind$cf_duration);multi.cfdurn <- getminmax(multiind$cf_duration)
+single.ifmdurn <- getminmax(singleind$ifm_duration);multi.ifmdurn <- getminmax(multiind$ifm_duration)
+single.tfmdurn <- getminmax(singleind$tfm_duration);multi.tfmdurn <- getminmax(multiind$tfm_duration)
+# freqs
+single.cfpfr <- getminmax(singleind$cf_peak_frequency);multi.cfpfr <- getminmax(multiind$cf_peak_frequency)
+single.tfmtemfreq <- getminmax(singleind$tfm_terminal_frequency);multi.tfmtemfreq <- getminmax(multiind$tfm_terminal_frequency)
+single.ifmtemfreq <- getminmax(singleind$ifm_terminal_frequency);multi.ifmtemfreq <- getminmax(multiind$ifm_terminal_frequency)
+# reclevel
+single.cflevel <- getminmax(singleind$cf_dbrms);multi.cflevel <- getminmax(multiind$cf_dbrms)
+single.tfmlevel <- getminmax(singleind$tfm_dbrms);multi.tfmlevel <- getminmax(multiind$tfm_dbrms)
+single.ifmlevel <- getminmax(singleind$ifm_dbrms);multi.ifmlevel <- getminmax(multiind$ifm_dbrms)
+# cf-ratios
+single.tfmcf <- getminmax(singleind$tfm.cf_dbratio);multi.tfmcf <- getminmax(multiind$tfm.cf_dbratio)
+single.ifmcf <- getminmax(singleind$ifm.cf_dbratio);multi.ifmcf <- getminmax(multiind$ifm.cf_dbratio)
+# fm bandwidths 
+single.tfmbw <- getminmax(singleind$tfm_bw);multi.tfmbw <- getminmax(multiind$tfm_bw)
+single.ifmbw <- getminmax(singleind$ifm_bw);multi.ifmbw <- getminmax(multiind$ifm_bw)
+
+```
+
+|Parameter name                  | Single-bat range (min-max)                        | Multi-bat range (min-max)                       |
+|--------------------------------|---------------------------------------------------|-------------------------------------------------|
+|CF duration (ms)                | `r single.cfdurn[1]`-`r single.cfdurn[2]`         |  `r multi.cfdurn[1]`-`r multi.cfdurn[2]`      |
+|tFM duration (ms)               | `r single.tfmdurn[1]`-`r single.tfmdurn[2]`       |  `r multi.tfmdurn[1]`-`r multi.tfmdurn[2]`    |
+|iFM duration (ms)               | `r single.ifmdurn[1]`-`r single.ifmdurn[2]`       |  `r multi.ifmdurn[1]`-`r multi.ifmdurn[2]`    |
+|CF peak frequency  (kHz)        | `r single.cfpfr[1]`-`r single.cfpfr[2]`           |  `r multi.cfpfr[1]`-`r multi.cfpfr[2]`      |
+|tFM lower frequency  (kHz)      | `r single.tfmtemfreq[1]`-`r single.tfmtemfreq[2]` |  `r multi.tfmtemfreq[1]`-`r multi.tfmtemfreq[2]`|
+|iFM lower frequency  (kHz)      | `r single.ifmtemfreq[1]`-`r single.ifmtemfreq[2]` |  `r multi.ifmtemfreq[1]`-`r multi.ifmtemfreq[2]`|
+|CF level  (dB RMS)      | `r single.cflevel[1]`-`r single.cflevel[2]` |  `r multi.cflevel[1]`-`r multi.cflevel[2]`|
+|tFM level  (dB RMS)      | `r single.tfmlevel[1]`-`r single.tfmlevel[2]` |  `r multi.tfmlevel[1]`-`r multi.tfmlevel[2]`|
+|iFM level  (dB RMS)      | `r single.ifmlevel[1]`-`r single.ifmlevel[2]` |  `r multi.ifmlevel[1]`-`r multi.ifmlevel[2]`|
+|tFM-CF ratio (dB)        | `r single.tfmcf[1]`-`r single.tfmcf[2]` |  `r multi.tfmcf[1]`-`r multi.tfmcf[2]`|
+|iFM-CF ratio (dB)        | `r single.ifmcf[1]`-`r single.ifmcf[2]` |  `r multi.ifmcf[1]`-`r multi.ifmcf[2]`|
+|tFM bandwidth (kHz)        | `r single.tfmbw[1]`-`r single.tfmbw[2]` |  `r multi.tfmbw[1]`-`r multi.tfmbw[2]`|
+|iFM bandwidth (kHz)        | `r single.ifmbw[1]`-`r single.ifmbw[2]` |  `r multi.ifmbw[1]`-`r multi.ifmbw[2]`|
+
+##  Temporal subsets: individual call statistical analysis 
+
+### 'Clustered' data subset results 
 ```{r clusteredsampsizes, echo=FALSE}
 clustindcalls <- read.csv('../combined_analysis/clustered_indcall.csv')
 clustindcalls.n <- as.data.frame(table(clustindcalls$groupsize))
@@ -234,7 +283,7 @@ medditab <- autofit(medditab)
 medditab
 ```
 
-### 5.2 'Isolated' data subset results 
+### 'Isolated' data subset results 
 
 ```{r isolatedsampsizes, echo=FALSE}
 isolatedindcalls <- read.csv('../combined_analysis/isolated_indcall.csv')
@@ -263,7 +312,7 @@ medditab <- autofit(medditab)
 medditab
 ```
 
-## 6.0 Temporal subsets: window statistical analysis 
+## Temporal subsets: window statistical analysis 
 ```{r echo=FALSE}
 get.window.samplesizes <- function(df)
   {
@@ -289,7 +338,7 @@ nisol_multivirt <- get.window.samplesizes(domfreq_isol_multivirt)
 ```
 
 
-#### 6.1 Clustered subset results 
+###  Clustered subset results 
 ```{r capsetting, echo=FALSE}
 cap.nclust = paste("\\label{tab:clustered} *Difference in window parameters  in clustered annotations between single and multi-bat audio.*","$Nfiles_{single}$=",nclust_singlemulti[2,2],", $Nfiles_{multi}=$",nclust_singlemulti[1,2],", $Nfiles_{multi \\:virtual}=$",nclust_multivirt[2,2])
 
@@ -316,7 +365,7 @@ ft.sm.ww <- autofit(ft.sm.ww)
 ft.sm.ww
 ```
 
-### 6.2 Isolated subset results 
+### Isolated subset results 
 
 ```{r isolated, echo=FALSE, tab.cap=cap.nisol}
 isolatedwindow.results <- read.csv('../combined_analysis/isolated_window_summary.csv')
@@ -338,12 +387,12 @@ ft.sm.ww
 
 
 
-## 7.0 Calculating expected dominant frequency ranges due to Doppler shift
+## Calculating expected dominant frequency ranges due to Doppler shift
 
 The amount of Doppler shift in our audio recordings is primarily affected by multiple factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone 3) active Doppler shift compensation carried out by the bats and 4) the acoustic fovea of each individual bat. These factors may combine to give rise to a dominant frequency (DF) max-min range of upto around 3 kHz even when a single bat flies by the microphone. For example, a bat echolocating with a very high acoustic fovea that flies fast will result in a larger DF range than a slow flying bat with the same foveal frequency but flying slower. 
 
 ```{r, dopplerschematic, echo=FALSE,fig.cap="Schematic showing the simple model used to calculate the expected dominant frequency variation arising from a single bat flying past the microphone. $F_{e}$ is the doppler compensated emitted frequency. $F_{rec \\:start}$ is the received frequency at the start of the flight, $F_{rec \\:end}$ the received frequency at the end of the flight. $v_{start}$ and $v_{end}$ are the speed of the bat at the start and end of the flight. $F_{rec}$ is a function of the emitted frequency, relative flight angle and flight speed at the start and end of the fly by."}
-include_graphics('../combined_analysis/doppler_shift_schematic.png')
+include_graphics('figures/doppler_shift_schematic.png')
 ```
 
 
@@ -364,7 +413,7 @@ include_graphics('../combined_analysis/domfreqrange_singlemultisim.png')
 
 The code to implement this calculation is in the ```Combined analysis notebook.ipynb``` and its HTML version. 
 
-## 8.0 tFM echo-call overlap probabilities
+## tFM echo-call overlap probabilities
 ```{r echocall, echo=FALSE}
 
 # load simulation results
