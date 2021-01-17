@@ -4,8 +4,10 @@ This repo holds the code, processed data and results in the manuscript
 
 *"High duty-cycle bats in the field do not alter echolocation calls when flying in groups"* 
 
-Authors : Neetash Mysuru Rajagopalachari*^1, Thejasvi Beleyur*^1, Aditya Krishna^1^2, Holger R Goerlitz^1
+Authors : Neetash Mysuru Rajagopalachari*<sup>1</sup>, Thejasvi Beleyur*<sup>1</sup>, Aditya Krishna<sup>1,2</sup>, Holger R Goerlitz<sup>1</sup>
 
 *: joint first authors
-1: Acoustic and Functional Ecology, Max-Planck Institute for Ornithology, Seewiesen, Germany 
-2: Indian Institute of Science Education and Research Mohali, Mohali, India 
+
+<sup>1</sup>: Acoustic and Functional Ecology, Max-Planck Institute for Ornithology, Seewiesen, Germany 
+
+<sup>2</sup>: Indian Institute of Science Education and Research Mohali, Mohali, India 
