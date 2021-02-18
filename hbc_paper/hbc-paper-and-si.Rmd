@@ -131,7 +131,7 @@ In analogy to CF peak frequency range in the individual call analysis, we first 
 
 To understand the theoretically expected dominant frequency range from single and multi bat flights, (and thus the expected range difference) we also performed simulations quantifying Doppler shift and Doppler shift compensation parametrised by the observed data (SI \@ref(simdomfreqranges) for details of simulation and results). Briefly we simulated a Doppler-shift compensating bat emitting frequencies between 100-111 kHz, flying past a microphone at various speeds between 1.5-4.5 m/s. The dominant frequency range was calculated as the absolute difference between the frequency recorded by the microphone at the beginning of the flight and the end of the flight. The dominant frequency range estimates from the simulations informed the interpretation of the observed data.
 
-The received level and lowest frequency measurements resulted in multiple values per flight-activity audio (one value per window). The measurements from one flight-activity audio are potentially correlated and we accounted for this potential flight-activity level pseudo-replication by repeated random subsampling followed by median difference calculation. To estimate the median difference between conditions we randomly chose one measurement value per flight activity audio for the single-bat, multi-bat and virtual-multi-bat observations. The median difference between 1) multi-bat and single-bat and 2) multi-bat and virtual multi bat conditions were calculated and followed by the next subsampling round. We performed 10,000 such subsampling iterations, and report the 95-percentile range of median differences in received level and lowest frequency. No tests were run on the median difference estimates obtained for received level and terminal frequency.
+The received level and lowest frequency measurements resulted in multiple values per flight-activity audio (one value per window). The measurements from one flight-activity audio are potentially correlated and we accounted for this potential flight-activity level pseudo-replication by repeated random subsampling followed by median difference calculation. To estimate the median difference between conditions we randomly chose one measurement value per flight activity audio for the single-bat, multi-bat and virtual-multi-bat observations. The median difference between 1) multi-bat and single-bat and 2) multi-bat and virtual multi bat conditions were calculated and followed by the next subsampling round. We performed 10,000 such subsampling iterations, and report the 95-percentile range of median differences in received level and lowest frequency. No tests were run on the median difference estimates obtained for received level and lower frequency.
 
 To account for temporal pseudo-replication in our study, we also repeated the entire window analysis using clustered and isolated subsets as described in section \@ref(indcallstatanalysis).
 
@@ -259,7 +259,7 @@ The results of both window-analysis reveals a consistency between the isolated a
 
 We quantified the difference in horseshoe bat echolocation calls when alone and with conspecifics in the field. Our results do not support a biologically meaningful difference in echolocation calls with reference to group size for all of the call parameters measured using two different approaches. This may seem somewhat unexpected, especially considering the fact that bats in our field site were flying in an enclosed reverberant volume - which would only amplify the problem of masking in multi-bat echolocation. We interpret our results below in more detail.
 
-To address the problem of analyzing calls that overlap in time and frequency, we introduced two automated analyses that can be performed on audio recordings of multiple CF-FM bats. First, we performed automated individual call analyses using the open-source ```itsfm``` package allows call component segmentation based on rate of frequency change in a sound. This frequency-modulation-based segmentation performs better than filtering around the peak frequency and results in more accurate CF-FM call component segmentation, and thus better measurements. [@itsfmcitation]. Second, to analyse audio with overlapping calls, we measured the overall acoustic parameters of short audio windows without assigning the measurements to individual calls. While coarser in time than the individual call analysis, this window-based approach complements the individual call analyses by returning related measurements such as FM terminal frequency and dominant frequency range.
+To address the problem of analyzing calls that overlap in time and frequency, we introduced two automated analyses that can be performed on audio recordings of multiple CF-FM bats. First, we performed automated individual call analyses using the open-source ```itsfm``` package allows call component segmentation based on rate of frequency change in a sound. This frequency-modulation-based segmentation performs better than filtering around the peak frequency and results in more accurate CF-FM call component segmentation, and thus better measurements. [@itsfmcitation]. Second, to analyse audio with overlapping calls, we measured the overall acoustic parameters of short audio windows without assigning the measurements to individual calls. While coarser in time than the individual call analysis, this window-based approach complements the individual call analyses by returning related measurements such as FM lower frequency and dominant frequency range.
 
 
 ```{r echo=FALSE}
@@ -276,7 +276,7 @@ Our data does not support CF frequency shifting in groups. If bats were to show 
 ```{r echo=FALSE}
 # the i/tFM components, bandwidth
 ```
-The FM component is likely used for ranging and undergoes large variation as bats approach objects [@Fenton2014]. Frequency-changes in group flying FM-bats could indicate a JAR, but could also be a response to the physical presence of other bats in the vicinity [@cvikel2015board;@fawcett2015clutter]. CF-FM bats also show alterations in their tFM as they approach and land [@tian1997echolocation;@schoeppler2018precise;@Fenton2014], and may be expected to respond to conspecifics like FM-bats in groups. Fawcett et al. (2015) found that the tFM minimum frequency (-10 dB call peak frequency) increase by 5 kHz on average in pairs. In contrast, we only found a drop by ~1 kHz of the tFM lower frequency (-10 dB tFM peak frequency) and an increase by maximally 1.8 kHz of tFM bandwidth. Our window analysis revealed no systematic differences in terminal frequency estimates between single-bat and multi-bat situations. Both FM and CF-FM bats also change call duration in the presence of conspecifics and noise [@cvikel2015board;@amichai2015calling;@fawcett2015echolocation;@lu2020echolocating@gomes2020individual]. While we found only found an increase in tFM duration by 0.1 ms, previous studies found 0.6-1.8 ms. @fawcett2015echolocation found an average increase in tFM duration by 1.8 ms in pairs, while we find a slight median increase by about 0.1 ms in multi-bat calls. In another study with artifical playbacks, @lu2020echolocating found an increase of 0.6ms in comparison to calls in silence. An increased tFM duration may provide an increase in in echo detection [@amichai2015calling;@luo2015linking]. The current increase in duration corresponds to a negligible fraction (~5%), and is unlikely to have any major sensory implications. Compared to previous studies, our effects are small, and unlikely to have biological relevance.
+The FM component is likely used for ranging and undergoes large variation as bats approach objects [@Fenton2014]. Frequency-changes in group flying FM-bats could indicate a JAR, but could also be a response to the physical presence of other bats in the vicinity [@cvikel2015board;@fawcett2015clutter]. CF-FM bats also show alterations in their tFM as they approach and land [@tian1997echolocation;@schoeppler2018precise;@Fenton2014], and may be expected to respond to conspecifics like FM-bats in groups. Fawcett et al. (2015) found that the tFM minimum frequency (-10 dB call peak frequency) increase by 5 kHz on average in pairs. In contrast, we only found a drop by ~1 kHz of the tFM lower frequency (-10 dB tFM peak frequency) and an increase by maximally 1.8 kHz of tFM bandwidth. Our window analysis revealed no systematic differences in lower frequency estimates between single-bat and multi-bat situations. Both FM and CF-FM bats also change call duration in the presence of conspecifics and noise [@cvikel2015board;@amichai2015calling;@fawcett2015echolocation;@lu2020echolocating@gomes2020individual]. While we found only found an increase in tFM duration by 0.1 ms, previous studies found 0.6-1.8 ms. @fawcett2015echolocation found an average increase in tFM duration by 1.8 ms in pairs, while we find a slight median increase by about 0.1 ms in multi-bat calls. In another study with artifical playbacks, @lu2020echolocating found an increase of 0.6ms in comparison to calls in silence. An increased tFM duration may provide an increase in in echo detection [@amichai2015calling;@luo2015linking]. The current increase in duration corresponds to a negligible fraction (~5%), and is unlikely to have any major sensory implications. Compared to previous studies, our effects are small, and unlikely to have biological relevance.
 
 ```{r echo=FALSE}
 # The received level story -- needs a bit more work
@@ -323,16 +323,13 @@ Study design and conception: NMR, TB; Data collection: AK, NMR, TB;  Audio and v
 
 ### Audio-video synchronisation: hardware and software implementations {#avmatching}
 
-The audio and video data were synchronised using the protocol of [@laurijssen2018low]. A Raspberry Pi 3 was used to drive an ON/OFF signal from a GPIO port. This ON/OFF signal was then split between an LED and a circuit linked to capacitor. The capacitor converted the DC ON/OFF signal into positive and negative spikes - thus allowing the signal to be correctly digitised. Not all soundcards are capable of digitising DC voltages, and thus the capacitor helps in making the protocol independent of soundcard type. The entire circuit can be assembled from easily available parts (Figures \@ref(fig:breadboard), \@ref(fig:circuitschematic))
+The audio and video data were synchronised using the protocol of [@laurijssen2018low]. A Raspberry Pi 3 was used to drive an ON/OFF signal from a GPIO port. This ON/OFF signal was then split between an LED and a circuit linked to capacitor. The capacitor converted the DC ON/OFF signal into positive and negative spikes - thus allowing the signal to be correctly digitised. Not all soundcards are capable of digitising DC voltages, and thus the capacitor helps in making the protocol independent of soundcard type. The entire circuit can be assembled from easily available parts (Figure \@ref(fig:breadboardschem))
 
-```{r breadboard, echo=FALSE, fig.cap="\\label{fig:breadboard} The experimental realisation of the audio-video synchronisation signal splitting. The components can easily be assembled onto a hobby breadboard, and are easily portable. Here the breadboard is pasted on the inside of a lunch box lid, allowing easy and safe transport of the breadboard and the Raspberry Pi in the box itself."}
+```{r breadboardschem, echo=FALSE, fig.cap="\\label{fig:breadboardschem} Top: The experimental realisation of the audio-video synchronisation signal splitting. The components can easily be assembled onto a hobby breadboard, and are easily portable. Here the breadboard is pasted on the inside of a lunch box lid, allowing easy and safe transport of the breadboard and the Raspberry Pi in the box itself. Bottom: The circuit plan of the synchronisation signal splitter"}
 
-include_graphics('associated_docs/breadboard_circuit_trim_labelled.png')
+include_graphics('associated_docs/breadboard_and_circuit.png')
 ```
 
-```{r circuitschematic, echo=FALSE, fig.cap='\\label{fig:circuitschematic} The circuit plan of the synchronisation signal splitter shown in Figure \\@ref(fig:breadboard)'}
-include_graphics('associated_docs/rpi_circuit.png')
-```
 
 The code to drive the GPIO port runs on Python 2 (and should also run on Python 3). For best results the python file 
 can be set to automatically run on boot-up. This makes the synchronisation protocol field-friendly, and reduces the need
@@ -396,9 +393,7 @@ Video from both the cameras covered most parts of the cave except the roosting s
 We prioritized obtaining a clean data set and refrained from annotating extremely difficult bat flight annotations because of how dynamic the group size shifts could be.
 
 
-### Individual call analysis 
-
-#### Individual call selection {#indcallprotocol}
+### Individual call analysis {#indcallprotocol}
 
 Individual calls were selected from the audio files based on a set of pre-defined search protocol:
 
@@ -424,9 +419,7 @@ Individual calls were selected from the audio files based on a set of pre-define
 Audacity version 2.3.3 was used during the manual call selection.
 
 
-###  Windowed call analysis 
-
-#### Making windows {#windowdetails}
+###  Windowed call analysis {#windowdetails}
 Each flight activity audio was split into consecutive 50ms windows. All tail-end audio that was <50 ms was discarded. 
 
 #### Choosing the 'silent window threshold' {#silentwindow}
@@ -448,27 +441,22 @@ The dominant frequency was determined with the following steps:
 The code to execute this function is available in the ```inbuilt_measurement_functions.py``` module. 
 
 
-####  FM terminal frequency measurement {#lowestfreqdetails}
+####  FM lower frequency measurement {#lowestfreqdetails}
 
-The FM terminal frequency (Figure \@ref(fig:fmterminal)) is determined in the following steps:
+The FM lower frequency (Figure \@ref(fig:fmterminal)) is determined in the following steps:
 
 1. Make spectrogram of the audio window (512 samples FFT, 256 samples overlap). 
 1. Identify all spectrogram ‘pixels’ in the FM frequency band that are above the baseline level. The FM bandwidth was defined as ranging from 70 kHz to 98 kHz. The baseline power level across pixels was calculated by calculating the 95%ile value of power in the frequency band below 70 kHz, i.e., the part of the spectrogram without any bat calls. All pixels whose power was 46 dB above the baseline power level and whose frequency was within 70 - 98 kHz were considered valid FM pixels
 1. Identify contiguous clusters of FM pixels. These clusters represent single iFM or tFM components of calls. 
 1. From the identified continuous clusters, extract the lowest frequency pixel in a cluster
 
-Given the current parameter values used for our analysis, the terminal frequency measurements have a spectral resolution of 488 Hz.
+Given the current parameter values used for our analysis, the lower frequency measurements have a spectral resolution of 488 Hz.
 
 The code to execute this function is available in the ```inbuilt_measurement_functions.py``` module. 
 
-```{r, fmterminal, echo=FALSE,fig.cap="\\label{fig:fmterminal}Example showing extracted FM terminal frequencies from the spectrogram of a 50ms window. The method allows extraction of terminal frequencies in the presence of multiple overlapping calls, though it doesn't allow discrimination of iFM and tFM components "}
+```{r, fmterminal, echo=FALSE,fig.cap="\\label{fig:fmterminal}Example showing extracted FM lower frequencies from the spectrogram of a 50ms window. The method allows extraction of lower frequencies in the presence of multiple overlapping calls, though it doesn't allow discrimination of iFM and tFM components "}
 
 include_graphics('figures/fm_terminal_0_matching_annotaudio_Aditya_2018-08-16_2324_231_hp..png')
-
-#\begin{figure}[H]
-#  \includegraphics{figures/fm_terminal_0_matching_annotaudio_Aditya_2018-08-16_2324_231_hp..png}
-#  \caption{Example showing extracted FM terminal frequencies from the spectrogram of a 50ms window. The method allows extraction of terminal frequencies in the presence of multiple overlapping calls, #though it doesn't allow discrimination of iFM and tFM components}
-#\end{figure}
 ```
 
 
