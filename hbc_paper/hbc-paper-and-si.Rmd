@@ -456,7 +456,7 @@ The code to execute this function is available in the ```inbuilt_measurement_fun
 
 ```{r, fmterminal, echo=FALSE,fig.cap="\\label{fig:fmterminal}Example showing extracted FM lower frequencies from the spectrogram of a 50ms window. The method allows extraction of lower frequencies in the presence of multiple overlapping calls, though it doesn't allow discrimination of iFM and tFM components "}
 
-include_graphics('figures/fm_terminal_0_matching_annotaudio_Aditya_2018-08-16_2324_231_hp..png')
+include_graphics('figures/fm_lowerfreqs.png')
 ```
 
 
@@ -465,7 +465,7 @@ include_graphics('figures/fm_terminal_0_matching_annotaudio_Aditya_2018-08-16_23
 
 ```{r virtualmultibat, echo=FALSE, fig.cap="\\label{fig:virtualmultibat} Example showing the steps involved in creating a virtual multi bat file. Shown here are spectrograms of the first 500ms of two single bat audio files (A), (B), along with the resulting virtual multi bat audio file. Vertical lines delineate 50ms windows that are used for acoustic measurements"}
 
-include_graphics('figures/figX_virtualmultibat.png')
+include_graphics('figures/virtual_multibat_schematic.png')
 
 #\begin{figure}[H]
 #    \includegraphics{figures/figX_virtualmultibat.png}

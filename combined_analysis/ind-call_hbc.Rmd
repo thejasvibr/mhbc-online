@@ -1,0 +1,460 @@
+---
+title: "Individual call analysis with LM/Ms"
+author: "Thejasvi Beleyur"
+date: "3/3/2021"
+output: html_document
+---
+
+This notebook will detail the use of bayesian linear models and mixed models to 
+quantify the difference between single and multi-bat call properties. 
+
+```{r loading, echo=T, warning=F,message=F,results='hide'}
+
+library(arm)
+library(coda)
+library(lme4)
+library(stringi)
+library(stringr)
+set.seed(82319)
+d <- read.csv('../individual_call_analysis/analysis/one_call_per_row_2020-12-17.csv')
+# create a single/multi-bat categorical variable
+d['multi_bat'] <- factor(d['num_bats']>1)
+d['annot_id'] <- stri_sub(d$video_annot_id,8,-1)
+d['annot_id'] <- str_replace_all(d$annot_id, '21502300','2123')
+# sort the dataset by time first
+time_ordering <- stri_order(d$annot_id,numeric=TRUE)
+d_tordered <- d[time_ordering,]
+# - is there an influence of the recording hour? 
+split.and.join <- function(x){
+  splitx <- str_split(x,'_')
+  jointx <- paste(splitx[[1]][1],'_',splitx[[1]][2],sep='')
+  jointx}
+d_tordered$rechour <- sapply(d_tordered$annot_id,split.and.join)
+
+# also scale up some of the measurements into more meaningful units
+# -- here we'll multiply by 10^3 to convert s to ms
+d_tordered$tfm_duration <- d_tordered$tfm_duration*10^3
+d_tordered$ifm_duration <- d_tordered$ifm_duration*10^3
+d_tordered$cf_duration <- d_tordered$cf_duration*10^3
+# convert Hz to kHz
+d_tordered$tfm_terminal_frequency <- d_tordered$tfm_terminal_frequency * 10^-3
+d_tordered$ifm_terminal_frequency <- d_tordered$ifm_terminal_frequency * 10^-3
+d_tordered$cf_peak_frequency <- d_tordered$cf_peak_frequency*10^-3
+# number of simulations to get from the posterior distribution
+num_post <- 5000
+# convenience function 
+get.hpd <- function(x,prange=0.93){HPDinterval(as.mcmc(x),prob=prange)}
+```
+
+The general approach in this notebook will be to run a linear mixed model with the following structure $Parameter$~$group\:status$, where $group\:status + (1|recoring\:hour)$ is either single or multi-bat, and $(1|recording\:hour)$ is the random intercept to control for multiple recordings in the same time period.
+
+## Duration parameters
+
+### tFM duration 
+```{r tfm-durn}
+tfmdurn.nona <- d_tordered[!is.na(d_tordered$tfm_duration),]
+tfmdurn.formula <- formula(tfm_duration~multi_bat+(1|rechour))
+tfmdurn.lmm <- lmer(tfmdurn.formula, data=tfmdurn.nona)
+# perform residual analysis 
+par(mfrow=c(1,2))
+plot(tfmdurn.nona$multi_bat,resid(tfmdurn.lmm)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(tfmdurn.lmm));qqline(resid(tfmdurn.lmm))
+
+# the top section of the qqplot shows some deviation - what if we get rid of the 'problematic' datapoints, and check if the estimates
+# are affected
+good_preds <- resid(tfmdurn.lmm)<=quantile(resid(tfmdurn.lmm),0.75)
+tfmdurn.good <- tfmdurn.nona[good_preds,]
+tfmdurn.lmm2 <- lmer(tfmdurn.formula, data=tfmdurn.good)
+
+par(mfrow=c(1,3))
+plot(tfmdurn.good$multi_bat,resid(tfmdurn.lmm2)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(tfmdurn.lmm2));qqline(resid(tfmdurn.lmm2))
+qqnorm(ranef(tfmdurn.lmm)$rechour$`(Intercept)`);qqline(ranef(tfmdurn.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+
+The fixed effects don't seem to change too much with or without the 'problematic' data points leading to deviant residuals, and so I'd rather keep the full data - and present the posterior estimates of the coefficients. 
+
+```{r tfmdurn.post}
+tfmdurn.sim <- sim(tfmdurn.lmm, n.sim=num_post)
+tfmdurn.fixefs.hpd <- round(apply(fixef(tfmdurn.sim),2,get.hpd),2)
+tfmdurn.rel.increase <- (fixef(tfmdurn.sim)[,1]+fixef(tfmdurn.sim)[,2])/fixef(tfmdurn.sim)[,1]
+tfmdurn.rel.hpd <- round(get.hpd(tfmdurn.rel.increase),2)
+```
+Multi-bat tFMs are `r tfmdurn.fixefs.hpd[1,2]`-`r tfmdurn.fixefs.hpd[2,2]` ms longer than in single-bat calls. The overall relative increase in tFM duration is between `r tfmdurn.rel.hpd`, indicating a scenario with no or slight increase in duration. 
+
+## iFM duration 
+
+```{r ifmdurn}
+ifmdurn.nona <- d_tordered[!is.na(d_tordered$ifm_duration),]
+ifmdurn.formula <- formula(ifm_duration~multi_bat+(1|rechour))
+ifmdurn.lmm <- lmer(ifmdurn.formula, data=ifmdurn.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+plot(ifmdurn.nona$multi_bat,resid(ifmdurn.lmm)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(ifmdurn.lmm));qqline(resid(ifmdurn.lmm)) # the residuals fall very close to the qqline!
+qqnorm(ranef(ifmdurn.lmm)$rechour$`(Intercept)`);qqline(ranef(ifmdurn.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+The assumptions are met pretty well, and now we can generate the posterior distribution of the coefficients. There seem to be no random effects in place.
+
+```{r ifmdurn.sim}
+ifmdurn.sim <- sim(ifmdurn.lmm, n.sim=num_post)
+
+ifmdurn.fixefs.hpd <- round(apply(fixef(ifmdurn.sim),2,get.hpd),2)
+ifmdurn.rel.increase <- (fixef(ifmdurn.sim)[,1]+fixef(ifmdurn.sim)[,2])/fixef(ifmdurn.sim)[,1]
+ifmdurn.rel.hpd <- round(get.hpd(ifmdurn.rel.increase),2)
+```
+The increase in iFM duration is between `r ifmdurn.fixefs.hpd[,2]` ms. The relative increase in iFM duration of multi-bat calls is also somewhat unclear between `r ifmdurn.rel.hpd[1]`-`r ifmdurn.rel.hpd[2]` times that of single bat calls.
+
+## CF duration 
+```{r cf-durn}
+cfdurn.nona <- d_tordered[!is.na(d_tordered$cf_duration),]
+cfdurn.formula <- formula(cf_duration~multi_bat+(1|rechour))
+cfdurn.lmm <- lmer(cfdurn.formula, data=cfdurn.nona)
+# perform residual analysis 
+par(mfrow=c(1,2))
+plot(cfdurn.nona$multi_bat,resid(cfdurn.lmm)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(cfdurn.lmm));qqline(resid(cfdurn.lmm))
+
+
+```
+
+The residuals are off, and I also think it may have to do with the distribution of very long and short CF durations in general. Let's try to transform the CF duration and see if it improves the model fit. 
+
+```{r cf-transform, warning=F}
+# having tried the ln and sqrt transformations, the inverse seems to work best:
+# https://www.itl.nist.gov/div898/handbook/pmd/section6/pmd633.htm
+cfdurn.nona$invcfdurn <- 1/(cfdurn.nona$cf_duration)
+cfdurn.lmm2 <- lmer(invcfdurn~multi_bat+(1|rechour), data=cfdurn.nona)
+
+par(mfrow=c(1,3))
+scatter.smooth(cfdurn.nona$multi_bat,resid(cfdurn.lmm2)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(cfdurn.lmm2));qqline(resid(cfdurn.lmm2))
+qqnorm(ranef(cfdurn.lmm2)$rechour$`(Intercept)`);qqline(ranef(cfdurn.lmm2)$rechour$`(Intercept)`,main='random effects') 
+
+
+```
+The residuals fit well, let us now proceed to generate the posterior distribution. 
+
+```{r cfdurn-post}
+
+cfdurn.sim <- sim(cfdurn.lmm2, n.sim=num_post)
+
+cfdurn.fixefs.hpd <- round(apply(fixef(cfdurn.sim),2,get.hpd),2)
+cfdurn.means.multi <- round((1/(fixef(cfdurn.sim)[,1]+fixef(cfdurn.sim)[,2])),2)
+cfdurn.means.single <- round((1/fixef(cfdurn.sim)[,1]),2)
+cfdurn.rel.increase <- cfdurn.means.multi/cfdurn.means.single
+cfdurn.diff <- cfdurn.means.multi-cfdurn.means.single
+cfdurn.diff.hpd <- get.hpd(cfdurn.diff)
+
+
+cfdurn.rel.hpd <- round(get.hpd(cfdurn.rel.increase),2)
+cfdurn.mean.single <- round(mean(cfdurn.means.single),2)
+cfdurn.single.hpd <- get.hpd(cfdurn.means.single)
+cfdurn.mean.multi <- round(mean(cfdurn.means.multi),2)
+cfdurn.multi.hpd <- get.hpd(cfdurn.means.multi)
+```
+The mean for CF duration for single bats is `r cfdurn.mean.single`ms, and between `r cfdurn.single.hpd`ms. The mean of multi-bat CF duration is `r cfdurn.mean.multi`ms, and between `r cfdurn.multi.hpd`ms. There is a relative decrease in CF duration in multi-bat calls of between `r cfdurn.rel.hpd` in comparison to single-bat calls.
+
+## tFM lower frequency 
+
+
+```{r tfmlower, warning=F}
+tfmlower.nona <- d_tordered[!is.na(d_tordered$tfm_terminal_frequency),]
+tfmlower.formula <- formula(tfm_terminal_frequency~multi_bat+(1|rechour))
+tfmlower.lmm <- lmer(tfmlower.formula, data=tfmlower.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(tfmlower.nona$multi_bat,resid(tfmlower.lmm)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(tfmlower.lmm));qqline(resid(tfmlower.lmm)) 
+qqnorm(ranef(tfmlower.lmm)$rechour$`(Intercept)`);qqline(ranef(tfmlower.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+The model assumptions seem to be met. Let's proceed and generate the posterior distribution of coefficients. 
+
+```{r tfmlower-post}
+
+tfmlower.sim <- sim(tfmlower.lmm, n.sim=num_post)
+
+tfmlower.fixefs.hpd <- round(apply(fixef(tfmlower.sim),2,get.hpd),2)
+tfmlower.fixefs.mean <- round(apply(fixef(tfmlower.sim),2,mean),2)
+tfmlower.rel.increase <- (fixef(tfmlower.sim)[,1]+fixef(tfmlower.sim)[,2])/fixef(tfmlower.sim)[,1]
+tfmlower.rel.hpd <- round(get.hpd(tfmlower.rel.increase),2)
+```
+The mean tFM lower frequency in single bats is `r tfmlower.fixefs.mean[1]`kHz, and multi-bat calls show an average decrease of `r tfmlower.fixefs.mean[2]`kHz. The relative decrease of multi-bat tFM lower frequency is in the range of `r tfmlower.rel.hpd`, in comparison to single bat calls. 
+
+
+## iFM lower frequency 
+
+```{r ifmlower, warning=F}
+ifmlower.nona <- d_tordered[!is.na(d_tordered$ifm_terminal_frequency),]
+ifmlower.formula <- formula(ifm_terminal_frequency~multi_bat+(1|rechour))
+ifmlower.lmm <- lmer(ifmlower.formula, data=ifmlower.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(ifmlower.nona$multi_bat,resid(ifmlower.lmm)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(ifmlower.lmm));qqline(resid(ifmlower.lmm)) 
+qqnorm(ranef(ifmlower.lmm)$rechour$`(Intercept)`);qqline(ranef(ifmlower.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+The model assumptions are met fairly well. Now let's proceed. 
+```{r ifmlower-sim, warning=F}
+
+ifmlower.sim <- sim(ifmlower.lmm, n.sim=num_post)
+
+ifmlower.fixefs.hpd <- round(apply(fixef(ifmlower.sim),2,get.hpd),2)
+ifmlower.fixefs.mean <- round(apply(fixef(ifmlower.sim),2,mean),2)
+ifmlower.rel.increase <- (fixef(ifmlower.sim)[,1]+fixef(ifmlower.sim)[,2])/fixef(ifmlower.sim)[,1]
+ifmlower.rel.hpd <- round(get.hpd(ifmlower.rel.increase),2)
+```
+
+The mean ifm lower frequency in single bats is `r ifmlower.fixefs.mean[1]`kHz, and multi-bat calls show an average decrease of `r ifmlower.fixefs.mean[2]`kHz. The relative decrease of multi-bat ifm lower frequency is in the range of `r ifmlower.rel.hpd`, in comparison to single bat calls. 
+
+## CF peak frequency 
+
+
+```{r cfpeak, warning=F}
+cfpeak.nona <- d_tordered[!is.na(d_tordered$cf_peak_frequency),]
+cfpeak.formula <- formula(cf_peak_frequency~multi_bat+(1|rechour))
+cfpeak.lmm <- lmer(cfpeak.formula, data=cfpeak.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(cfpeak.nona$multi_bat,resid(cfpeak.lmm)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(cfpeak.lmm));qqline(resid(cfpeak.lmm)) 
+qqnorm(ranef(cfpeak.lmm)$rechour$`(Intercept)`);qqline(ranef(cfpeak.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+The model assumptions are met fairly well. Now let's proceed. 
+```{r cfpeak-sim, warning=F}
+
+cfpeak.sim <- sim(cfpeak.lmm, n.sim=num_post)
+
+cfpeak.fixefs.hpd <- round(apply(fixef(cfpeak.sim),2,get.hpd),2)
+cfpeak.fixefs.mean <- round(apply(fixef(cfpeak.sim),2,mean),2)
+cfpeak.rel.increase <- (fixef(cfpeak.sim)[,1]+fixef(cfpeak.sim)[,2])/fixef(cfpeak.sim)[,1]
+cfpeak.rel.hpd <- round(get.hpd(cfpeak.rel.increase),2)
+```
+
+
+The mean CF peak frequency in single bats is `r cfpeak.fixefs.mean[1]`kHz, and multi-bat calls show an average difference of `r cfpeak.fixefs.mean[2]`kHz. The relative increase of multi-bat CF peak frequency is in the range of `r cfpeak.rel.hpd`, in comparison to single bat calls. 
+
+## tFM received level 
+
+```{r tfmreclevel, warning=F}
+
+tfmreclev.nona <- d_tordered[!is.na(d_tordered$tfm_dbrms),]
+tfmreclev.formula <- formula(tfm_dbrms~multi_bat+(1|rechour))
+tfmreclev.lmm <- lmer(tfmreclev.formula, data=tfmreclev.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(tfmreclev.nona$multi_bat,resid(tfmreclev.lmm)) # the residuals seem to show no pattern between the explanatory variables
+qqnorm(resid(tfmreclev.lmm));qqline(resid(tfmreclev.lmm)) 
+qqnorm(ranef(tfmreclev.lmm)$rechour$`(Intercept)`);qqline(ranef(tfmreclev.lmm)$rechour$`(Intercept)`) 
+
+
+```
+The fit seems okay, now let's proceed to the posterior of the coefficients. 
+
+```{r tfm-reclevel.sim}
+
+tfmreclev.sim <- sim(tfmreclev.lmm, n.sim=num_post)
+
+tfmreclev.fixefs.hpd <- round(apply(fixef(tfmreclev.sim),2,get.hpd),2)
+tfmreclev.fixefs.mean <- round(apply(fixef(tfmreclev.sim),2,mean),2)
+tfmreclev.rel.increase <- (fixef(tfmreclev.sim)[,1]+fixef(tfmreclev.sim)[,2]) - fixef(tfmreclev.sim)[,1]
+tfmreclev.rel.hpd <- round(get.hpd(tfmreclev.rel.increase),2)
+```
+
+The mean tFM rec. level in single bats is `r tfmreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r tfmreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat CF peak frequency is in the range of `r tfmreclev.rel.hpd`dB, in comparison to single bat calls. 
+
+## iFM received level 
+
+
+```{r ifmreclevel, warning=F}
+
+ifmreclev.nona <- d_tordered[!is.na(d_tordered$ifm_dbrms),]
+ifmreclev.formula <- formula(ifm_dbrms~multi_bat+(1|rechour))
+ifmreclev.lmm <- lmer(ifmreclev.formula, data=ifmreclev.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(ifmreclev.nona$multi_bat,resid(ifmreclev.lmm)) 
+qqnorm(resid(ifmreclev.lmm));qqline(resid(ifmreclev.lmm)) 
+qqnorm(ranef(ifmreclev.lmm)$rechour$`(Intercept)`);qqline(ranef(ifmreclev.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+
+```{r ifm-reclevel.sim}
+
+ifmreclev.sim <- sim(ifmreclev.lmm, n.sim=num_post)
+
+ifmreclev.fixefs.hpd <- round(apply(fixef(ifmreclev.sim),2,get.hpd),2)
+ifmreclev.fixefs.mean <- round(apply(fixef(ifmreclev.sim),2,mean),2)
+ifmreclev.rel.increase <- (fixef(ifmreclev.sim)[,1]+fixef(ifmreclev.sim)[,2]) - fixef(ifmreclev.sim)[,1]
+ifmreclev.rel.hpd <- round(get.hpd(ifmreclev.rel.increase),2)
+```
+
+
+The mean iFM rec. level in single bats is `r ifmreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r ifmreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat CF peak frequency is in the range of `r ifmreclev.rel.hpd`dB, in comparison to single bat calls.
+
+## CF received level 
+  
+  
+
+```{r cfreclevel, warning=F}
+
+cfreclev.nona <- d_tordered[!is.na(d_tordered$cf_dbrms),]
+cfreclev.formula <- formula(cf_dbrms~multi_bat+(1|rechour))
+cfreclev.lmm <- lmer(cfreclev.formula, data=cfreclev.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(cfreclev.nona$multi_bat,resid(cfreclev.lmm)) 
+qqnorm(resid(cfreclev.lmm));qqline(resid(cfreclev.lmm)) 
+qqnorm(ranef(cfreclev.lmm)$rechour$`(Intercept)`);qqline(ranef(cfreclev.lmm)$rechour$`(Intercept)`) 
+
+```
+  
+  
+```{r cf-reclevel.sim}
+
+cfreclev.sim <- sim(cfreclev.lmm, n.sim=num_post)
+
+cfreclev.fixefs.hpd <- round(apply(fixef(cfreclev.sim),2,get.hpd),2)
+cfreclev.fixefs.mean <- round(apply(fixef(cfreclev.sim),2,mean),2)
+cfreclev.rel.increase <- (fixef(cfreclev.sim)[,1]+fixef(cfreclev.sim)[,2]) - fixef(cfreclev.sim)[,1]
+cfreclev.rel.hpd <- round(get.hpd(cfreclev.rel.increase),2)
+```
+
+The mean cf rec. level in single bats is `r cfreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r cfreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat CF peak frequency is in the range of `r cfreclev.rel.hpd`dB, in comparison to single bat calls.
+
+## tFM-CF level ratio 
+
+
+```{r tfmcfreclevel, warning=F}
+
+d_tordered$tfm_cf <- d_tordered$tfm_dbrms-d_tordered$cf_dbrms
+tfmcf.nona <- d_tordered[!is.na(d_tordered$tfm_cf),]
+tfmcfreclev.nona <- d_tordered[!is.na(d_tordered$tfm_cf),]
+tfmcfreclev.formula <- formula(tfm_cf~multi_bat+(1|rechour))
+tfmcfreclev.lmm <- lmer(tfmcfreclev.formula, data=tfmcfreclev.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(tfmcfreclev.nona$multi_bat,resid(tfmcfreclev.lmm)) 
+qqnorm(resid(tfmcfreclev.lmm));qqline(resid(tfmcfreclev.lmm)) 
+qqnorm(ranef(tfmcfreclev.lmm)$rechour$`(Intercept)`);qqline(ranef(tfmcfreclev.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+
+  
+```{r tfmcf-reclevel.sim}
+
+tfmcfreclev.sim <- sim(tfmcfreclev.lmm, n.sim=num_post)
+
+tfmcfreclev.fixefs.hpd <- round(apply(fixef(tfmcfreclev.sim),2,get.hpd),2)
+tfmcfreclev.fixefs.mean <- round(apply(fixef(tfmcfreclev.sim),2,mean),2)
+tfmcfreclev.rel.increase <- (fixef(tfmcfreclev.sim)[,1]+fixef(tfmcfreclev.sim)[,2]) - fixef(tfmcfreclev.sim)[,1]
+tfmcfreclev.rel.hpd <- round(get.hpd(tfmcfreclev.rel.increase),2)
+```
+
+The mean tfmcf rec. level in single bats is `r tfmcfreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r tfmcfreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat tfmcf peak frequency is in the range of `r tfmcfreclev.rel.hpd`dB, in comparison to single bat calls.
+
+## iFM-CF level ratio 
+
+
+```{r ifmcfreclevel, warning=F}
+
+d_tordered$ifm_cf <- d_tordered$ifm_dbrms-d_tordered$cf_dbrms
+ifmcf.nona <- d_tordered[!is.na(d_tordered$ifm_cf),]
+ifmcfreclev.nona <- d_tordered[!is.na(d_tordered$ifm_cf),]
+ifmcfreclev.formula <- formula(ifm_cf~multi_bat+(1|rechour))
+ifmcfreclev.lmm <- lmer(ifmcfreclev.formula, data=ifmcfreclev.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(ifmcfreclev.nona$multi_bat,resid(ifmcfreclev.lmm)) 
+qqnorm(resid(ifmcfreclev.lmm));qqline(resid(ifmcfreclev.lmm)) 
+qqnorm(ranef(ifmcfreclev.lmm)$rechour$`(Intercept)`);qqline(ranef(ifmcfreclev.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+
+
+```{r ifmcf-reclevel.sim}
+
+ifmcfreclev.sim <- sim(ifmcfreclev.lmm, n.sim=num_post)
+
+ifmcfreclev.fixefs.hpd <- round(apply(fixef(ifmcfreclev.sim),2,get.hpd),2)
+ifmcfreclev.fixefs.mean <- round(apply(fixef(ifmcfreclev.sim),2,mean),2)
+ifmcfreclev.rel.increase <- (fixef(ifmcfreclev.sim)[,1]+fixef(ifmcfreclev.sim)[,2]) - fixef(ifmcfreclev.sim)[,1]
+ifmcfreclev.rel.hpd <- round(get.hpd(ifmcfreclev.rel.increase),2)
+```
+
+
+The mean ifmcf rec. level in single bats is `r ifmcfreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r ifmcfreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat ifmcf peak frequency is in the range of `r ifmcfreclev.rel.hpd`dB, in comparison to single bat calls.
+
+## tFM bandwidth 
+
+```{r tfm.bw, warning=F}
+d_tordered$tfm_bw <- d_tordered$cf_peak_frequency-d_tordered$tfm_terminal_frequency
+tfmbw.nona <- d_tordered[!is.na(d_tordered$tfm_bw),]
+tfmbw.formula <- formula(tfm_bw~multi_bat+(1|rechour))
+tfmbw.lmm <- lmer(tfmbw.formula, data=tfmbw.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(tfmbw.nona$multi_bat,resid(tfmbw.lmm)) 
+qqnorm(resid(tfmbw.lmm));qqline(resid(tfmbw.lmm)) 
+qqnorm(ranef(tfmbw.lmm)$rechour$`(Intercept)`);qqline(ranef(tfmbw.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+
+```{r tfmbw.sim}
+
+tfmbw.sim <- sim(tfmbw.lmm, n.sim=num_post)
+
+tfmbw.fixefs.hpd <- round(apply(fixef(tfmbw.sim),2,get.hpd),2)
+tfmbw.fixefs.mean <- round(apply(fixef(tfmbw.sim),2,mean),2)
+tfmbw.rel.increase <- (fixef(tfmbw.sim)[,1]+fixef(tfmbw.sim)[,2])/fixef(tfmbw.sim)[,1]
+tfmbw.rel.hpd <- round(get.hpd(tfmbw.rel.increase),2)
+```
+
+
+## iFM bandwidth 
+
+```{r ifm.bw, warning=F}
+d_tordered$ifm_bw <- d_tordered$cf_peak_frequency-d_tordered$ifm_terminal_frequency
+ifmbw.nona <- d_tordered[!is.na(d_tordered$ifm_bw),]
+ifmbw.formula <- formula(ifm_bw~multi_bat+(1|rechour))
+ifmbw.lmm <- lmer(ifmbw.formula, data=ifmbw.nona)
+# perform residual inspecition
+par(mfrow=c(1,3))
+scatter.smooth(ifmbw.nona$multi_bat,resid(ifmbw.lmm)) 
+qqnorm(resid(ifmbw.lmm));qqline(resid(ifmbw.lmm)) 
+qqnorm(ranef(ifmbw.lmm)$rechour$`(Intercept)`);qqline(ranef(ifmbw.lmm)$rechour$`(Intercept)`,main='random effects') 
+
+```
+
+
+```{r ifmbw.sim}
+
+ifmbw.sim <- sim(ifmbw.lmm, n.sim=num_post)
+
+ifmbw.fixefs.hpd <- round(apply(fixef(ifmbw.sim),2,get.hpd),2)
+ifmbw.fixefs.mean <- round(apply(fixef(ifmbw.sim),2,mean),2)
+ifmbw.rel.increase <- (fixef(ifmbw.sim)[,1]+fixef(ifmbw.sim)[,2])/fixef(ifmbw.sim)[,1]
+ifmbw.rel.hpd <- round(get.hpd(ifmbw.rel.increase),2)
+```
+
+
+## Summary of all parameters
+
+
+| Parameter              | $Multi-Single$ difference (93% Co.I)          | $\frac{Multi}{Single}$ relative ratio (93% Co.I)|
+|------------------------|-----------------------------------------------|-------------------------------------------------|
+| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
+| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
+| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
+| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
+
+#### System Information 
+```{r sysinfo}
+sessionInfo()
+```
+
