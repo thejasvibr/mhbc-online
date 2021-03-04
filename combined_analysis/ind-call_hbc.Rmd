@@ -6,7 +6,7 @@ output: html_document
 ---
 
 This notebook will detail the use of bayesian linear models and mixed models to 
-quantify the difference between single and multi-bat call properties. 
+quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary).
 
 ```{r loading, echo=T, warning=F,message=F,results='hide'}
 
@@ -79,6 +79,7 @@ The fixed effects don't seem to change too much with or without the 'problematic
 tfmdurn.sim <- sim(tfmdurn.lmm, n.sim=num_post)
 tfmdurn.fixefs.hpd <- round(apply(fixef(tfmdurn.sim),2,get.hpd),2)
 tfmdurn.rel.increase <- (fixef(tfmdurn.sim)[,1]+fixef(tfmdurn.sim)[,2])/fixef(tfmdurn.sim)[,1]
+
 tfmdurn.rel.hpd <- round(get.hpd(tfmdurn.rel.increase),2)
 ```
 Multi-bat tFMs are `r tfmdurn.fixefs.hpd[1,2]`-`r tfmdurn.fixefs.hpd[2,2]` ms longer than in single-bat calls. The overall relative increase in tFM duration is between `r tfmdurn.rel.hpd`, indicating a scenario with no or slight increase in duration. 
@@ -443,18 +444,57 @@ ifmbw.rel.hpd <- round(get.hpd(ifmbw.rel.increase),2)
 ```
 
 
-## Summary of all parameters
+## Summary of all parameters {#paramsummary}
 
 
-| Parameter              | $Multi-Single$ difference (93% Co.I)          | $\frac{Multi}{Single}$ relative ratio (93% Co.I)|
-|------------------------|-----------------------------------------------|-------------------------------------------------|
-| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
-| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
-| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
-| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`-`r cfdurn.diff.hpd[2]`| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`     |
+
+| Parameter              | $Multi-Single$ difference (93% Co.I)                | $\frac{Multi}{Single}$ relative ratio (93% Co.I)|
+|------------------------|-----------------------------------------------------|-------------------------------------------------|
+| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`- `r cfdurn.diff.hpd[2]`      | `r cfdurn.rel.hpd[1]`- `r cfdurn.rel.hpd[2]`     |
+| tFM duration (ms)      |`r tfmdurn.fixefs.hpd[1,2]`- `r tfmdurn.fixefs.hpd[2,2]`  | `r tfmdurn.rel.hpd[1]`- `r tfmdurn.rel.hpd[2]`   |
+| iFM duration (ms)      |  `r ifmdurn.fixefs.hpd[1,2]`- `r ifmdurn.fixefs.hpd[2,2]`| `r ifmdurn.rel.hpd[1]`- `r ifmdurn.rel.hpd[2]`   |
+| CF peak frequency (kHz)|  `r cfpeak.fixefs.hpd[1,2]`- `r cfpeak.fixefs.hpd[2,2]`| `r cfpeak.rel.hpd[1]`- `r cfpeak.rel.hpd[2]`   |
+|tFM lower frequency (kHz)|`r tfmlower.fixefs.hpd[1,2]`- `r tfmlower.fixefs.hpd[2,2]`| `r tfmlower.rel.hpd[1]`- `r tfmlower.rel.hpd[2]`|
+|iFM lower frequency (kHz)|`r ifmlower.fixefs.hpd[1,2]`- `r ifmlower.fixefs.hpd[2,2]`| `r ifmlower.rel.hpd[1]`- `r ifmlower.rel.hpd[2]`|
+| CF level (dB rms)      |  `r cfreclev.fixefs.hpd[1,2]`- `r cfreclev.fixefs.hpd[2,2]`| -                                         |
+| tFM level (dB rms)     |  `r tfmreclev.fixefs.hpd[1,2]`- `r tfmreclev.fixefs.hpd[2,2]`| -                                       |
+| iFM level (dB rms)     |  `r ifmreclev.fixefs.hpd[1,2]`- `r ifmreclev.fixefs.hpd[2,2]`| -                                       |
+| tFM-CF ratio (dB)      |  `r tfmcfreclev.fixefs.hpd[1,2]`- `r tfmcfreclev.fixefs.hpd[2,2]`| -                                   |
+| iFM-CF ratio (dB)      |  `r ifmcfreclev.fixefs.hpd[1,2]`- `r ifmcfreclev.fixefs.hpd[2,2]`| -                                   |
+| tFM bandwidth (kHz)    |  `r tfmbw.fixefs.hpd[1,2]`- `r tfmbw.fixefs.hpd[2,2]`|`r tfmbw.rel.hpd[1]`- `r tfmbw.rel.hpd[2]`        |
+| iFM bandwidth (kHz)    |  `r ifmbw.fixefs.hpd[1,2]`- `r ifmbw.fixefs.hpd[2,2]`|`r ifmbw.rel.hpd[1]`- `r ifmbw.rel.hpd[2]`        |
+
+Table: The observed means, estimated mean difference and relative means between multi and single bat call parameters. The 93% highest posterior density compatibility intervals (Co.I) are shown. 
+
 
 #### System Information 
-```{r sysinfo}
+```{r tabledata}
+# write the table into a csv file:
+summary.data <- data.frame(matrix(ncol=5,nrow=13))
+colnames(summary.data) <- c('param.name','diff.lower','diff.upper','reldiff.lower','reldiff.upper')
+summary.data$param.name <- c('CF duration (ms)','tFM duration (ms)','iFM duration (ms)','CF peak frequency (kHz)',
+                             'tFM lower frequency (kHz)','iFM lower frequency (kHz)','CF level (dB rms)',
+                             'tFM level (dB rms)','iFM level (dB rms)',
+                             'tFM-CF ratio (dB)','iFM-CF ratio (dB)',
+                             'tFM bandwidth (kHz)','iFM bandwidth (kHz)')
+
+diff.hpds <- list(cfdurn.diff.hpd,tfmdurn.fixefs.hpd,ifmdurn.fixefs.hpd,
+                  cfpeak.fixefs.hpd, tfmlower.fixefs.hpd, ifmlower.fixefs.hpd,
+                  cfreclev.fixefs.hpd ,tfmreclev.fixefs.hpd, ifmreclev.fixefs.hpd,
+                  tfmcfreclev.fixefs.hpd, ifmcfreclev.fixefs.hpd,
+                  tfmbw.fixefs.hpd, ifmbw.fixefs.hpd)
+
+rel.hpds <- list(cfdurn.rel.hpd, tfmdurn.rel.hpd,ifmdurn.rel.hpd,
+                 cfpeak.rel.hpd, tfmlower.rel.hpd, ifmlower.rel.hpd,
+                 )
+summary.data$diff.lower <- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[1]} else {X[1,2]}}))
+summary.data$diff.upper <- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[2]} else {X[2,2]}}))
+
+write.csv(summary.data,'lmm_table_data.csv')
+```
+
+```{r sessioninfo}
 sessionInfo()
 ```
+
 

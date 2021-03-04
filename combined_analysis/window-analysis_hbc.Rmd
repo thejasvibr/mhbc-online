@@ -1,0 +1,96 @@
+---
+title: "Window analysis with LM/Ms"
+author: "Thejasvi Beleyur"
+date: "3/4/2021"
+output: html_document
+---
+
+This notebook will detail the use of bayesian linear models and mixed models to 
+quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary).
+
+All intervals reported here are 93% highest posterior density compatibility intervals. 
+
+```{r loading, echo=T, warning=F,message=F,results='hide'}
+
+library(arm)
+library(coda)
+library(lme4)
+library(stringi)
+library(stringr)
+set.seed(82319)
+# number of simulations to get from the posterior distribution
+num_post <- 5000
+# convenience function 
+get.hpd <- function(x,prange=0.93){HPDinterval(as.mcmc(x),prob=prange)}
+
+
+# let's load the split-measure data from the whole audio analysis 
+obs_splitmeasure_raw = read.csv('../annotation_audio_analysis/analysis/obs_nonsilent_measurements_20dBthreshold_wcentdomfreqs.csv')
+obs_splitmeasure_timestamp <- read.csv('./obs_splitmeasure_wtimestamp.csv')
+
+obs_splitmeasure_timestamp$group_status <- obs_splitmeasure_timestamp$num_bats>1
+
+virt_splitmeasure = read.csv('../annotation_audio_analysis/analysis/virt_nonsilent_measurement_20dBthreshold_wcentdomfreqs.csv')
+virt_splitmeasure$group_status <- virt_splitmeasure$num_bats>1
+
+# rescale posix timestmap  and convert to minutes
+obs_splitmeasure_timestamp$centred_posix_minute <- (obs_splitmeasure_timestamp$posix_timestamp - mean(obs_splitmeasure_timestamp$posix_timestamp))/60.0
+
+# RMS data
+obs_reclevel <- subset(obs_splitmeasure_timestamp, measurement=='rms')
+virt_reclevel <- subset(virt_splitmeasure, measurement=='rms')
+obs_reclevel$dbrms <- 20*log10(obs_reclevel$value)
+virt_reclevel$dbrms <- 20*log10(virt_reclevel$value)
+```
+
+## Received level : RMS
+
+And now build the simplest model that will account for the expected auto-correlation in segments, windows and time in general. 
+```{r reclevel-model, warning=F}
+obs_reclevel$sqrtdbrms <- sqrt(abs(min(obs_reclevel$dbrms))+obs_reclevel$dbrms)
+obsrec.m1 <- lmer(sqrtdbrms ~ group_status + centred_posix_minute+(1|video_annot_id), data=obs_reclevel)
+raneffects.m1 <- ranef(obsrec.m1)$video_annot_id$'(Intercept)'
+par(mfrow=c(2,2))
+scatter.smooth(obs_reclevel$centred_posix_minute,resid(obsrec.m1))
+scatter.smooth(obs_reclevel$group_status,resid(obsrec.m1))
+qqnorm(resid(obsrec.m1));qqline(resid(obsrec.m1))
+qqnorm(raneffects.m1);qqline(raneffects.m1)
+
+```
+```{r reclevel-model2, warning=F}
+obsrec.m2 <- lmer(sqrtdbrms ~ group_status + (1|video_annot_id), data=obs_reclevel)
+raneffects.m2 <- ranef(obsrec.m2)$video_annot_id$'(Intercept)'
+par(mfrow=c(2,2))
+scatter.smooth(obs_reclevel$centred_posix_minute,resid(obsrec.m2))
+scatter.smooth(obs_reclevel$group_status,resid(obsrec.m2))
+qqnorm(resid(obsrec.m2));qqline(resid(obsrec.m2))
+qqnorm(raneffects.m2);qqline(raneffects.m2)
+```
+
+
+```{r obsrec.sim}
+obsrec.m1.sim <- sim(obsrec.m1, n.sim=num_post)
+m1.hpd.fixefs <- apply(fixef(obsrec.m1.sim),2,get.hpd)
+obsrec.m2.sim <- sim(obsrec.m2, n.sim=num_post)
+m2.hpd.fixefs <- apply(fixef(obsrec.m2.sim),2,get.hpd)
+
+# the AIC of model 2 is much lower + the interpretability is more straightforward. 
+print(paste('Model 1: ',round(AIC(obsrec.m1),2), sep=' '))
+print(paste('Model 2: ',round(AIC(obsrec.m2),2), sep=' '))
+
+# remember to square the predictions to get the units back to dB from sqrt(dB)
+single.reclevel <- fixef(obsrec.m2.sim)[,1]^2-abs(min(obs_reclevel$dbrms))
+multi.reclevel <- (fixef(obsrec.m2.sim)[,1]+fixef(obsrec.m2.sim)[,2])^2- abs(min(obs_reclevel$dbrms))
+hpd.single.reclevel <- round(get.hpd(single.reclevel),0)
+hpd.multi.reclevel <- round(get.hpd(multi.reclevel),0)
+# the final expected multi-single rec-level difference in dB
+hpd.multi.single.diffrec <- round(get.hpd(multi.reclevel-single.reclevel),1)
+```
+
+The mean received level of single-bat windows is `r hpd.single.reclevel` dB, and multi-bat windows is `r hpd.multi.reclevel` dB. 
+The difference betweeen multi-single bat windows is `r hpd.multi.single.diffrec` dB.
+
+
+
+## FM lower frequency
+
