@@ -356,7 +356,7 @@ pre code {
 
 
 <p>This notebook will detail the use of bayesian linear models and mixed models to quantify the difference between single and multi-bat call properties. The final results are presented in the <a href="#paramsummary">Parameter Summary</a>.</p>
-<p>All intervals reported here are 93% highest posterior density compatibility intervals.</p>
+<p>All intervals reported here are 93% highest posterior density compatibility intervals <span class="citation">(Gelman and Greenland 2019; McElreath 2020)</span>.</p>
 <pre class="r"><code>library(arm)
 library(coda)
 library(lme4)
@@ -427,6 +427,17 @@ hpd.multi.single.diffrec &lt;- round(get.hpd(multi.reclevel-single.reclevel),1)<
 </div>
 <div id="fm-lower-frequency" class="section level2">
 <h2>FM lower frequency</h2>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="refs" class="references">
+<div id="ref-gelman2019confidence">
+<p>Gelman, Andrew, and Sander Greenland. 2019. “Are Confidence Intervals Better Termed ‘Uncertainty Intervals’?” <em>BMJ</em> 366.</p>
+</div>
+<div id="ref-mcelreath2020statistical">
+<p>McElreath, Richard. 2020. <em>Statistical Rethinking: A Bayesian Course with Examples in R and Stan</em>. CRC press.</p>
+</div>
+</div>
 </div>
 
 

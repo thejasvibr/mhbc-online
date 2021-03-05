@@ -356,6 +356,7 @@ pre code {
 
 
 <p>This notebook will detail the use of bayesian linear models and mixed models to quantify the difference between single and multi-bat call properties. The final results are presented in the <a href="#paramsummary">Parameter Summary</a>.</p>
+<p>All intervals reported here are 93% highest posterior density compatibility intervals <span class="citation">(Gelman and Greenland 2019; McElreath 2020)</span>.</p>
 <pre class="r"><code>library(arm)
 library(coda)
 library(lme4)
@@ -681,7 +682,7 @@ ifmbw.rel.hpd &lt;- round(get.hpd(ifmbw.rel.increase),2)</code></pre>
 <div id="paramsummary" class="section level2">
 <h2>Summary of all parameters</h2>
 <table>
-<caption>(#tab:paramsummary) The observed means, estimated mean difference and relative means between multi and single bat call parameters.</caption>
+<caption>The observed means, estimated mean difference and relative means between multi and single bat call parameters. The 93% highest posterior density compatibility intervals (Co.I) are shown.</caption>
 <colgroup>
 <col width="19%"></col>
 <col width="42%"></col>
@@ -702,12 +703,12 @@ ifmbw.rel.hpd &lt;- round(get.hpd(ifmbw.rel.increase),2)</code></pre>
 </tr>
 <tr class="even">
 <td>tFM duration (ms)</td>
-<td>1.65- 1.82</td>
+<td>0- 0.37</td>
 <td>1- 1.22</td>
 </tr>
 <tr class="odd">
 <td>iFM duration (ms)</td>
-<td>1.24- 1.39</td>
+<td>-0.14- 0.18</td>
 <td>0.89- 1.14</td>
 </tr>
 <tr class="even">
@@ -764,6 +765,28 @@ ifmbw.rel.hpd &lt;- round(get.hpd(ifmbw.rel.increase),2)</code></pre>
 </table>
 <div id="system-information" class="section level4">
 <h4>System Information</h4>
+<pre class="r"><code># write the table into a csv file:
+summary.data &lt;- data.frame(matrix(ncol=5,nrow=13))
+colnames(summary.data) &lt;- c(&#39;param.name&#39;,&#39;diff.lower&#39;,&#39;diff.upper&#39;,&#39;reldiff.lower&#39;,&#39;reldiff.upper&#39;)
+summary.data$param.name &lt;- c(&#39;CF duration (ms)&#39;,&#39;tFM duration (ms)&#39;,&#39;iFM duration (ms)&#39;,&#39;CF peak frequency (kHz)&#39;,
+                             &#39;tFM lower frequency (kHz)&#39;,&#39;iFM lower frequency (kHz)&#39;,&#39;CF level (dB rms)&#39;,
+                             &#39;tFM level (dB rms)&#39;,&#39;iFM level (dB rms)&#39;,
+                             &#39;tFM-CF ratio (dB)&#39;,&#39;iFM-CF ratio (dB)&#39;,
+                             &#39;tFM bandwidth (kHz)&#39;,&#39;iFM bandwidth (kHz)&#39;)
+
+#diff.hpds &lt;- list(cfdurn.diff.hpd,tfmdurn.fixefs.hpd,ifmdurn.fixefs.hpd,
+#                  cfpeak.fixefs.hpd, tfmlower.fixefs.hpd, ifmlower.fixefs.hpd,
+#                  cfreclev.fixefs.hpd ,tfmreclev.fixefs.hpd, ifmreclev.fixefs.hpd,
+#                  tfmcfreclev.fixefs.hpd, ifmcfreclev.fixefs.hpd,
+#                  tfmbw.fixefs.hpd, ifmbw.fixefs.hpd)
+
+#rel.hpds &lt;- list(cfdurn.rel.hpd, tfmdurn.rel.hpd,ifmdurn.rel.hpd,
+#                 cfpeak.rel.hpd, tfmlower.rel.hpd, ifmlower.rel.hpd,
+#                 )
+#summary.data$diff.lower &lt;- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[1]} else {X[1,2]}}))
+#summary.data$diff.upper &lt;- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[2]} else {X[2,2]}}))
+
+#write.csv(summary.data,&#39;lmm_table_data.csv&#39;)</code></pre>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 4.0.4 (2021-02-15)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
@@ -806,6 +829,17 @@ ifmbw.rel.hpd &lt;- round(get.hpd(ifmbw.rel.increase),2)</code></pre>
 ## [58] jpeg_0.1-8.1        abind_1.4-5         survival_3.2-7     
 ## [61] yaml_2.2.1          colorspace_2.0-0    cluster_2.1.0      
 ## [64] knitr_1.31          sass_0.3.1</code></pre>
+</div>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="refs" class="references">
+<div id="ref-gelman2019confidence">
+<p>Gelman, Andrew, and Sander Greenland. 2019. “Are Confidence Intervals Better Termed ‘Uncertainty Intervals’?” <em>BMJ</em> 366.</p>
+</div>
+<div id="ref-mcelreath2020statistical">
+<p>McElreath, Richard. 2020. <em>Statistical Rethinking: A Bayesian Course with Examples in R and Stan</em>. CRC press.</p>
+</div>
 </div>
 </div>
 

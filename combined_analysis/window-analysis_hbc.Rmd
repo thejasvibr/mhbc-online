@@ -2,13 +2,18 @@
 title: "Window analysis with LM/Ms"
 author: "Thejasvi Beleyur"
 date: "3/4/2021"
+bibliography: analysis-refs.bib
 output: html_document
+
 ---
 
 This notebook will detail the use of bayesian linear models and mixed models to 
-quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary).
+quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary). This notebook analyses the difference in:
+1. [Window received level](#reclevel)
+1. [FM lower frequency](#fmlower)
+1. [Dominant frequency range](#domfreq)
 
-All intervals reported here are 93% highest posterior density compatibility intervals. 
+The linear mixed models used in the following analysis used a non-informative prior. All intervals reported here are 93% highest posterior density compatibility intervals [@gelman2019confidence;@mcelreath2020statistical]. The compatibility interval corresponds to the estimate-interval that best explains the *current dataset*. This is in contrast to frequentist confidence intervals which produce a 'long-term' interval, without guarantee that the estimate is within the confidence interval at hand. 
 
 ```{r loading, echo=T, warning=F,message=F,results='hide'}
 
@@ -41,9 +46,34 @@ obs_reclevel <- subset(obs_splitmeasure_timestamp, measurement=='rms')
 virt_reclevel <- subset(virt_splitmeasure, measurement=='rms')
 obs_reclevel$dbrms <- 20*log10(obs_reclevel$value)
 virt_reclevel$dbrms <- 20*log10(virt_reclevel$value)
+
+# Lower frequency data
+obs_lowerfreq <- subset(obs_splitmeasure_timestamp, measurement=='fm_terminal_freqs')
+virt_lowerfreq <- subset(virt_splitmeasure, measurement=='fm_terminal_freqs')
+# convert frequency to kHz
+obs_lowerfreq$lowerfreqkhz <- obs_lowerfreq$value*10^-3
+virt_lowerfreq$lowerfreqkhz <- virt_lowerfreq$value*10^-3
+
+# Dominant frequency data
+obs_domfreq <- subset(obs_splitmeasure_timestamp, measurement=='dominant_frequencies')
+virt_domfreq <- subset(virt_splitmeasure, measurement=='dominant_frequencies')
+obs_domfreq$domfreq <- obs_domfreq$value*10^-3
+virt_domfreq$domfreq <- virt_domfreq$value*10^-3
+
+# - calculate the max-min range of dominant frequencies within one annotation audio. 
+calc.domf.range <- function(df){
+          if (length(obs_domfreq$domfreq)>1){
+                    c(max(df$domfreq)-min(df$domfreq),unique(df$group_status))
+          }
+          else {c(0,unique(df$group_status))}
+          }
+obs_domfrange.raw  <- by(obs_domfreq, obs_domfreq$video_annot_id, calc.domf.range)
+obs_domfrange <- as.data.frame(do.call(rbind, obs_domfrange.raw))
+colnames(obs_domfrange) <- c('domfrange','multi_bat')
+
 ```
 
-## Received level : RMS
+## Received level : RMS {#reclevel}
 
 And now build the simplest model that will account for the expected auto-correlation in segments, windows and time in general. 
 ```{r reclevel-model, warning=F}
@@ -92,5 +122,134 @@ The difference betweeen multi-single bat windows is `r hpd.multi.single.diffrec`
 
 
 
-## FM lower frequency
+## FM lower frequency {#fmlower}
 
+```{r fmlowerfreq}
+obslowerfreq.nona <- obs_lowerfreq[!is.na(obs_lowerfreq$lowerfreqkhz),]
+obslower.m1 <- lmer(lowerfreqkhz ~ group_status + centred_posix_minute+(1|video_annot_id), data=obslowerfreq.nona)
+obslower.m2 <- lmer(lowerfreqkhz ~ group_status + (1|video_annot_id), data=obslowerfreq.nona)
+raneffects.m1 <- ranef(obslower.m1)$video_annot_id$'(Intercept)'
+raneffects.m2 <- ranef(obslower.m2)$video_annot_id$'(Intercept)'
+
+par(mfrow=c(2,2))
+scatter.smooth(obslowerfreq.nona$centred_posix_minute,resid(obslower.m1))
+scatter.smooth(obslowerfreq.nona$group_status,resid(obslower.m1))
+qqnorm(resid(obslower.m1));qqline(resid(obslower.m1))
+qqnorm(raneffects.m1);qqline(raneffects.m1)
+
+frame()
+par(mfrow=c(2,2))
+scatter.smooth(obslowerfreq.nona$centred_posix_minute,resid(obslower.m2))
+scatter.smooth(obslowerfreq.nona$group_status,resid(obslower.m2))
+qqnorm(resid(obslower.m2));qqline(resid(obslower.m2))
+qqnorm(raneffects.m2);qqline(raneffects.m2)
+
+```
+Both model regressions seem to broadly meet the normality and independence assumptions, with a few very off-residuals. I will run the models with high residual points included and excluded to see if they have a strong effect or not. I will choose Model 2 as it is a simpler model, and has a lower AIC (`r round(AIC(obslower.m1),0)`) (albeit not very different from that of Model 1 : (`r round(AIC(obslower.m2),0)`)). 
+
+```{r sim.obslowerm2}
+obslower.m2.sim <- sim(obslower.m2, n.sim=num_post)
+
+lowerm2.hpd.fixefs <- apply(fixef(obslower.m2.sim),2,get.hpd)
+
+# remember to square the predictions to get the units back to dB from sqrt(dB)
+single.lower <- fixef(obslower.m2.sim)[,1]
+multi.lower <- fixef(obslower.m2.sim)[,1]+fixef(obslower.m2.sim)[,2]
+hpd.single.lower <- round(get.hpd(single.lower),2)
+hpd.multi.lower <- round(get.hpd(multi.lower),2)
+# the final expected multi-single rec-level difference in dB
+hpd.multi.single.lowerdiff <- round(get.hpd(multi.lower-single.lower),2)
+hpd.multi.single.lower.ratio <- round(get.hpd(multi.lower/single.lower),3)
+```
+Results for *all* data suggest a general decrease of between `r hpd.multi.single.lowerdiff[1]`-`r hpd.multi.single.lowerdiff[2]` kHz of multi-bat FM lower frequencies in comparison to single bat calls. This corresponds to a relative ratio of between `r hpd.multi.single.lower.ratio[1]`-`r hpd.multi.single.lower.ratio[2]` with reference to single bat calls. Overall, it suggests a great similarity in FM lower frequencies. 
+
+```{r sim.obslowerm2.lowresiduals}
+# this chunk checks if the estimates still hold true when the large residuals are removed from the data. 
+# Let's remove all residuals that are out of the 90%ile residual range. 
+pctile.range <- 0.90
+left.point <- (1-pctile.range)*0.5
+pctile.points <- c(left.point, 1-left.point)
+m2.general.residuals <- max(abs(quantile(resid(obslower.m2),pctile.points)))
+m2.rows.lowres.points <- abs(resid(obslower.m2)) < m2.general.residuals
+m2.lower.lowres.points <- obslowerfreq.nona[m2.rows.lowres.points,]
+
+# fit Model 1 with the subset 
+obslower.m2b <- lmer(lowerfreqkhz ~ group_status + (1|video_annot_id),
+                     data=m2.lower.lowres.points)
+
+frame()
+par(mfrow=c(2,2))
+scatter.smooth(m2.lower.lowres.points$centred_posix_minute,resid(obslower.m2b))
+scatter.smooth(m2.lower.lowres.points$group_status,resid(obslower.m2b))
+qqnorm(resid(obslower.m2b));qqline(resid(obslower.m2b))
+qqnorm(raneffects.m2);qqline(raneffects.m2)
+```
+
+Having filtered out points that don't give very large residuals, let's now check if the estimates are still more or less that same. 
+
+```{r m2bb.lower.sim}
+obslower.m2b.sim <- sim(obslower.m2b, n.sim=num_post)
+
+lowerm2b.hpd.fixefs <- apply(fixef(obslower.m2b.sim),2,get.hpd)
+
+# remember to square the predictions to get the units back to dB from sqrt(dB)
+single.lower.b <- fixef(obslower.m2b.sim)[,1]
+multi.lower.b <- fixef(obslower.m2b.sim)[,1]+fixef(obslower.m2b.sim)[,2]
+hpd.single.lower.b <- round(get.hpd(single.lower),2)
+hpd.multi.lower.b <- round(get.hpd(multi.lower),2)
+# the final expected multi-single rec-level difference in dB
+hpd.multi.single.lowerdiff.b <- round(get.hpd(multi.lower.b-single.lower.b),2)
+hpd.multi.single.lower.ratio.b <- round(get.hpd(multi.lower.b/single.lower.b),3)
+
+```
+Results for *all* data suggest a general decrease of between `r hpd.multi.single.lowerdiff.b[1]`-`r hpd.multi.single.lowerdiff.b[2]` kHz of multi-bat FM lower frequencies in comparison to single bat calls. This corresponds to a relative ratio of between `r hpd.multi.single.lower.ratio.b[1]`-`r hpd.multi.single.lower.ratio.b[2]` with reference to single bat calls. Overall, it suggests a great similarity in FM lower frequencies. 
+
+
+*The overall results seem to be the same for FM lower frequency, despite the few points that aren't predicted well by the model*
+
+
+## Dominant frequency range {#domfreq}
+
+
+```{r domfreq}
+obsdomf.m1 <- lmer(domfreq ~ group_status + centred_posix_minute+(1|video_annot_id), data=obs_domfreq)
+obsdomf.m2 <- lmer(domfreq ~ group_status + (1|video_annot_id), data=obs_domfreq)
+
+raneffects.m1 <- ranef(obsdomf.m1)$video_annot_id$'(Intercept)'
+raneffects.m2 <- ranef(obsdomf.m2)$video_annot_id$'(Intercept)'
+
+par(mfrow=c(2,2))
+scatter.smooth(obs_domfreq$centred_posix_minute,resid(obsdomf.m1))
+scatter.smooth(obs_domfreq$group_status,resid(obsdomf.m1))
+qqnorm(resid(obsdomf.m1));qqline(resid(obsdomf.m1))
+qqnorm(raneffects.m1);qqline(raneffects.m1)
+
+frame()
+par(mfrow=c(2,2))
+scatter.smooth(obs_domfreq$centred_posix_minute,resid(obsdomf.m2))
+scatter.smooth(obs_domfreq$group_status,resid(obsdomf.m2))
+qqnorm(resid(obsdomf.m2));qqline(resid(obsdomf.m2))
+qqnorm(raneffects.m2);qqline(raneffects.m2)
+
+```
+Both model regressions seem to broadly meet the normality assumptions. The prediction residuals are a bit off, but despite trying my hands at a bunch of transformations on the outcome variable, I've not had any luck in improving the residual fit. I will repeat the analysis with data points that don't have very large residuals, and see if the parameters are different. Here too I will move ahead with Model 2 (without time as an explanatory variable), as it has a lower AIC (Model 2:`r round(AIC(obsdomf.m2),0)` vs `r round(AIC(obsdomf.m1),0)`),  makes biological sense, and is easily interpretable. 
+
+```{r obsdomf.sim}
+
+obsdomf.m2.sim <- sim(obsdomf.m2, n.sim=num_post)
+m2.domf.hpd.fixefs <- apply(fixef(obsdomf.m2.sim),2,get.hpd)
+
+
+# remember to square the predictions to get the units back to dB from sqrt(dB)
+single.domf <- fixef(obsdomf.m2.sim)[,1]
+multi.domf <- fixef(obsdomf.m2.sim)[,1]+fixef(obsdomf.m2.sim)[,2]
+hpd.single.domf <- round(get.hpd(single.domf),2)
+hpd.multi.domf <- round(get.hpd(multi.domf),2)
+# the final expected multi-single rec-level difference in dB
+hpd.multi.single.diff <- round(get.hpd(multi.domf-single.domf),2)
+hpd.multi.single.relative <- round(get.hpd(multi.domf/single.domf),2)
+
+```
+
+
+## References
