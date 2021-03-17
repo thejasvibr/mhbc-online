@@ -7,6 +7,10 @@ output: html_document
 
 ---
 
+# TODO : 
+1. include virtual multi-bat groups wherever possible in the 
+1. compile all results into one table
+
 This notebook will detail the use of bayesian linear models and mixed models to 
 quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary). This notebook analyses the difference in:
 1. [Window received level](#reclevel)
@@ -71,6 +75,17 @@ obs_domfrange.raw  <- by(obs_domfreq, obs_domfreq$video_annot_id, calc.domf.rang
 obs_domfrange <- as.data.frame(do.call(rbind, obs_domfrange.raw))
 colnames(obs_domfrange) <- c('domfrange','multi_bat')
 
+# assign the centred posix minute to each annotation 
+obs_domfrange$video_annot_id <- row.names(obs_domfrange)
+obs_domfrange$centred_posix_minute <- NA
+i = 1
+for (each in row.names(obs_domfrange))
+  {
+  obs_domfrange$centred_posix_minute[i] <- unique(subset(obs_domfreq, video_annot_id==each)$centred_posix_minute)
+  i <- i+1
+  }
+colnames(obs_domfrange)[2] <- 'group_status'
+obs_domfrange$group_status <- as.factor(obs_domfrange$group_status)
 ```
 
 ## Received level : RMS {#reclevel}
@@ -210,46 +225,45 @@ Results for *all* data suggest a general decrease of between `r hpd.multi.single
 
 ## Dominant frequency range {#domfreq}
 
+Here we won't be using the video annotation ID as a 
 
 ```{r domfreq}
-obsdomf.m1 <- lmer(domfreq ~ group_status + centred_posix_minute+(1|video_annot_id), data=obs_domfreq)
-obsdomf.m2 <- lmer(domfreq ~ group_status + (1|video_annot_id), data=obs_domfreq)
+obs_domfrange$sqrt.frange <- sqrt(obs_domfrange$domfrange)
+obsdomf.m2 <- lm(sqrt.frange ~ group_status + centred_posix_minute , data=obs_domfrange)
 
-raneffects.m1 <- ranef(obsdomf.m1)$video_annot_id$'(Intercept)'
-raneffects.m2 <- ranef(obsdomf.m2)$video_annot_id$'(Intercept)'
+par(mfrow=c(3,2))
+plot(obsdomf.m2)
+acf(resid(obsdomf.m2))
 
-par(mfrow=c(2,2))
-scatter.smooth(obs_domfreq$centred_posix_minute,resid(obsdomf.m1))
-scatter.smooth(obs_domfreq$group_status,resid(obsdomf.m1))
-qqnorm(resid(obsdomf.m1));qqline(resid(obsdomf.m1))
-qqnorm(raneffects.m1);qqline(raneffects.m1)
-
-frame()
-par(mfrow=c(2,2))
-scatter.smooth(obs_domfreq$centred_posix_minute,resid(obsdomf.m2))
-scatter.smooth(obs_domfreq$group_status,resid(obsdomf.m2))
-qqnorm(resid(obsdomf.m2));qqline(resid(obsdomf.m2))
-qqnorm(raneffects.m2);qqline(raneffects.m2)
 
 ```
-Both model regressions seem to broadly meet the normality assumptions. The prediction residuals are a bit off, but despite trying my hands at a bunch of transformations on the outcome variable, I've not had any luck in improving the residual fit. I will repeat the analysis with data points that don't have very large residuals, and see if the parameters are different. Here too I will move ahead with Model 2 (without time as an explanatory variable), as it has a lower AIC (Model 2:`r round(AIC(obsdomf.m2),0)` vs `r round(AIC(obsdomf.m1),0)`),  makes biological sense, and is easily interpretable. 
+
+Here we won't be using video annotation ID as a random intercept as there is only measurement per annotation ID. Instead I have included time as a predictor, and also present the auto-correlation of the residuals to pick up on any correlation in residuals. The autocorrelation plot suggests there is no reason to be concerned about correlation in the data. The residuals aren't too ideal, but they're also not too bad either?
+
 
 ```{r obsdomf.sim}
 
 obsdomf.m2.sim <- sim(obsdomf.m2, n.sim=num_post)
-m2.domf.hpd.fixefs <- apply(fixef(obsdomf.m2.sim),2,get.hpd)
+m2.domf.hpd.fixefs <- apply(coef(obsdomf.m2.sim),2,get.hpd)
+mean.time.effect <- mean(coef(obsdomf.m2.sim)[,3])
 
-
-# remember to square the predictions to get the units back to dB from sqrt(dB)
-single.domf <- fixef(obsdomf.m2.sim)[,1]
-multi.domf <- fixef(obsdomf.m2.sim)[,1]+fixef(obsdomf.m2.sim)[,2]
+# remember to square the predictions to get the units back to domfreqrange kHz from\
+# sqrt(domfreqrange)
+single.domf <- (coef(obsdomf.m2.sim)[,1])^2
+multi.domf <- (coef(obsdomf.m2.sim)[,1]+coef(obsdomf.m2.sim)[,2])^2
 hpd.single.domf <- round(get.hpd(single.domf),2)
 hpd.multi.domf <- round(get.hpd(multi.domf),2)
+
 # the final expected multi-single rec-level difference in dB
 hpd.multi.single.diff <- round(get.hpd(multi.domf-single.domf),2)
 hpd.multi.single.relative <- round(get.hpd(multi.domf/single.domf),2)
 
-```
+# max and min effect of time :
+max.min.time.effect <- quantile(obs_domfrange$centred_posix_minute,c(0.025,0.975))*mean.time.effect # in sqrt(kHz range)
+squared.time.effect <- round(max.min.time.effect^2,2) # in kHz range
 
+
+```
+Time appears to some kind of effect, though it is indeed very small. For example, if we consider the 95%ile values of centred time, it suggests that time could contribute at most `r squared.time.effect[1]`-`r squared.time.effect[2]`kHz to the dominant frequency range. This range is not much in is not much in comparison to the contribution of the group status for instance. 
 
 ## References
