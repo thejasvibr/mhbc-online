@@ -41,6 +41,7 @@ obs_splitmeasure_timestamp$group_status <- obs_splitmeasure_timestamp$num_bats>1
 
 virt_splitmeasure = read.csv('../annotation_audio_analysis/analysis/virt_nonsilent_measurement_20dBthreshold_wcentdomfreqs.csv')
 virt_splitmeasure$group_status <- virt_splitmeasure$num_bats>1
+virt_splitmeasure$video_annot_id <- sapply(virt_splitmeasure$video_annot_id,function(X){paste('virt_',X)}) # make them all into virtual by add 
 
 # rescale posix timestmap  and convert to minutes
 obs_splitmeasure_timestamp$centred_posix_minute <- (obs_splitmeasure_timestamp$posix_timestamp - mean(obs_splitmeasure_timestamp$posix_timestamp))/60.0
@@ -86,6 +87,11 @@ for (each in row.names(obs_domfrange))
   }
 colnames(obs_domfrange)[2] <- 'group_status'
 obs_domfrange$group_status <- as.factor(obs_domfrange$group_status)
+
+virt_domfrange.raw  <- by(virt_domfreq, virt_domfreq$video_annot_id, calc.domf.range)
+virt_domfrange <- as.data.frame(do.call(rbind, virt_domfrange.raw))
+colnames(virt_domfrange) <- c('domfrange','group_status')
+virt_domfrange$group_status <- 2
 ```
 
 ## Received level : RMS {#reclevel}
@@ -135,6 +141,49 @@ hpd.multi.single.diffrec <- round(get.hpd(multi.reclevel-single.reclevel),1)
 The mean received level of single-bat windows is `r hpd.single.reclevel` dB, and multi-bat windows is `r hpd.multi.reclevel` dB. 
 The difference betweeen multi-single bat windows is `r hpd.multi.single.diffrec` dB.
 
+### with virtual bat audio 
+
+```{r reclevelw.virtual , warning=F}
+obs_reclevel_subset <- obs_reclevel[,c('segment_number','dbrms','sqrtdbrms','group_status','video_annot_id')]
+obs_reclevel_subset$group_status <- as.factor(obs_reclevel_subset$group_status*1)
+virt_reclevel_subset <- virt_reclevel[,c('segment_number','dbrms','video_annot_id')]
+
+virt_reclevel_subset$sqrtdbrms <- sqrt(abs(min(obs_reclevel$dbrms))+virt_reclevel_subset$dbrms)
+virt_reclevel_subset$group_status <- as.factor(2)
+obsvirt_reclevel <- rbind(obs_reclevel_subset, virt_reclevel_subset)
+obsvirt_reclevel
+```
+
+```{r m3.reclevel, warning=F}
+obsrec.m3 <- lmer(sqrtdbrms ~ group_status + (1|video_annot_id), data=obsvirt_reclevel)
+raneffects.m3 <- ranef(obsrec.m3)$video_annot_id$'(Intercept)'
+par(mfrow=c(2,2))
+#scatter.smooth(obsvirt_reclevel$centred_posix_minute,resid(obsrec.m3))
+scatter.smooth(obsvirt_reclevel$group_status,resid(obsrec.m3))
+qqnorm(resid(obsrec.m3));qqline(resid(obsrec.m3))
+qqnorm(raneffects.m3);qqline(raneffects.m3)
+```
+
+```{r run.m3}
+obsrec.m3.sim <- sim(obsrec.m3, n.sim=num_post)
+m3.hpd.fixefs <- apply(fixef(obsrec.m3.sim),2,get.hpd)
+
+print(paste('Model 2: ',round(AIC(obsrec.m3),2), sep=' '))
+
+# remember to square the predictions to get the units back to dB from sqrt(dB)
+single.reclevel <- fixef(obsrec.m3.sim)[,1]^2-abs(min(obs_reclevel$dbrms))
+multi.reclevel <- (fixef(obsrec.m3.sim)[,1]+fixef(obsrec.m3.sim)[,2])^2- abs(min(obs_reclevel$dbrms))
+virt.reclevel <- (fixef(obsrec.m3.sim)[,1]+fixef(obsrec.m3.sim)[,3])^2- abs(min(obs_reclevel$dbrms))
+hpd.single.reclevel <- round(get.hpd(single.reclevel),0)
+hpd.multi.reclevel <- round(get.hpd(multi.reclevel),0)
+hpd.virt.reclevel <- round(get.hpd(virt.reclevel),0)
+# the final expected multi-single rec-level difference in dB
+hpd.multi.single.diffrec <- round(get.hpd(multi.reclevel-single.reclevel),1)
+hpd.virt.multi.diffrec <- round(get.hpd(multi.reclevel-virt.reclevel),1)
+```
+Including the virtual audio window measurements into the analysis tells us that the received levels don't differ very much between 
+1. Multi-single : the 93%ile HPD interval of the mean difference is `r hpd.multi.single.diffrec[1]`-`r hpd.multi.single.diffrec[2]` dB
+1. Multi-virtual multi : the 93%ile HPD interval of the mean difference is `r hpd.virt.multi.diffrec[1]`-`r hpd.virt.multi.diffrec[2]` dB
 
 
 ## FM lower frequency {#fmlower}
@@ -167,12 +216,10 @@ obslower.m2.sim <- sim(obslower.m2, n.sim=num_post)
 
 lowerm2.hpd.fixefs <- apply(fixef(obslower.m2.sim),2,get.hpd)
 
-# remember to square the predictions to get the units back to dB from sqrt(dB)
 single.lower <- fixef(obslower.m2.sim)[,1]
 multi.lower <- fixef(obslower.m2.sim)[,1]+fixef(obslower.m2.sim)[,2]
 hpd.single.lower <- round(get.hpd(single.lower),2)
 hpd.multi.lower <- round(get.hpd(multi.lower),2)
-# the final expected multi-single rec-level difference in dB
 hpd.multi.single.lowerdiff <- round(get.hpd(multi.lower-single.lower),2)
 hpd.multi.single.lower.ratio <- round(get.hpd(multi.lower/single.lower),3)
 ```
@@ -207,12 +254,10 @@ obslower.m2b.sim <- sim(obslower.m2b, n.sim=num_post)
 
 lowerm2b.hpd.fixefs <- apply(fixef(obslower.m2b.sim),2,get.hpd)
 
-# remember to square the predictions to get the units back to dB from sqrt(dB)
 single.lower.b <- fixef(obslower.m2b.sim)[,1]
 multi.lower.b <- fixef(obslower.m2b.sim)[,1]+fixef(obslower.m2b.sim)[,2]
 hpd.single.lower.b <- round(get.hpd(single.lower),2)
 hpd.multi.lower.b <- round(get.hpd(multi.lower),2)
-# the final expected multi-single rec-level difference in dB
 hpd.multi.single.lowerdiff.b <- round(get.hpd(multi.lower.b-single.lower.b),2)
 hpd.multi.single.lower.ratio.b <- round(get.hpd(multi.lower.b/single.lower.b),3)
 
@@ -222,6 +267,53 @@ Results for *all* data suggest a general decrease of between `r hpd.multi.single
 
 *The overall results seem to be the same for FM lower frequency, despite the few points that aren't predicted well by the model*
 
+### Including virtual multi-bat audio in 
+
+
+```{r lowerfreq.virt}
+obslowerfreq.nona_subset <- obslowerfreq.nona[,c('segment_number','lowerfreqkhz','group_status','video_annot_id')]
+obslowerfreq.nona_subset$group_status <- as.factor(obslowerfreq.nona_subset$group_status*1)
+virt_lowerfreq_subset <- virt_lowerfreq[,c('segment_number','lowerfreqkhz','video_annot_id')]
+virt_lowerfreq_subset$group_status <- as.factor(2)
+obsvirt_lowerfreq <- rbind(obslowerfreq.nona_subset, virt_lowerfreq_subset)
+obsvirt_lowerfreq <- obsvirt_lowerfreq[!is.na(obsvirt_lowerfreq$lowerfreqkhz),]
+obsvirt_lowerfreq
+```
+
+
+```{r model.lowerfreq.virt,warning=F}
+obslower.m3 <- lmer(lowerfreqkhz ~ group_status + (1|video_annot_id), data=obsvirt_lowerfreq)
+raneffects.m3 <- ranef(obslower.m3)$video_annot_id$'(Intercept)'
+
+frame()
+par(mfrow=c(2,2))
+#scatter.smooth(obsvirt_lowerfreq$centred_posix_minute,resid(obslower.m3))
+scatter.smooth(obsvirt_lowerfreq$group_status,resid(obslower.m3))
+qqnorm(resid(obslower.m3));qqline(resid(obslower.m3))
+qqnorm(raneffects.m3);qqline(raneffects.m3)
+```
+
+```{r lowerfreq.coefs}
+obslower.m3b.sim <- sim(obslower.m3, n.sim=num_post)
+
+lowerm3b.hpd.fixefs <- apply(fixef(obslower.m3b.sim),2,get.hpd)
+
+single.lower.b <- fixef(obslower.m3b.sim)[,1]
+multi.lower.b <- fixef(obslower.m3b.sim)[,1]+fixef(obslower.m3b.sim)[,2]
+virt.lower.b <- fixef(obslower.m3b.sim)[,1]+fixef(obslower.m3b.sim)[,3]
+
+
+hpd.single.lower.b <- round(get.hpd(single.lower.b),2)
+hpd.multi.lower.b <- round(get.hpd(multi.lower.b),2)
+hpd.virt.lower.b <- round(get.hpd(virt.lower.b),2)
+
+hpd.multi.single.lowerdiff.b <- round(get.hpd(multi.lower.b-single.lower.b),2)
+hpd.multi.virt.lowerdiff.b <- round(get.hpd(multi.lower.b-virt.lower.b),2)
+```
+Here we see that the lower-frequencies of single, multi and virtual-multi bat audio windows are very similar:
+  1. Multi-single lower-frequency : the difference is in the range of `r hpd.multi.single.lowerdiff.b[0]`-`r hpd.multi.single.lowerdiff.b[1]` kHz
+  1. Multi-virtual multi lower-frequency : the difference is in the range of `r hpd.multi.virt.lowerdiff.b[0]`-`r hpd.multi.virt.lowerdiff.b[1]` kHz
+
 
 ## Dominant frequency range {#domfreq}
 
@@ -229,6 +321,7 @@ Here we won't be using the video annotation ID as a
 
 ```{r domfreq}
 obs_domfrange$sqrt.frange <- sqrt(obs_domfrange$domfrange)
+virt_domfrange$sqrt.frange <- sqrt(virt_domfrange$domfrange)
 obsdomf.m2 <- lm(sqrt.frange ~ group_status + centred_posix_minute , data=obs_domfrange)
 
 par(mfrow=c(3,2))
@@ -266,4 +359,53 @@ squared.time.effect <- round(max.min.time.effect^2,2) # in kHz range
 ```
 Time appears to some kind of effect, though it is indeed very small. For example, if we consider the 95%ile values of centred time, it suggests that time could contribute at most `r squared.time.effect[1]`-`r squared.time.effect[2]`kHz to the dominant frequency range. This range is not much in is not much in comparison to the contribution of the group status for instance. 
 
+
+
+### Including virtual audio
+
+```{r virt.domfrange, warning=F}
+obsvirt_domfrange <- rbind(virt_domfrange,  obs_domfrange[,c('domfrange','group_status','sqrt.frange')])
+obsdomf.m3 <- lm(sqrt.frange ~ as.factor(group_status) , data=obsvirt_domfrange)
+
+
+
+par(mfrow=c(3,2))
+plot(obsdomf.m3)
+acf(resid(obsdomf.m3))
+
+```
+
+```{r sim.obsvirt.domfrange}
+
+
+obsdomf.m3.sim <- sim(obsdomf.m3, n.sim=num_post)
+m3.domf.hpd.fixefs <- apply(coef(obsdomf.m3.sim),2,get.hpd)
+mean.time.effect <- mean(coef(obsdomf.m3.sim)[,3])
+
+# remember to square the predictions to get the units back to domfreqrange kHz from\
+# sqrt(domfreqrange)
+single.domf <- (coef(obsdomf.m3.sim)[,1])^2
+multi.domf <- (coef(obsdomf.m3.sim)[,1]+coef(obsdomf.m3.sim)[,2])^2
+virt.domf <- (coef(obsdomf.m3.sim)[,1]+coef(obsdomf.m3.sim)[,3])^2
+
+hpd.single.domf <- round(get.hpd(single.domf),2)
+hpd.multi.domf <- round(get.hpd(multi.domf),2)
+hpd.virt.domf <- round(get.hpd(virt.domf),2)
+
+# the final expected multi-single rec-level difference in kHz
+hpd.multi.single.diff <- round(get.hpd(multi.domf-single.domf),2)
+hpd.multi.virt.diff <- round(get.hpd(multi.domf-virt.domf),2)
+
+```
+
+Here we see, that there is a clear increase in dominant frequency range in multi-bat audio of between `r hpd.multi.single.diff[1]`-`r hpd.multi.single.diff[2]` kHz.
+The virtual multi-bat dominant frequency range matches that of the multi-bat range, and differs slightly between `r hpd.multi.virt.diff[1]`-`r hpd.multi.virt.diff[2]` kHz.
+
+## Computational environment 
+
+```{r, echo=TRUE,results=TRUE}
+sessionInfo()
+```
+
 ## References
+
