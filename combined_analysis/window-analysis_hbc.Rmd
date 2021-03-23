@@ -7,17 +7,16 @@ output: html_document
 
 ---
 
-# TODO : 
-1. include virtual multi-bat groups wherever possible in the 
-1. compile all results into one table
-
 This notebook will detail the use of bayesian linear models and mixed models to 
 quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary). This notebook analyses the difference in:
+
 1. [Window received level](#reclevel)
 1. [FM lower frequency](#fmlower)
 1. [Dominant frequency range](#domfreq)
 
 The linear mixed models used in the following analysis used a non-informative prior. All intervals reported here are 93% highest posterior density compatibility intervals [@gelman2019confidence;@mcelreath2020statistical]. The compatibility interval corresponds to the estimate-interval that best explains the *current dataset*. This is in contrast to frequentist confidence intervals which produce a 'long-term' interval, without guarantee that the estimate is within the confidence interval at hand. 
+
+To read the summarised results straight away, proceed to the [Summary Tables](#summary).
 
 ```{r loading, echo=T, warning=F,message=F,results='hide'}
 
@@ -138,8 +137,8 @@ hpd.multi.reclevel <- round(get.hpd(multi.reclevel),0)
 hpd.multi.single.diffrec <- round(get.hpd(multi.reclevel-single.reclevel),1)
 ```
 
-The mean received level of single-bat windows is `r hpd.single.reclevel` dB, and multi-bat windows is `r hpd.multi.reclevel` dB. 
-The difference betweeen multi-single bat windows is `r hpd.multi.single.diffrec` dB.
+The mean received level of single-bat windows is between `r hpd.single.reclevel[1]`to`r hpd.single.reclevel[2]` dB, and multi-bat windows is `r hpd.multi.reclevel[1]` to `r hpd.multi.reclevel[2]` dB. 
+The difference betweeen multi-single bat windows is between `r hpd.multi.single.diffrec[1]` to  `r hpd.multi.single.diffrec[2]` dB.
 
 ### with virtual bat audio 
 
@@ -151,7 +150,6 @@ virt_reclevel_subset <- virt_reclevel[,c('segment_number','dbrms','video_annot_i
 virt_reclevel_subset$sqrtdbrms <- sqrt(abs(min(obs_reclevel$dbrms))+virt_reclevel_subset$dbrms)
 virt_reclevel_subset$group_status <- as.factor(2)
 obsvirt_reclevel <- rbind(obs_reclevel_subset, virt_reclevel_subset)
-obsvirt_reclevel
 ```
 
 ```{r m3.reclevel, warning=F}
@@ -163,12 +161,12 @@ scatter.smooth(obsvirt_reclevel$group_status,resid(obsrec.m3))
 qqnorm(resid(obsrec.m3));qqline(resid(obsrec.m3))
 qqnorm(raneffects.m3);qqline(raneffects.m3)
 ```
+The model assumptions are met fairly well. 
+
 
 ```{r run.m3}
 obsrec.m3.sim <- sim(obsrec.m3, n.sim=num_post)
 m3.hpd.fixefs <- apply(fixef(obsrec.m3.sim),2,get.hpd)
-
-print(paste('Model 2: ',round(AIC(obsrec.m3),2), sep=' '))
 
 # remember to square the predictions to get the units back to dB from sqrt(dB)
 single.reclevel <- fixef(obsrec.m3.sim)[,1]^2-abs(min(obs_reclevel$dbrms))
@@ -181,14 +179,15 @@ hpd.virt.reclevel <- round(get.hpd(virt.reclevel),0)
 hpd.multi.single.diffrec <- round(get.hpd(multi.reclevel-single.reclevel),1)
 hpd.virt.multi.diffrec <- round(get.hpd(multi.reclevel-virt.reclevel),1)
 ```
-Including the virtual audio window measurements into the analysis tells us that the received levels don't differ very much between 
-1. Multi-single : the 93%ile HPD interval of the mean difference is `r hpd.multi.single.diffrec[1]`-`r hpd.multi.single.diffrec[2]` dB
-1. Multi-virtual multi : the 93%ile HPD interval of the mean difference is `r hpd.virt.multi.diffrec[1]`-`r hpd.virt.multi.diffrec[2]` dB
+Including the virtual audio window measurements into the analysis tells us that the received levels don't differ very much between:
+
+1. Multi-single : the 93%ile HPD interval of the mean difference is `r hpd.multi.single.diffrec[1]` to `r hpd.multi.single.diffrec[2]` dB
+1. Multi-virtual multi : the 93%ile HPD interval of the mean difference is `r hpd.virt.multi.diffrec[1]` to `r hpd.virt.multi.diffrec[2]` dB
 
 
 ## FM lower frequency {#fmlower}
 
-```{r fmlowerfreq}
+```{r fmlowerfreq, warning=F}
 obslowerfreq.nona <- obs_lowerfreq[!is.na(obs_lowerfreq$lowerfreqkhz),]
 obslower.m1 <- lmer(lowerfreqkhz ~ group_status + centred_posix_minute+(1|video_annot_id), data=obslowerfreq.nona)
 obslower.m2 <- lmer(lowerfreqkhz ~ group_status + (1|video_annot_id), data=obslowerfreq.nona)
@@ -262,7 +261,7 @@ hpd.multi.single.lowerdiff.b <- round(get.hpd(multi.lower.b-single.lower.b),2)
 hpd.multi.single.lower.ratio.b <- round(get.hpd(multi.lower.b/single.lower.b),3)
 
 ```
-Results for *all* data suggest a general decrease of between `r hpd.multi.single.lowerdiff.b[1]`-`r hpd.multi.single.lowerdiff.b[2]` kHz of multi-bat FM lower frequencies in comparison to single bat calls. This corresponds to a relative ratio of between `r hpd.multi.single.lower.ratio.b[1]`-`r hpd.multi.single.lower.ratio.b[2]` with reference to single bat calls. Overall, it suggests a great similarity in FM lower frequencies. 
+Results for *all* data suggest a general decrease of between `r hpd.multi.single.lowerdiff.b[1]` to `r hpd.multi.single.lowerdiff.b[2]` kHz of multi-bat FM lower frequencies in comparison to single bat calls. This corresponds to a relative ratio of between `r hpd.multi.single.lower.ratio.b[1]` to `r hpd.multi.single.lower.ratio.b[2]` with reference to single bat calls. Overall, it suggests a great similarity in FM lower frequencies. 
 
 
 *The overall results seem to be the same for FM lower frequency, despite the few points that aren't predicted well by the model*
@@ -277,7 +276,7 @@ virt_lowerfreq_subset <- virt_lowerfreq[,c('segment_number','lowerfreqkhz','vide
 virt_lowerfreq_subset$group_status <- as.factor(2)
 obsvirt_lowerfreq <- rbind(obslowerfreq.nona_subset, virt_lowerfreq_subset)
 obsvirt_lowerfreq <- obsvirt_lowerfreq[!is.na(obsvirt_lowerfreq$lowerfreqkhz),]
-obsvirt_lowerfreq
+
 ```
 
 
@@ -311,15 +310,16 @@ hpd.multi.single.lowerdiff.b <- round(get.hpd(multi.lower.b-single.lower.b),2)
 hpd.multi.virt.lowerdiff.b <- round(get.hpd(multi.lower.b-virt.lower.b),2)
 ```
 Here we see that the lower-frequencies of single, multi and virtual-multi bat audio windows are very similar:
-  1. Multi-single lower-frequency : the difference is in the range of `r hpd.multi.single.lowerdiff.b[0]`-`r hpd.multi.single.lowerdiff.b[1]` kHz
-  1. Multi-virtual multi lower-frequency : the difference is in the range of `r hpd.multi.virt.lowerdiff.b[0]`-`r hpd.multi.virt.lowerdiff.b[1]` kHz
+
+1. Multi-single lower-frequency : the difference is in the range of `r hpd.multi.single.lowerdiff.b[1]` to `r hpd.multi.single.lowerdiff.b[2]` kHz
+1. Multi-virtual multi lower-frequency : the difference is in the range of `r hpd.multi.virt.lowerdiff.b[1]` to `r hpd.multi.virt.lowerdiff.b[2]` kHz
 
 
 ## Dominant frequency range {#domfreq}
 
 Here we won't be using the video annotation ID as a 
 
-```{r domfreq}
+```{r domfreq,fig.width=8, fig.height=5}
 obs_domfrange$sqrt.frange <- sqrt(obs_domfrange$domfrange)
 virt_domfrange$sqrt.frange <- sqrt(virt_domfrange$domfrange)
 obsdomf.m2 <- lm(sqrt.frange ~ group_status + centred_posix_minute , data=obs_domfrange)
@@ -357,16 +357,18 @@ squared.time.effect <- round(max.min.time.effect^2,2) # in kHz range
 
 
 ```
-Time appears to some kind of effect, though it is indeed very small. For example, if we consider the 95%ile values of centred time, it suggests that time could contribute at most `r squared.time.effect[1]`-`r squared.time.effect[2]`kHz to the dominant frequency range. This range is not much in is not much in comparison to the contribution of the group status for instance. 
+Time appears to some kind of effect of time, though it is indeed very small. For example, if we consider the 95%ile values of centred time, it suggests that time could contribute at most `r squared.time.effect[1]`-`r squared.time.effect[2]`kHz to the dominant frequency range. This range is not much in is not much in comparison to the contribution of the group status for instance. 
 
 
 
 ### Including virtual audio
 
+Virtual audio doesn't have a 'timestamp'. Since we already saw in the observed audio that timestamp doesn't predict dominant frequency range, let's only
+use group status as a predictor with the observed+virtual dataset together. 
+
 ```{r virt.domfrange, warning=F}
 obsvirt_domfrange <- rbind(virt_domfrange,  obs_domfrange[,c('domfrange','group_status','sqrt.frange')])
 obsdomf.m3 <- lm(sqrt.frange ~ as.factor(group_status) , data=obsvirt_domfrange)
-
 
 
 par(mfrow=c(3,2))
@@ -398,8 +400,29 @@ hpd.multi.virt.diff <- round(get.hpd(multi.domf-virt.domf),2)
 
 ```
 
-Here we see, that there is a clear increase in dominant frequency range in multi-bat audio of between `r hpd.multi.single.diff[1]`-`r hpd.multi.single.diff[2]` kHz.
-The virtual multi-bat dominant frequency range matches that of the multi-bat range, and differs slightly between `r hpd.multi.virt.diff[1]`-`r hpd.multi.virt.diff[2]` kHz.
+Here we see, that there is a clear increase in dominant frequency range in multi-bat audio of between `r hpd.multi.single.diff[1]` to `r hpd.multi.single.diff[2]` kHz.
+The virtual multi-bat dominant frequency range matches that of the multi-bat range, and differs slightly between `r hpd.multi.virt.diff[1]` to `r hpd.multi.virt.diff[2]` kHz.
+
+## Summarised results {#summary}
+
+The model predicted means of each group (93% compatibility interval):
+
+| Parameter        |  Single  bat   |     Multi bat      | Virtual multi-bat  |
+| -----------------| -------------------------------------------------------| ---------------| ---------|
+|Received level, dB rms   |  `r hpd.single.reclevel[1]`, `r hpd.single.reclevel[2]`|  `r hpd.multi.reclevel[1]`, `r hpd.multi.reclevel[2]`|  `r hpd.virt.reclevel[1]`, `r hpd.virt.reclevel[2]`|
+|FM lower frequency, kHz| `r hpd.single.lower.b[1]`, `r hpd.single.lower.b[2]`   | `r hpd.multi.lower.b[1]`, `r hpd.multi.lower.b[2]`   |`r hpd.virt.lower.b[1]`, `r hpd.virt.lower.b[2]`    |
+|Dominant frequency range, kHz|`r hpd.single.domf[1]`, `r hpd.single.domf[2]`    | `r hpd.multi.domf[1]`, `r hpd.multi.domf[2]`    |`r hpd.virt.domf[1]`, `r hpd.virt.domf[2]`    |
+
+
+
+The predicted difference in means between the groups (93% compatibility interval):
+
+|Parameter | Multi-Single bat                                   | Multi-Virtual multi   bat           |
+|----------|-----------------------------------------------------|-------------------------------------|
+| Received level, dB rms | `r hpd.multi.single.diffrec[1]`,`r hpd.multi.single.diffrec[2]`          | `r hpd.virt.multi.diffrec[1]` , `r hpd.virt.multi.diffrec[2]`      |
+| FM lower frequency, kHz| `r hpd.multi.single.lowerdiff.b[1]`, `r hpd.multi.single.lowerdiff.b[2]` | `r hpd.multi.virt.lowerdiff.b[1]`,`r hpd.multi.virt.lowerdiff.b[2]`|
+| Dominant frequency range, kHz| `r hpd.multi.single.diff[1]`,`r hpd.multi.single.diff[2]`          | `r hpd.multi.virt.diff[1]` to `r hpd.multi.virt.diff[2]` |
+
 
 ## Computational environment 
 
