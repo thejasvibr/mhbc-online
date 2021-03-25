@@ -26,6 +26,12 @@ bibliography: hbc-references.bib
 library(knitr)
 #opts_knit$set(eval.after = "fig.cap")
 ```
+## GLOBAL TO-Do
+
+1. Clean up table for ind. call results: change column names for lower and upper CI or fuse them into one column
+1. Change results section 
+1. Change the tables + any mentions of differences/numbers in the paper based on the results. 
+
 ## Introduction 
 Living in groups provides both costs and benefits to the group members, which individuals have to balance [@pulliam1984living]. Advantages of being in a group might be increased foraging success, offspring survival, or thermoregulation, while challenges might include increased parasitism, and competition. An individual’s sensory perception is also challenged in groups, due to the multitude of dynamic sensory information from group members, for example in leks, roosting sites, or even at human gatherings. Only a small fraction of this information is relevant to a receiver [@socialintegr], which necessitates various adaptations to filter out irrelevant information, including unique calls (e.g., mate contact calls in penguins) or avoiding signal overlap with neighbours (e.g., in frogs and cricket pairs) [@socialintegr]. 
 
@@ -81,7 +87,7 @@ All flight activity matched audio files (henceforth referred to as flight-activi
 
 We quantified frequency, duration and amplitude of the three parts components of the echolocation call (iFM, CF and tFM) using two complementary acoustic analyses. The first analysis is the ‘individual call’ analysis, where we measured parameters of one individual echolocation call from each flight activity audio file. The second analysis is the ‘window’ analysis. Each flight-activity audio was split into consecutive windows of 50 ms duration. We then measured the acoustic parameters per window of all windows of a flight-activity audio. In recordings with multiple bats, the 50 ms windows could contain overlapping calls.
 
-The advantage of the individual call analysis is that the measurements made on the calls are directly interpretable as call component alterations reveal the sensory decisions of the bats. On the other hand, the disadvantage of the individual call analysis is that especially in multi-bat recordings, it can be difficult to find a non-overlapped call. The window analysis complements individual call analysis by enabling measurements even on audio with overlapping calls. Window analysis also allows a kind of null-hypothesis testing where the observed multi-bat audio can be compared with 1) single bat audio and 2) ‘virtual’ multi-bat audio files created by adding multiple single bat audio files. These ‘virtual’ multi-bat audio files recreate a scenario where two bats echolocate in the same volume without actively responding to each other’s presence. The disadvantage with window analysis is the lack of call-level measurements. Ultimately, using the two approaches simultaneously strengthens the interpretation of our results.
+The advantage of the individual call analysis is that the measurements made on the calls are directly interpretable as call component alterations reveal the sensory decisions of the bats. On the other hand, the disadvantage of the individual call analysis is that especially in multi-bat recordings, it can be difficult to find a non-overlapped call. The windowed analysis complements individual call analysis by enabling measurements even on audio with overlapping calls. windowed analysis also allows a kind of null-hypothesis testing where the observed multi-bat audio can be compared with 1) single bat audio and 2) ‘virtual’ multi-bat audio files created by adding multiple single bat audio files. These ‘virtual’ multi-bat audio files recreate a scenario where two bats echolocate in the same volume without actively responding to each other’s presence. The disadvantage with windowed analysis is the lack of call-level measurements. Ultimately, using the two approaches simultaneously strengthens the interpretation of our results.
 
 ```{r, samplesizes, echo=FALSE}
 sampsizes <- read.csv('../combined_analysis/indcall_sample_sizes.csv')
@@ -109,40 +115,37 @@ include_graphics('figures/fig1_labelled_original_from_20180816_21502300_30.png')
 
 Each flight activity audio was split into consecutive 50 ms windows (See SI \@ref(windowdetails) for details of window splitting). We chose a window duration of 50 ms as it provided high spectral resolution (20 Hz at 250 kHz sampling rate) that allows to distinguish between multiple CF components that may be contained in the window. Initial observations showed that 50 ms was about the longest observed duration of a bat call in our data, and was about twice the length of typical calls. 
 
-Over the course of a flight activity audio , there may be multiple windows without calls or very faint calls in them. To exclude those windows, we removed all windows whose RMS level were not at least 20 dB above the maximum RMS level of manually annotated audio segments without calls (for details, see SI \@ref(silentwindow)). From the remaining windows that contained echolocation calls, we measured each window’s received RMS level, dominant frequencies and FM lower frequencies. Dominant frequencies are defined as local frequency peaks in the smoothed power spectrum that are within 14 dB of the window’s peak frequency (i.e., the frequency with highest energy in the spectrum). Dominant frequencies are a measurement of the CF frequencies of multiple calls in the same window (for details of dominant frequency measurement see SI \@ref(domfreqdetails)). FM lower frequencies were determined by a spectrogram- based method which identified FM regions and chose the lowest frequency in all FM regions identified in a window (SI \@ref(lowestfreqdetails)). There could be multiple terminal and dominant frequency values for a single window, however only one received RMS level measurement per window. We chose the measurements in the window analysis to be analogous to the measurements in the individual call analyses:  the dominant frequencies in the window analysis complements the CF peak frequency measurements in the individual call analysis, while the lower frequencies and RMS measurements of the FM parts are analogous to the bandwidth and RMS level of the FM parts of the individual call analysis.
+Over the course of a flight activity audio , there may be multiple windows without calls or very faint calls in them. To exclude those windows, we removed all windows whose RMS level were not at least 20 dB above the maximum RMS level of manually annotated audio segments without calls (for details, see SI \@ref(silentwindow)). From the remaining windows that contained echolocation calls, we measured each window’s received RMS level, dominant frequencies and FM lower frequencies. Dominant frequencies are defined as local frequency peaks in the smoothed power spectrum that are within 14 dB of the window’s peak frequency (i.e., the frequency with highest energy in the spectrum). Dominant frequencies are a measurement of the CF frequencies of multiple calls in the same window (for details of dominant frequency measurement see SI \@ref(domfreqdetails)). FM lower frequencies were determined by a spectrogram- based method which identified FM regions and chose the lowest frequency in all FM regions identified in a window (SI \@ref(lowestfreqdetails)). There could be multiple terminal and dominant frequency values for a single window, however only one received RMS level measurement per window. We chose the measurements in the windowed analysis to be analogous to the measurements in the individual call analyses:  the dominant frequencies in the windowed analysis complements the CF peak frequency measurements in the individual call analysis, while the lower frequencies and RMS measurements of the FM parts are analogous to the bandwidth and RMS level of the FM parts of the individual call analysis.
 
-The advantage of the window analysis is the possibility to make ‘virtual multi-bat’ data [@fawcett2015echolocation;@ratcliffe2004conspecifics] by combining observed single bat call measurements or sequences. We created virtual multi-bat audio by combining single bat audio-files that were of similar durations (SI \@ref(virtualdetails)). This represents a ‘null’ dataset of multiple bats that were echolocating, but not responding to each other’s presence. We performed the same window acoustic analysis on the virtual multi-bat audio as described above.
+The advantage of the windowed analysis is the possibility to make ‘virtual multi-bat’ data [@fawcett2015echolocation;@ratcliffe2004conspecifics] by combining observed single bat call measurements or sequences. We created virtual multi-bat audio by combining single bat audio-files that were of similar durations (SI \@ref(virtualdetails)). This represents a ‘null’ dataset of multiple bats that were echolocating, but not responding to each other’s presence. We performed the same window acoustic analysis on the virtual multi-bat audio as described above.
 
 
 ### Statistical analysis 
 
-We observed up to four bats flying in the cave at the same time. Especially in the individual call dataset the number of recordings of multi-bat ($\geq$ 2 bats) calls was low (N=177, 40, 7, 2 for group sizes of 1, 2, 3, 4 respectively,), we thus combined all annotations with $\geq$ 2 bats into a multi-bat class and compared ‘single’ and ‘multi’ bat calls in the individual call analysis. To maintain consistency with individual call analysis we also performed comparisons of ‘single-bat’, ‘multi-bat’ and ‘virtual-multi-bat’ flight-activity audio in the window analysis.
+We observed up to four bats flying in the cave at the same time. Especially in the individual call dataset the number of recordings of multi-bat ($\geq$ 2 bats) calls was low (N=177, 40, 7, 2 for group sizes of 1, 2, 3, 4 respectively,), we thus combined all annotations with $\geq$ 2 bats into a multi-bat class and compared ‘single’ and ‘multi’ bat calls in the individual call analysis. To maintain consistency with individual call analysis we also performed comparisons of ‘single-bat’, ‘multi-bat’ and ‘virtual-multi-bat’ flight-activity audio in the windowed analysis.
 
 
 #### Individual call analysis {#indcallstatanalysis}
 
-We calculated the median difference between multi-bat and single- bat conditions ($median_{multi}-median_{single}$) for all parameters except CF peak frequency. For CF peak frequencies, we calculated the range difference ($Range_{multi}-Range_{single}$) of CF peak frequencies in multi bat and single calls. The range difference was calculated because the supposed spectral jamming avoidance response, i.e., a shift in the used call frequencies, leads to an increased frequency range [@habersetzer1981adaptive], or, as paradoxically has also been observed, a narrower range [@furusawa2012convergence]. We performed permutation tests to assess the significance of the observed differences between single and multi-bat conditions.
+We ran linear mixed-models (LMMs) with group size as the predictor and recording hour as random intercept for all parameters. For CF peak frequencies, we calculated a derived parameter, the range difference ($Range_{multi}-Range_{single}$) of CF peak frequencies across all multi bat and single bat calls. The results from the LMMs allowed us to estimate the means of single and multi bat calls, along with the difference in the means. Model coefficients were estimated using a Bayesian approach with non-informative priors, and the 93% compatibility intervals were used in reporting.
 
-Our dataset consists of calls from a population of resident wild bats of unknown group size. The same bats may have visited the cave site multiple times over the course of a night. Additionally, bat activity was relatively clustered in time, with median time intervals between consecutive flight annotations of 36 s and 54 s, for annotations used in individual call and window analysis, respectively. Thus, our dataset originates from an unknown number of individuals with an unknown amount of pseudo-replication, potentially lowering the variation in the data. To account for this temporal pseudo-replication, we repeated the analysis by creating two independent subsets from our full dataset:  The ‘clustered’ subset contained all calls from the flight activities that were separated by  ≤1 min from each other. The ‘isolated’ subset contained all calls from flight activities that ≥1 min from each other. One minute was chosen as it was slightly larger than the observed median inter-annotation interval. Broadly speaking, we expect that if the results of our analysis are comparable across the isolated and clustered subsets, there is a common underlying effect that is independent of temporal clustering. However, if the results of the subset analysis do not corroborate each other, it hints at an effect due to temporal clustering/isolation in the dataset.
 
 #### Windowed call analysis 
 
-In analogy to CF peak frequency range in the individual call analysis, we first calculated the dominant frequency range ($max_{dominant \: frequency}-min_{dominant \:frequency}$) across each flight activity audio. We expect variation in the dominant frequency (and thus a non-zero range of dominant frequency) across a flight activity for two reasons: 1) the combined effect of the bat’s Doppler shift compensation and 2) the Doppler shift due to the bat’s motion relative to the microphone will cause variation in the dominant frequency.  These two effects will lead to non-zero dominant frequency range even for single-bat flight activities (SI \@ref(simdomfreqranges)). In multi-bat and virtual-multi-bat situations, we expect an increased dominant frequency range due to multiple bats calling at different individual frequencies.   We first calculated the median difference   in dominant frequency ranges between 1) multi-bat and single-bat and 2) multi-bat and virtual-multi-bat flight activity audio. A permutation test was then performed to assess the significance of the observed median difference.
+In analogy to CF peak frequency range in the individual call analysis, we first calculated the dominant frequency range ($max_{dominant \: frequency}-min_{dominant \:frequency}$) across each flight activity audio. We expect variation in the dominant frequency (and thus a non-zero range of dominant frequency) across a flight activity for two reasons: 1) the combined effect of the bat’s Doppler shift compensation and 2) the Doppler shift due to the bat’s motion relative to the microphone will cause variation in the dominant frequency.  These two effects will lead to non-zero dominant frequency range even for single-bat flight activities (SI \@ref(simdomfreqranges)). In multi-bat and virtual-multi-bat situations, we expect an increased dominant frequency range due to multiple bats calling at different individual frequencies. The difference in dominant frequency range between multi, single and virtual multi-bat audio was analysed using a linear model with group type as predictor. Residual analysis showed no correlation with any of the predictors, or any form of auto-correlation, and a simple linear model was thus justified.
 
 To understand the theoretically expected dominant frequency range from single and multi bat flights, (and thus the expected range difference) we also performed simulations quantifying Doppler shift and Doppler shift compensation parametrised by the observed data (SI \@ref(simdomfreqranges) for details of simulation and results). Briefly we simulated a Doppler-shift compensating bat emitting frequencies between 100-111 kHz, flying past a microphone at various speeds between 1.5-4.5 m/s. The dominant frequency range was calculated as the absolute difference between the frequency recorded by the microphone at the beginning of the flight and the end of the flight. The dominant frequency range estimates from the simulations informed the interpretation of the observed data.
 
-The received level and lowest frequency measurements resulted in multiple values per flight-activity audio (one value per window). The measurements from one flight-activity audio are potentially correlated and we accounted for this potential flight-activity level pseudo-replication by repeated random subsampling followed by median difference calculation. To estimate the median difference between conditions we randomly chose one measurement value per flight activity audio for the single-bat, multi-bat and virtual-multi-bat observations. The median difference between 1) multi-bat and single-bat and 2) multi-bat and virtual multi bat conditions were calculated and followed by the next subsampling round. We performed 10,000 such subsampling iterations, and report the 95-percentile range of median differences in received level and lowest frequency. No tests were run on the median difference estimates obtained for received level and lower frequency.
-
-To account for temporal pseudo-replication in our study, we also repeated the entire window analysis using clustered and isolated subsets as described in section \@ref(indcallstatanalysis).
+The received level and lowest frequency measurements resulted in multiple values per flight-activity audio (one value per window). The measurements from one flight-activity audio are potentially correlated. We estimated the difference between single, multi and virtual-multi bat audio using an LMM with group-type as predictor and flight-activity as random intercept. 
 
 ### Software packages used in this paper
-Signal analysis, data manipulation and visualisation were done in Python [@van1995python] through its scientific ecosystem: the scipy, numpy, matplotlib, soundfile and pandas packages [@2020SciPy;@numpy;@matplotlib;@soundfile;@pandas]. Median difference and permutation tests were performed with dabest [@ho2019moving] while reproducible analysis, documentation and presentation were enabled by the Jupyter Notebook and Rmarkdown projects[@jupyter;@rmarkdown]. Audio visualisation, preliminary measurements and single call annotations were done with Audacity [@audacity].
+Signal analysis, data manipulation and visualisation were done in Python [@van1995python] through its scientific ecosystem: the scipy, numpy, matplotlib, soundfile and pandas packages [@2020SciPy;@numpy;@matplotlib;@soundfile;@pandas]. Median difference and permutation tests were performed with dabest [@ho2019moving] while reproducible analysis, documentation and presentation were enabled by the Jupyter Notebook and Rmarkdown projects[@jupyter;@rmarkdown]. Audio visualisation, preliminary measurements and single call annotations were done with Audacity [@audacity]. LMMs were run in R [@REFERENCE] and its statistical ecosystem: the 'lme4','sim' and 'coda' packages [@REFERENCE;[@reference;@reference]. 
 
 ## Results
 
 We recorded echolocation and flight behaviour of mixed-species groups of the high-duty cycle bats *R. euryale* and *R. mehelyi* as they flew alone and with other bats in a natural cave. The bats performed various flight behaviours in the cave, such as circling, approaches (when two or more bats flew towards each other) and following (one bat behind another) flights.  The duration of continuously observed flight bouts varied strongly, ranging from about 0.1 s to 62 s (median: 1.04 s , 95%ile range: 0.5-8.54 s). 
 
-In general, the acoustic parameters of individual calls mostly did not differ between single-bat and multi-bat conditions. Likewise, the windowed-call-analysis revealed no major differences in received level and FM lowest frequency between single-bat and multi-bat and between multi-bat and virtual-multi-bat conditions. The dominant-frequency range of the window analysis, however, was larger in multi-bat conditions compared to single-bat conditions.
+In general, the acoustic parameters of individual calls mostly did not differ between single-bat and multi-bat conditions. Likewise, the windowed-call-analysis revealed no major differences in received level and FM lowest frequency between single-bat and multi-bat and between multi-bat and virtual-multi-bat conditions. The dominant-frequency range of the windowed analysis, however, was larger in multi-bat conditions compared to single-bat conditions.
 
 
 ### Individual call analysis 
@@ -199,6 +202,60 @@ medditab <- set_header_labels(medditab, msmt.names= colnames[1],
     )
 medditab <- autofit(medditab)
 medditab
+```
+
+```{r indcallsampsizes2,echo=FALSE}
+indcall <- read.csv('../combined_analysis/indcall_final.csv')
+```
+
+```{r indcallranges, include=FALSE, echo=FALSE}
+singleind <- subset(indcall, num_bats==1)
+multiind <- subset(indcall, num_bats>1)
+
+getminmax<-function(X){ round(c(min(X,na.rm=TRUE), max(X,na.rm=TRUE)),2)}
+
+# durns
+single.cfdurn <- getminmax(singleind$cf_duration);multi.cfdurn <- getminmax(multiind$cf_duration)
+single.ifmdurn <- getminmax(singleind$ifm_duration);multi.ifmdurn <- getminmax(multiind$ifm_duration)
+single.tfmdurn <- getminmax(singleind$tfm_duration);multi.tfmdurn <- getminmax(multiind$tfm_duration)
+# freqs
+single.cfpfr <- getminmax(singleind$cf_peak_frequency);multi.cfpfr <- getminmax(multiind$cf_peak_frequency)
+single.tfmtemfreq <- getminmax(singleind$tfm_terminal_frequency);multi.tfmtemfreq <- getminmax(multiind$tfm_terminal_frequency)
+single.ifmtemfreq <- getminmax(singleind$ifm_terminal_frequency);multi.ifmtemfreq <- getminmax(multiind$ifm_terminal_frequency)
+# reclevel
+single.cflevel <- getminmax(singleind$cf_dbrms);multi.cflevel <- getminmax(multiind$cf_dbrms)
+single.tfmlevel <- getminmax(singleind$tfm_dbrms);multi.tfmlevel <- getminmax(multiind$tfm_dbrms)
+single.ifmlevel <- getminmax(singleind$ifm_dbrms);multi.ifmlevel <- getminmax(multiind$ifm_dbrms)
+# cf-ratios
+single.tfmcf <- getminmax(singleind$tfm.cf_dbratio);multi.tfmcf <- getminmax(multiind$tfm.cf_dbratio)
+single.ifmcf <- getminmax(singleind$ifm.cf_dbratio);multi.ifmcf <- getminmax(multiind$ifm.cf_dbratio)
+# fm bandwidths 
+single.tfmbw <- getminmax(singleind$tfm_bw);multi.tfmbw <- getminmax(multiind$tfm_bw)
+single.ifmbw <- getminmax(singleind$ifm_bw);multi.ifmbw <- getminmax(multiind$ifm_bw)
+
+singlebat.ranges <- rbind(single.cfdurn,  single.tfmdurn,single.ifmdurn,
+                          single.cfpfr,   single.tfmtemfreq,single.ifmtemfreq,
+                          single.cflevel, single.tfmlevel,single.ifmlevel,
+                          single.tfmcf  , single.ifmcf, 
+                          single.tfmbw  , single.ifmbw)
+multibat.ranges <- rbind(multi.cfdurn,  multi.tfmdurn,multi.ifmdurn,
+                          multi.cfpfr,   multi.tfmtemfreq,multi.ifmtemfreq,
+                          multi.cflevel, multi.tfmlevel,multi.ifmlevel,
+                          multi.tfmcf  , multi.ifmcf, 
+                          multi.tfmbw  , multi.ifmbw)
+
+```
+
+```{r incalldata, echo=FALSE, tab.cap="\\label{tab:incalldata} *Difference between multi and single bat call parameters. The 93% compatibility interval (CI) for the difference of means is reported*"}
+library(flextable)
+
+indcallsummary <- read.csv('../combined_analysis/all_ind_summary.csv')
+indcallsummary$single.range <- apply(singlebat.ranges,1,function(X){paste(as.character(X[1]),as.character(X[2]),sep='-')})
+indcallsummary$multi.range <- apply(multibat.ranges,1,function(X){paste(as.character(X[1]),as.character(X[2]),sep='-')})
+colnames <- c("","Measurement","Difference (Multi-Single)","3.5 %CI", "96.5 %CI")
+flextable(indcallsummary)
+
+
 ```
 
 
@@ -276,14 +333,14 @@ Our data does not support CF frequency shifting in groups. If bats were to show 
 ```{r echo=FALSE}
 # the i/tFM components, bandwidth
 ```
-The FM component is likely used for ranging and undergoes large variation as bats approach objects [@Fenton2014]. Frequency-changes in group flying FM-bats could indicate a JAR, but could also be a response to the physical presence of other bats in the vicinity [@cvikel2015board;@fawcett2015clutter]. CF-FM bats also show alterations in their tFM as they approach and land [@tian1997echolocation;@schoeppler2018precise;@Fenton2014], and may be expected to respond to conspecifics like FM-bats in groups. Fawcett et al. (2015) found that the tFM minimum frequency (-10 dB call peak frequency) increase by 5 kHz on average in pairs. In contrast, we only found a drop by ~1 kHz of the tFM lower frequency (-10 dB tFM peak frequency) and an increase by maximally 1.8 kHz of tFM bandwidth. Our window analysis revealed no systematic differences in lower frequency estimates between single-bat and multi-bat situations. Both FM and CF-FM bats also change call duration in the presence of conspecifics and noise [@cvikel2015board;@amichai2015calling;@fawcett2015echolocation;@lu2020echolocating@gomes2020individual]. While we found only found an increase in tFM duration by 0.1 ms, previous studies found 0.6-1.8 ms. @fawcett2015echolocation found an average increase in tFM duration by 1.8 ms in pairs, while we find a slight median increase by about 0.1 ms in multi-bat calls. In another study with artifical playbacks, @lu2020echolocating found an increase of 0.6ms in comparison to calls in silence. An increased tFM duration may provide an increase in in echo detection [@amichai2015calling;@luo2015linking]. The current increase in duration corresponds to a negligible fraction (~5%), and is unlikely to have any major sensory implications. Compared to previous studies, our effects are small, and unlikely to have biological relevance.
+The FM component is likely used for ranging and undergoes large variation as bats approach objects [@Fenton2014]. Frequency-changes in group flying FM-bats could indicate a JAR, but could also be a response to the physical presence of other bats in the vicinity [@cvikel2015board;@fawcett2015clutter]. CF-FM bats also show alterations in their tFM as they approach and land [@tian1997echolocation;@schoeppler2018precise;@Fenton2014], and may be expected to respond to conspecifics like FM-bats in groups. Fawcett et al. (2015) found that the tFM minimum frequency (-10 dB call peak frequency) increase by 5 kHz on average in pairs. In contrast, we only found a drop by ~1 kHz of the tFM lower frequency (-10 dB tFM peak frequency) and an increase by maximally 1.8 kHz of tFM bandwidth. Our windowed analysis revealed no systematic differences in lower frequency estimates between single-bat and multi-bat situations. Both FM and CF-FM bats also change call duration in the presence of conspecifics and noise [@cvikel2015board;@amichai2015calling;@fawcett2015echolocation;@lu2020echolocating@gomes2020individual]. While we found only found an increase in tFM duration by 0.1 ms, previous studies found 0.6-1.8 ms. @fawcett2015echolocation found an average increase in tFM duration by 1.8 ms in pairs, while we find a slight median increase by about 0.1 ms in multi-bat calls. In another study with artifical playbacks, @lu2020echolocating found an increase of 0.6ms in comparison to calls in silence. An increased tFM duration may provide an increase in in echo detection [@amichai2015calling;@luo2015linking]. The current increase in duration corresponds to a negligible fraction (~5%), and is unlikely to have any major sensory implications. Compared to previous studies, our effects are small, and unlikely to have biological relevance.
 
 ```{r echo=FALSE}
 # The received level story -- needs a bit more work
 ```
 
 ### Call level
-CF-FM Bats increase call source levels in the presence of experimental playbacks [@hage2013ambient;@hage2014ambient;@lu2020echolocating]. In our study, we could not measure the bats source level because bats were free-flying and we did not track their 3D-position. Instead, we analysed the received level at the microphone. In addition to the bat’s source level, received levels also depend on the bats’ distance to and calling direction relative to the microphone. The received level of the tFM of individual calls was 3dB lower median in the multi-bat condition than in the single-bat condition, while the difference was only ~1.5 dB in the iFM and CF components.  The windowed call analysis revealed no systematic alteration in received level in multi-bat vs single-bat and in multi-bat vs. virtual-multi-bat conditions. The relative received levels between the CF and FM components changed by around 1 dB between the multi-bat and single-bat conditions, indicating no shift in call energy between the components. Why was there no major difference in received levels between single-bat and multi-bat conditions even in the window analysis, where overlapping calls are expected to lead to a higher received level? The similarity in received levels of multi-bat and single-bat windows can be explained by the inequal contribution the nearest bat’s call makes to the received level due to spherical spreading, and the directionality of calls.   The fact that multi-bat and virtual-multi bat audio have similar received levels thus indirectly suggests there is no change in source level even in the presence of another bat. However, the tFM received level showed a drop of around 3dB that we are not sure how to interpret. This apparent drop in received level could be the result of bats flying further away or emitting more directional calls.
+CF-FM Bats increase call source levels in the presence of experimental playbacks [@hage2013ambient;@hage2014ambient;@lu2020echolocating]. In our study, we could not measure the bats source level because bats were free-flying and we did not track their 3D-position. Instead, we analysed the received level at the microphone. In addition to the bat’s source level, received levels also depend on the bats’ distance to and calling direction relative to the microphone. The received level of the tFM of individual calls was 3dB lower median in the multi-bat condition than in the single-bat condition, while the difference was only ~1.5 dB in the iFM and CF components.  The windowed call analysis revealed no systematic alteration in received level in multi-bat vs single-bat and in multi-bat vs. virtual-multi-bat conditions. The relative received levels between the CF and FM components changed by around 1 dB between the multi-bat and single-bat conditions, indicating no shift in call energy between the components. Why was there no major difference in received levels between single-bat and multi-bat conditions even in the windowed analysis, where overlapping calls are expected to lead to a higher received level? The similarity in received levels of multi-bat and single-bat windows can be explained by the inequal contribution the nearest bat’s call makes to the received level due to spherical spreading, and the directionality of calls.   The fact that multi-bat and virtual-multi bat audio have similar received levels thus indirectly suggests there is no change in source level even in the presence of another bat. However, the tFM received level showed a drop of around 3dB that we are not sure how to interpret. This apparent drop in received level could be the result of bats flying further away or emitting more directional calls.
 
 ### Outlook
 
@@ -484,192 +541,6 @@ Virtual multi bat audio files (Figure \@ref(fig:virtualmultibat)) were created w
 
 The code to execute this function is available in the ```Making virtual multi bat audio.ipynb``` notebook and its HTML printout. 
 
-
-### Individual call measurements: parameter ranges {#indcallparamranges}
-
-```{r indcallsampsizes2,echo=FALSE}
-indcall <- read.csv('../combined_analysis/indcall_final.csv')
-```
-
-```{r include=FALSE, echo=FALSE}
-singleind <- subset(indcall, num_bats==1)
-multiind <- subset(indcall, num_bats>1)
-
-getminmax<-function(X){ round(c(min(X,na.rm=TRUE), max(X,na.rm=TRUE)),2)}
-
-# durns
-single.cfdurn <- getminmax(singleind$cf_duration);multi.cfdurn <- getminmax(multiind$cf_duration)
-single.ifmdurn <- getminmax(singleind$ifm_duration);multi.ifmdurn <- getminmax(multiind$ifm_duration)
-single.tfmdurn <- getminmax(singleind$tfm_duration);multi.tfmdurn <- getminmax(multiind$tfm_duration)
-# freqs
-single.cfpfr <- getminmax(singleind$cf_peak_frequency);multi.cfpfr <- getminmax(multiind$cf_peak_frequency)
-single.tfmtemfreq <- getminmax(singleind$tfm_terminal_frequency);multi.tfmtemfreq <- getminmax(multiind$tfm_terminal_frequency)
-single.ifmtemfreq <- getminmax(singleind$ifm_terminal_frequency);multi.ifmtemfreq <- getminmax(multiind$ifm_terminal_frequency)
-# reclevel
-single.cflevel <- getminmax(singleind$cf_dbrms);multi.cflevel <- getminmax(multiind$cf_dbrms)
-single.tfmlevel <- getminmax(singleind$tfm_dbrms);multi.tfmlevel <- getminmax(multiind$tfm_dbrms)
-single.ifmlevel <- getminmax(singleind$ifm_dbrms);multi.ifmlevel <- getminmax(multiind$ifm_dbrms)
-# cf-ratios
-single.tfmcf <- getminmax(singleind$tfm.cf_dbratio);multi.tfmcf <- getminmax(multiind$tfm.cf_dbratio)
-single.ifmcf <- getminmax(singleind$ifm.cf_dbratio);multi.ifmcf <- getminmax(multiind$ifm.cf_dbratio)
-# fm bandwidths 
-single.tfmbw <- getminmax(singleind$tfm_bw);multi.tfmbw <- getminmax(multiind$tfm_bw)
-single.ifmbw <- getminmax(singleind$ifm_bw);multi.ifmbw <- getminmax(multiind$ifm_bw)
-
-```
-
-|Parameter name                  | Single-bat range (min-max)                        | Multi-bat range (min-max)                       |
-|--------------------------------|---------------------------------------------------|-------------------------------------------------|
-|CF duration (ms)                | `r single.cfdurn[1]`-`r single.cfdurn[2]`         |  `r multi.cfdurn[1]`-`r multi.cfdurn[2]`      |
-|tFM duration (ms)               | `r single.tfmdurn[1]`-`r single.tfmdurn[2]`       |  `r multi.tfmdurn[1]`-`r multi.tfmdurn[2]`    |
-|iFM duration (ms)               | `r single.ifmdurn[1]`-`r single.ifmdurn[2]`       |  `r multi.ifmdurn[1]`-`r multi.ifmdurn[2]`    |
-|CF peak frequency  (kHz)        | `r single.cfpfr[1]`-`r single.cfpfr[2]`           |  `r multi.cfpfr[1]`-`r multi.cfpfr[2]`      |
-|tFM lower frequency  (kHz)      | `r single.tfmtemfreq[1]`-`r single.tfmtemfreq[2]` |  `r multi.tfmtemfreq[1]`-`r multi.tfmtemfreq[2]`|
-|iFM lower frequency  (kHz)      | `r single.ifmtemfreq[1]`-`r single.ifmtemfreq[2]` |  `r multi.ifmtemfreq[1]`-`r multi.ifmtemfreq[2]`|
-|CF level  (dB RMS)      | `r single.cflevel[1]`-`r single.cflevel[2]` |  `r multi.cflevel[1]`-`r multi.cflevel[2]`|
-|tFM level  (dB RMS)      | `r single.tfmlevel[1]`-`r single.tfmlevel[2]` |  `r multi.tfmlevel[1]`-`r multi.tfmlevel[2]`|
-|iFM level  (dB RMS)      | `r single.ifmlevel[1]`-`r single.ifmlevel[2]` |  `r multi.ifmlevel[1]`-`r multi.ifmlevel[2]`|
-|tFM-CF ratio (dB)        | `r single.tfmcf[1]`-`r single.tfmcf[2]` |  `r multi.tfmcf[1]`-`r multi.tfmcf[2]`|
-|iFM-CF ratio (dB)        | `r single.ifmcf[1]`-`r single.ifmcf[2]` |  `r multi.ifmcf[1]`-`r multi.ifmcf[2]`|
-|tFM bandwidth (kHz)        | `r single.tfmbw[1]`-`r single.tfmbw[2]` |  `r multi.tfmbw[1]`-`r multi.tfmbw[2]`|
-|iFM bandwidth (kHz)        | `r single.ifmbw[1]`-`r single.ifmbw[2]` |  `r multi.ifmbw[1]`-`r multi.ifmbw[2]`|
-
-###  Temporal subsets: individual call statistical analysis {#subsetsindcall}
-
-#### 'Clustered' data subset results 
-```{r clusteredsampsizes, echo=FALSE}
-clustindcalls <- read.csv('../combined_analysis/clustered_indcall.csv')
-clustindcalls.n <- as.data.frame(table(clustindcalls$groupsize))
-```
-
-All individual calls from annotations that are less than 1 minute away from adjacent annotations are included in this subset. $N_{single}$=`r clustindcalls.n[2,2]`,  $N_{multi}$=`r clustindcalls.n[1,2]`.
-
-```{r indcallclustered, echo=FALSE, tab.cap="\\label{tab:indcallclustered}*Difference between multi and single bat call parameters using the clustered data subset. The median difference is reported for all parameters except CF peak frequency, where the difference in range is reported.*"}
-library(flextable)
-indcall.analysis <- read.csv('../combined_analysis/clustered_subset_clusteringbased_bootci.csv')
-msmt.names <- c("CF duration (median ms)", "tFM duration (median ms)", "iFM duration (median ms)",
-                "CF peak frequency (range kHz)", "tFM lower frequency (median kHz)", "iFM lower frequency (median kHz)",
-                "CF level (median dB RMS)", "tFM level (median dB RMS)", "iFM level (median dB RMS)",
-                "tFM-CF ratio (median dB)", "iFM-CF ratio (median dB)", "tFM bandwidth (median kHz)", "iFM bandwidth (median kHz)")
-
-pvalues <- round(indcall.analysis$perm_pvalue,2)
-pvalues[4] <- round(indcall.analysis$perm_pvalue[4],3)
-meddiff <- round(indcall.analysis$difference,2)
-meddiff[9] <- round(indcall.analysis$difference[9],3)
-
-meddiff.table<- data.frame(cbind(msmt.names, meddiff, pvalues))
-colnames <- c("Measurement","Difference (Multi-Single)","Permutation test p-value")
-medditab <- flextable(meddiff.table)
-medditab <- set_header_labels(medditab, msmt.names= colnames[1], 
-    meddiff = colnames[2], pvalues= colnames[3]
-    )
-medditab <- autofit(medditab)
-medditab
-```
-
-#### 'Isolated' data subset results 
-
-```{r isolatedsampsizes, echo=FALSE}
-isolatedindcalls <- read.csv('../combined_analysis/isolated_indcall.csv')
-isolatedcalls.n <- as.data.frame(table(isolatedindcalls$groupsize))
-```
-
-All individual calls from annotations that are more than or equal to 1 minute away from adjacent annotations are included in this subset. $N_{single}$=`r isolatedcalls.n[2,2]`, $N_{multi}$=`r isolatedcalls.n[1,2]`.
-
-The low sample size of the multi-bat calls must be kept in mind while interpreting the results in Table 2 cautiously.
-
-```{r isolatedindcall, echo=FALSE, tab.cap="\\label{tab:isolatedindcall}*Difference between multi and single bat call parameters using the isolated data subset. The median difference is reported for all parameters except CF peak frequency, where the difference in range is reported.*"}
-indcall.analysis <- read.csv('../combined_analysis/isolated_subset_clusteringbased_bootci.csv')
-
-pvalues <- round(indcall.analysis$perm_pvalue,2)
-pvalues[4] <- round(indcall.analysis$perm_pvalue[4],3)
-
-meddiff <- round(indcall.analysis$difference,2)
-
-meddiff.table<- data.frame(cbind(msmt.names, meddiff, pvalues))
-meddiff.table$pvalues <- as.character(meddiff.table$pvalues)
-meddiff.table$pvalues[4] <- '<10e-4'
-colnames <- c("Measurement","Difference (Multi-Single)","Permutation test p-value")
-medditab <- flextable(meddiff.table)
-medditab <- set_header_labels(medditab, msmt.names= colnames[1], 
-    meddiff = colnames[2], pvalues= colnames[3]
-    )
-medditab <- autofit(medditab)
-medditab
-```
-
-### Temporal subsets: windowed call analysis {#subsetswincall}
-```{r echo=FALSE}
-get.window.samplesizes <- function(df)
-  {
-  n_samples <- as.data.frame(table(df$groupsize))
-  n_samples
-  }
-
-
-# for clustered data
-domfreq_clust_singlemulti <- read.csv('../combined_analysis/clust_domfreq_singlemulti.csv')
-domfreq_clust_multivirt <- read.csv('../combined_analysis/clust_domfreq_multivirt.csv')
-
-domfreq_isol_singlemulti <- read.csv('../combined_analysis/isolated_domfreq_singlemulti.csv')
-domfreq_isol_multivirt <- read.csv('../combined_analysis/isolated_domfreq_multivirt.csv')
-
-nclust_singlemulti <- get.window.samplesizes(domfreq_clust_singlemulti)
-nclust_multivirt <- get.window.samplesizes(domfreq_clust_multivirt)
-  
-
-nisol_singlemulti <- get.window.samplesizes(domfreq_isol_singlemulti)
-nisol_multivirt <- get.window.samplesizes(domfreq_isol_multivirt)
-
-```
-
-
-####  Clustered subset results 
-```{r capsetting, echo=FALSE}
-cap.nclust = paste("\\label{tab:clustered} *Difference in window parameters  in clustered annotations between single and multi-bat audio.*","$Nfiles_{single}$=",nclust_singlemulti[2,2],", $Nfiles_{multi}=$",nclust_singlemulti[1,2],", $Nfiles_{multi \\:virtual}=$",nclust_multivirt[2,2])
-
-cap.nisol = paste("\\label{tab:isolated} *Difference in window parameters  in isolated annotations between single and multi-bat audio.*","$Nfiles_{single}$=",nisol_singlemulti[2,2],", $Nfiles_{multi}=$",nisol_singlemulti[1,2],", $Nfiles_{multi \\:virtual}=$",nisol_multivirt[2,2])
-
-```
-
-```{r clustered, echo=FALSE, tab.cap=cap.nclust}
-library(flextable)
-clusteredwindow.results <- read.csv('../combined_analysis/clustered_window_summary.csv')
-clusteredwindow.results <- clusteredwindow.results[,-1]
-window.colnames <- c("Parameter",
-                     "Difference",
-                     "Permutation test p-value",
-                     "Median difference (2.5%ile)",
-                     "Median difference (97.5%ile)",
-                     "comparison")
-colnames(clusteredwindow.results)<- window.colnames
-
-#singlemulti.wholewindow <- subset(clusteredwindow.results,comparison=='multi-single')
-ft.sm.ww <- flextable(clusteredwindow.results)
-ft.sm.ww <- autofit(ft.sm.ww)
-
-ft.sm.ww
-```
-
-#### Isolated subset results 
-
-```{r isolated, echo=FALSE, tab.cap=cap.nisol}
-isolatedwindow.results <- read.csv('../combined_analysis/isolated_window_summary.csv')
-isolatedwindow.results <- isolatedwindow.results[,-1]
-window.colnames <- c("Parameter",
-                     "Difference",
-                     "Permutation test p-value",
-                     "Median difference (2.5%ile)",
-                     "Median difference (97.5%ile)",
-                     "comparison")
-colnames(isolatedwindow.results)<- window.colnames
-
-#singlemulti.wholewindow <- subset(isolatedwindow.results,comparison=='multi-single')
-ft.sm.ww <- flextable(isolatedwindow.results)
-ft.sm.ww <- autofit(ft.sm.ww)
-
-ft.sm.ww
-```
 
 
 

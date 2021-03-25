@@ -469,6 +469,22 @@ ifmbw.rel.hpd <- round(get.hpd(ifmbw.rel.increase),2)
 
 Table: The observed means, estimated mean difference and relative means between multi and single bat call parameters. The 93% highest posterior density compatibility intervals (Co.I) are shown. 
 
+```{r tabelascsv}
+# save the same table above as a csv file  with additional columns
+component <- c(rep(c('CF','tFM','iFM'),3),'tFM-CF','iFM-CF','tFM','iFM')
+parameter <- c(rep('Duration, ms',3), 'Peak frequency, kHz',
+               rep('Lower frequency, kHz',2), rep('Amplitude, dB rms',3),
+               'Ratio, dB', 'Ratio, dB', rep('Bandwidth',2))
+diff.mean <- rbind(cfdurn.diff.hpd,            tfmdurn.fixefs.hpd[,2],     ifmdurn.fixefs.hpd[,2],
+                   cfpeak.fixefs.hpd[,2],      tfmlower.fixefs.hpd[,2],    ifmlower.fixefs.hpd[,2],
+                   cfreclev.fixefs.hpd[,2],    tfmreclev.fixefs.hpd[,2],   ifmreclev.fixefs.hpd[,2],
+                   tfmcfreclev.fixefs.hpd[,2], ifmcfreclev.fixefs.hpd[,2], 
+                   tfmbw.fixefs.hpd[,2],ifmbw.fixefs.hpd[,2])
+all.ind.summary <- cbind(component, parameter, diff.mean)
+row.names(all.ind.summary)[1]<-""
+write.csv(all.ind.summary,'all_ind_summary.csv')
+```
+
 
 #### System Information 
 ```{r tabledata}
