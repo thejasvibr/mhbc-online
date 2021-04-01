@@ -777,6 +777,74 @@ hpd.multi.virt.diff &lt;- round(get.hpd(multi.domf-virt.domf),2)</code></pre>
 </tr>
 </tbody>
 </table>
+<p>And now, putting it all into one table.</p>
+<pre class="r"><code>msmts &lt;- c(&#39;Received level, dB rms&#39;, &#39;FM lower frequency, kHz&#39;,&#39;Dominant frequency range, kHz&#39;)
+delta.multisingle &lt;- c( paste(&#39;(&#39;,hpd.multi.single.diffrec[1],&#39;,&#39;,hpd.multi.single.diffrec[2],&#39;)&#39;,sep=&#39;&#39;),
+                        paste(&#39;(&#39;,hpd.multi.single.lowerdiff.b[1],&#39;,&#39;,hpd.multi.single.lowerdiff.b[2],&#39;)&#39;,sep=&#39;&#39;),
+                        paste(&#39;(&#39;,hpd.multi.single.diff[1],&#39;,&#39;,hpd.multi.single.diff[2],&#39;)&#39;,sep=&#39;&#39;)
+                      )
+delta.multivirtmulti &lt;- c( paste(&#39;(&#39;,hpd.virt.multi.diffrec[1],&#39;,&#39;,hpd.virt.multi.diffrec[2],&#39;)&#39;,sep=&#39;&#39;),
+                           paste(&#39;(&#39;,hpd.multi.virt.lowerdiff.b[1],&#39;,&#39;,hpd.multi.virt.lowerdiff.b[2],&#39;)&#39;,sep=&#39;&#39;),
+                           paste(&#39;(&#39;,hpd.multi.virt.diff[1],&#39;,&#39;,hpd.multi.virt.diff[2],&#39;)&#39;,sep=&#39;&#39;)
+                         )
+single.mean &lt;- c( paste(&#39;(&#39;,hpd.single.reclevel[1],&#39;,&#39;,hpd.single.reclevel[2],&#39;)&#39;,sep=&#39;&#39;),
+                  paste(&#39;(&#39;,hpd.single.lower.b[1],&#39;,&#39;,hpd.single.lower.b[2],&#39;)&#39;,sep=&#39;&#39;),
+                  paste(&#39;(&#39;,hpd.single.domf[1],&#39;,&#39;,hpd.single.domf[2],&#39;)&#39;,sep=&#39;&#39;)
+                )
+multi.mean &lt;- c( paste(&#39;(&#39;,hpd.multi.reclevel[1],&#39;,&#39;,hpd.multi.reclevel[2],&#39;)&#39;,sep=&#39;&#39;),
+                  paste(&#39;(&#39;,hpd.multi.lower.b[1],&#39;,&#39;,hpd.multi.lower.b[2],&#39;)&#39;,sep=&#39;&#39;),
+                  paste(&#39;(&#39;,hpd.multi.domf[1],&#39;,&#39;,hpd.multi.domf[2],&#39;)&#39;,sep=&#39;&#39;)
+                )
+virt.multivirt.mean &lt;- c( paste(&#39;(&#39;,hpd.virt.reclevel[1],&#39;,&#39;,hpd.virt.reclevel[2],&#39;)&#39;,sep=&#39;&#39;),
+                  paste(&#39;(&#39;,hpd.virt.lower.b[1],&#39;,&#39;,hpd.virt.lower.b[2],&#39;)&#39;,sep=&#39;&#39;),
+                  paste(&#39;(&#39;,hpd.virt.domf[1],&#39;,&#39;,hpd.virt.domf[2],&#39;)&#39;,sep=&#39;&#39;)
+                ) </code></pre>
+<table>
+<colgroup>
+<col width="12%"></col>
+<col width="18%"></col>
+<col width="24%"></col>
+<col width="12%"></col>
+<col width="12%"></col>
+<col width="19%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th><span class="math inline">\(\Delta\)</span> Multi-single</th>
+<th><span class="math inline">\(\Delta\)</span> Multi-Virtual multi</th>
+<th>Mean single</th>
+<th>Mean multi</th>
+<th>Mean virtual-multi</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Received level</td>
+<td>(-0.4,0.8)</td>
+<td>(-0.1,1.3)</td>
+<td>(-33,-32)</td>
+<td>(-33,-32)</td>
+<td>(-33,-32)</td>
+</tr>
+<tr class="even">
+<td>FM lower frequency</td>
+<td>(-0.77,0.26)</td>
+<td>(-0.95,0.27)</td>
+<td>(89.81,90.39)</td>
+<td>(89.4,90.24)</td>
+<td>(89.73,90.62)</td>
+</tr>
+<tr class="odd">
+<td>Dominant frequency range</td>
+<td>(1.77,2.5)</td>
+<td>(-0.16,0.82)</td>
+<td>(0.6,0.81)</td>
+<td>(2.51,3.2)</td>
+<td>(2.17,2.85)</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="computational-environment" class="section level2">
 <h2>Computational environment</h2>

@@ -424,6 +424,42 @@ The predicted difference in means between the groups (93% compatibility interval
 | Dominant frequency range, kHz| `r hpd.multi.single.diff[1]`,`r hpd.multi.single.diff[2]`          | `r hpd.multi.virt.diff[1]` to `r hpd.multi.virt.diff[2]` |
 
 
+And now, putting it all into one table. 
+
+```{r summ-results, echo=F}
+msmts <- c('Received level, dB rms', 'FM lower frequency, kHz','Dominant frequency range, kHz')
+delta.multisingle <- c( paste('(',hpd.multi.single.diffrec[1],',',hpd.multi.single.diffrec[2],')',sep=''),
+                        paste('(',hpd.multi.single.lowerdiff.b[1],',',hpd.multi.single.lowerdiff.b[2],')',sep=''),
+                        paste('(',hpd.multi.single.diff[1],',',hpd.multi.single.diff[2],')',sep='')
+                      )
+delta.multivirtmulti <- c( paste('(',hpd.virt.multi.diffrec[1],',',hpd.virt.multi.diffrec[2],')',sep=''),
+                           paste('(',hpd.multi.virt.lowerdiff.b[1],',',hpd.multi.virt.lowerdiff.b[2],')',sep=''),
+                           paste('(',hpd.multi.virt.diff[1],',',hpd.multi.virt.diff[2],')',sep='')
+                         )
+single.mean <- c( paste('(',hpd.single.reclevel[1],',',hpd.single.reclevel[2],')',sep=''),
+                  paste('(',hpd.single.lower.b[1],',',hpd.single.lower.b[2],')',sep=''),
+                  paste('(',hpd.single.domf[1],',',hpd.single.domf[2],')',sep='')
+                )
+multi.mean <- c( paste('(',hpd.multi.reclevel[1],',',hpd.multi.reclevel[2],')',sep=''),
+                  paste('(',hpd.multi.lower.b[1],',',hpd.multi.lower.b[2],')',sep=''),
+                  paste('(',hpd.multi.domf[1],',',hpd.multi.domf[2],')',sep='')
+                )
+virt.multivirt.mean <- c( paste('(',hpd.virt.reclevel[1],',',hpd.virt.reclevel[2],')',sep=''),
+                  paste('(',hpd.virt.lower.b[1],',',hpd.virt.lower.b[2],')',sep=''),
+                  paste('(',hpd.virt.domf[1],',',hpd.virt.domf[2],')',sep='')
+                ) 
+full.summ <- data.frame(msmts, delta.multisingle, delta.multivirtmulti, single.mean, multi.mean, virt.multivirt.mean)
+write.csv(full.summ, 'window-analysis-table.csv')
+
+```
+
+|   Parameter  | $\Delta$ Multi-single|$\Delta$ Multi-Virtual multi| Mean single   | Mean multi   | Mean virtual-multi    |
+|--------------|----------------------|----------------------------|---------------|--------------|-----------------------|
+|Received level| `r delta.multisingle[1]` | `r delta.multivirtmulti[1]`    | `r single.mean[1]`| `r multi.mean[1]`| `r virt.multivirt.mean[1]`|
+|FM lower frequency| `r delta.multisingle[2]` | `r delta.multivirtmulti[2]`    | `r single.mean[2]`| `r multi.mean[2]`| `r virt.multivirt.mean[2]`|
+|Dominant frequency range| `r delta.multisingle[3]` | `r delta.multivirtmulti[3]`| `r single.mean[3]`| `r multi.mean[3]`| `r virt.multivirt.mean[3]`|
+
+
 ## Computational environment 
 
 ```{r, echo=TRUE,results=TRUE}
