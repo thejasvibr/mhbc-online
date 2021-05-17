@@ -3,7 +3,7 @@ title: "High duty-cycle bats in the field do not alter echolocation calls when f
 author: "Neetash Mysuru Rajagopalachari$^{*}$$^{1}$, Thejasvi Beleyur$^{*}$$^{1}$, Aditya Krishna$^{1,2}$, Holger R Goerlitz$^{1}$; \\n $^{*}$: joint first authors"
    
 
-date: 'Last Updated : `r Sys.Date()`'
+date: 'Last Updated : `r Sys.time()`'
 
 output:
   bookdown::word_document2: 

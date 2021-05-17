@@ -1,0 +1,154 @@
+```
+Comments from HRG in the form of an email sent on 4/2/2021 to my tbeleyur@orn.mpg.de email 
+
+```
+Hi Thejasvi,
+
+Just to let you know, I'm working on the report for your thesis, and am
+done with the HBC chapter. Hope to send it tomorrow! Nice thesis!
+
+
+Regarding the HBC paper: I think we should aim to submit it by the ned
+of February. What do you think?
+
+To get it going, I suggest the following:
+
+<------------
+1) Already send it to Aditya now, to get his feedback and general
+agreement for submission, to speed up things. 
+------> DONE
+
+2) While reading it, I found a few general points that I would suggest
+that you address first. After that, I'd be happy to go through it again.
+I list all those points below; don't worry, it's a somewhat long and
+detailed list, but several things are fast, and a few others address how
+to optimize presentation and accessibility, which is in a few places
+still to difficult.
+
+Once you are done with this, please send me the DOCs of the main text
+and SI. Also, I'm happy to chat about this, to speed things up and to
+agree on ideas. Let me know!
+
+All the best,
+Holger
+
+
+Here are my points:
+
+2.1) Parts of the results and of the SI are difficult to access.
+Optimizing it is not quite easy, because we deal with many parameters
+that we compare in many ways. Yet, I have a few suggestions:
+- Info in the SI is rather scatter into too many subsections, figures
+and tables. If these things are combined, the reader does not have to
+collect information from different places and flip through too many pages:
+
+<-------------DONE
+-- combine Fig. 3.5 + 3.6 in a 1x2 panel figure; should not use more
+than 1/2 page
+-- heading 3.9.3.1 can be deleted; only heading on that level
+-- heading 3.9.4.1: delete; only 1 sentence is following; combine with
+next one into e.g.: "Selecting windows for analysis"
+-- 3.9.4.4 'FM terminal frequency" --> Low frequency
+
+-- Fig. 3.7: Add axes labels (also check other figures). Also, give
+sensible y-tick marks and consider excluding frequencies below 70 khz
+and thus reducing height of figure (= more content fits on page, less
+searching and flipping of pages).  -----> DONE- WITH SAME TICK MARKS.
+
+-- Fig 3.8: nice. Exclude freqs <70 kHz; would be great to add oscillograms.
+-------------->
+
+<----- NOT RELEVANT ANYMORE
+-- Tables: too many, makes it difficult to compare.
+* Table 3.3 and 3.4 can be well combined. Make common column-headings of
+'clustered' and 'isolated'.
+* delete subsections 3.9.6.1 and 3.9.6.2 and combine into one section
+------------->
+<------------
+* The table above for individual call param ranges: am wondering whether
+to include it with table 3.1 in main text. Only reporting differences in
+the main text lacks the context of the actual values, and flipping back
+and forth between main text and SI is not helpful.
+* Also, for those tables, you could structure them further by having a
+first column with the type of measure (duration, peak F,...) and a
+second column with the part of the call (iFM, tFM, CF). This will
+improve accessibility, and this is key for this diverse data set.
+* the same applies to tables 3.5 and 3.6, and delete subsections 3.9.7.1
+and 3.9.7.2.
+---DONE------>
+
+-- General structure of SI: I was thinking that it would help to
+structure it into METHODS (= until top of p. 81) and RESULTS (starting
+with 3.9.5.). However, this does not work well for the following
+sections on Doppler Shift and tFM echo-call overlap probabilities,
+because it would not help to divide those into a method and results part...
+
+-- In 3.9.8:
+<-- DONE
+* Odd to read that DS depends on the acoustic fovea. I think you mean on
+the emission frequency (higher freq has higher DS), and I would just say
+so. I think you also want to implicitly state that emission freq differs
+between individuals, but that is not clear. If you want to keep this
+point, extend and use "(individual-specific) resting frequency" instead
+of acoustic fovea
+
+* combine Fig.s 3.10 and 3.11 into a 1x2 panel figure; reduce height to
+have more space on page.
+* add box plot to Fig. 3.10; ideally show identical visualisations /
+parameters in both figures/panels.
+
+-- 3.10: not sure whether this estimation of probabilities is needed at
+all; I think we could simply refer to the PNAS paper to state that
+temporal overlap is low; we don't need to quantify it.
+DONE --> * the prob. estimation can just be there -- it doesn't hurt?
+
+
+
+MAIN PAPER: Here are just a few points to address some details:
+
+--> DONE
+- 'windowed analysis' and 'window analysis': there are both terms used,
+check that all are changed into 'windowed analysis'
+- 3.3.0.1: Do we need to report the parameter settings of itsFM that you
+used in the current analysis?
+< --
+
+- Fig. 3.2: currently displayed too large; and I think we can use this
+figure to visualize additional important aspects (see very rough
+attached draft):
+* I suggest to show on top two spectrograms of a single and a multi-bat
+recording.
+* Below, visualize the parameters for the individual and the windowed
+call analysis. Not only show the separation into iFM, CF, tFM, but also
+visually indicate which are the acoustic measurements that were taken
+from which data. See also Fig. 3.7 in the SI, where you did this for the
+windowed analysis. I would combine that figure with the figure here.
+
+
+- Results:
+<---- DONE
+* 3.4.1, end of first paragraph: overlapping ranges does not tell much
+about whether two distributions are similar or not; thus, this list of
+ranges does not really support your previous statement. Reporting ranges
+in text is also hard to access; I am thus wondering whether to move the
+table with the ranges (or another parameter to describe the
+distribution??? Quartiles? 95%-value-range??) into the main text and to
+combine it with Tab 3.1. On the other hand, these ranges are also
+visible in the figure (Fig. 3.3), so actually, we do not need both.
+
+*3.4.1, second paragraph: the description is hard to visualize. You
+report many differences, but the context of those differences is missing
+and the description is too vague; e.g., I need to remember the
+previously reported difference to compare it (i.e., mentally calculating
+another difference) to the currently reported difference. I know I'm not
+clear here - but try reading this paragraph without any prior knowledge,
+and I think you'll realize that it's hard to take away a clear meaning.
+Related to that, don't just report later a drop in sample size, but give
+all relevant values (I don't remember what the other N was).
+
+*3.4.2: Generally, the same thoughts here: It is a lot of text, which is
+hard to visualize and understand. Think about optimizing it; by changing
+structure, adding background, and/or figures/tables.
+DONE ---->
+
+
