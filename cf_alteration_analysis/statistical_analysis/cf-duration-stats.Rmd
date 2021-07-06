@@ -1,0 +1,69 @@
+---
+title: "CF duration analysis - whole audio version"
+author: "Thejasvi Beleyur"
+date: "7/6/2021"
+output: html_document
+---
+
+This is a follow up analysis to delve deeper into the apparent decrease in CF duration 
+
+This notebook will detail the use of bayesian linear models and mixed models to 
+quantify the difference between single and multi-bat call CF duration only. 
+
+The final results are presented in the [Parameter Summary](#paramsummary).
+
+All intervals reported here are 93% highest posterior density compatibility intervals [@gelman2019confidence;@mcelreath2020statistical]. 
+
+```{r loading, echo=T, warning=F,message=F,results='hide'}
+
+library(arm)
+library(coda)
+library(lme4)
+library(stringi)
+library(stringr)
+set.seed(82319)
+d <- read.csv('../verified_cf_detections.csv')
+# create a single/multi-bat categorical variable
+d['multi_bat'] <- factor(d['num_bats']>1)
+d['annot_id'] <- stri_sub(d$audio_file,28,-4)
+d['annot_id'] <- str_replace_all(d$annot_id, '21502300','2123')
+# sort the dataset by time first
+time_ordering <- stri_order(d$annot_id,numeric=TRUE)
+d_tordered <- d[time_ordering,]
+# - is there an influence of the recording hour? 
+split.and.join <- function(x){
+  splitx <- str_split(x,'_')
+  jointx <- paste(splitx[[1]][1],'_',splitx[[1]][2],sep='')
+  jointx}
+d_tordered$rechour <- sapply(d_tordered$annot_id,split.and.join)
+
+# also scale up some of the measurements into more meaningful units
+# -- here we'll multiply by 10^3 to convert s to ms
+d_tordered$duration <- d_tordered$duration*10^3
+
+num_post <- 5000
+# convenience function 
+get.hpd <- function(x,prange=0.93){HPDinterval(as.mcmc(x),prob=prange)}
+```
+
+## Linear model: starting simple 
+
+
+```{r lm-model, warning=F}
+d_tordered$invdurn <- d_tordered$duration^-1
+lm0 <- lm(invdurn~as.factor(multi_bat), data=d_tordered)
+
+
+par(mfrow=c(3,2))
+plot(lm0)
+acf(resid(lm0))
+
+```
+
+We see there is some autocorrelation in the residuals - which is kind of expected since when there are 
+multiple calls from the same audio file, we can expect that the CF durations are also similar. This tells us 
+we need to include annotation ID as a factor in a mixed effects model. 
+
+
+
+
