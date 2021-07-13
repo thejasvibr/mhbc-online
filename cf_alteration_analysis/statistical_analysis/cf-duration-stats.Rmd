@@ -10,7 +10,7 @@ This is a follow up analysis to delve deeper into the apparent decrease in CF du
 This notebook will detail the use of bayesian linear models and mixed models to 
 quantify the difference between single and multi-bat call CF duration only. 
 
-The final results are presented in the [Parameter Summary](#paramsummary).
+The final results are presented in the [Final Summary](#finalsummary).
 
 All intervals reported here are 93% highest posterior density compatibility intervals [@gelman2019confidence;@mcelreath2020statistical]. 
 
@@ -45,6 +45,16 @@ num_post <- 5000
 # convenience function 
 get.hpd <- function(x,prange=0.93){HPDinterval(as.mcmc(x),prob=prange)}
 ```
+## Quick data plotting 
+
+Let's plot our data first to see if everything about it is okay. 
+
+```{r quickplot}
+boxplot(duration~as.factor(multi_bat), data=d_tordered, ylab='Duration, ms', xlab='Multi-bat or not')
+
+```
+Just looking at the data
+
 
 ## Linear model: starting simple 
 
@@ -60,10 +70,76 @@ acf(resid(lm0))
 
 ```
 
+The 1/y transform seems to work best in making the model fit the normal assumptions. I also tried the square-root and log10 transforms - but they didn't work as well. 
+
 We see there is some autocorrelation in the residuals - which is kind of expected since when there are 
 multiple calls from the same audio file, we can expect that the CF durations are also similar. This tells us 
 we need to include annotation ID as a factor in a mixed effects model. 
 
+## Linear mixed-model: accounting for correlations within each audio clip
+Let's build a LMM with the annotation-ID (recording ID) as the random intercept, and
+the group size (single/multi) as a fixed effect. There can be multiple CF duration measurements 
+from the same recording, and so this is the main source of correlation in the dataset.
+
+```{r lmm-model}
+lmm0 <- lmer(invdurn~as.factor(multi_bat)+(1|annot_id), data=d_tordered)
+
+
+par(mfrow=c(2,2))
+# check residuals vs multi_bat
+plot(d_tordered$multi_bat,resid(lmm0),main='residuals - duration,1/ms') 
+# do residuals match the normal distbn assumption - qqplot
+qqnorm(resid(lmm0));qqline(resid(lmm0))
+# do random effects match normal distbn assumption - qqplot
+qqnorm(ranef(lmm0)$annot_id$`(Intercept)`);qqline(ranef(lmm0)$annot_id$`(Intercept)`,main='random effects') 
+# check crudely for autocorrelation of residuals 
+acf(resid(lmm0))
+```
+
+The assumptions of the LMM seem to be met fairly okay - though not perfectly. Now, let's proceed to run simulations to and estimate parameter values. 
+
+```{r param-estimation}
+
+cfdurn.sim <- sim(lmm0, n.sim=num_post)
+cfdurn.fixefs.hpd <- round(apply(fixef(cfdurn.sim),2,get.hpd),2)
+single_cfdurn <- 1/fixef(cfdurn.sim)[,1]
+multi_cfdurn <- 1/(fixef(cfdurn.sim)[,1]+fixef(cfdurn.sim)[,2])
+
+cfdurn.rel.increase <- multi_cfdurn/single_cfdurn
+
+
+single.cfdurn.hpd <- round(get.hpd(single_cfdurn),2)
+multi.cfdurn.hpd <- round(get.hpd(multi_cfdurn),2)
+cfdurn.rel.hpd <- round(get.hpd(cfdurn.rel.increase),2)
+
+```
+
+
+### Final summary {#finalsummary}
+
+The final results do not seem to support a decrease in cF duration in groups. 
+
+| Parameter     | 93% compatibility interval |
+|---------------|----------------------------|
+| CF duration, single (ms)| `r single.cfdurn.hpd[1]`-`r single.cfdurn.hpd[2]`|
+| CF duration, multi (ms)| `r multi.cfdurn.hpd[1]`-`r multi.cfdurn.hpd[2]`|
+| Relative CF duration increase ($\frac{multi}{single}$)| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`|
 
 
 
+The CF durations actually seem to overlap between single and multi bat calls. This is in contrast to the 
+result we see from the 
+
+
+
+```{r write-results}
+df <- rbind(single.cfdurn.hpd, multi.cfdurn.hpd, cfdurn.rel.hpd)
+row.names(df) <- c('single-cf-durn','multi-cf-durn','cf-durn-relincrease')
+write.csv(df, 'cf_duration_change_summary.csv')
+```
+
+
+
+```{r sessioninfo}
+sessionInfo()
+```
