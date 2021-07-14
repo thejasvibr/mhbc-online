@@ -115,9 +115,53 @@ cfdurn.rel.hpd <- round(get.hpd(cfdurn.rel.increase),2)
 ```
 
 
+### Round 2 analysis (2021-07-14)
+These are my attempts at checking to see if the small peak in the residual autocorrelation is perhaps because I didn't consider an additional variable (eg. recording hour). Even though I don't have reason to, I also see that the recording hour itself may have systematic effects because the same bat flew repeatedly within a period of time. Broadly speaking, the 'null' result from the primary analysis is not surprising.
+
+```{r post-analysis}
+lmm.post <- lmer(invdurn~as.factor(multi_bat)+(1|annot_id)+rechour, data=d_tordered)
+
+
+par(mfrow=c(3,2))
+# check residuals vs multi_bat
+plot(d_tordered$multi_bat,resid(lmm.post),main='residuals - duration,1/ms') 
+# do residuals match the normal distbn assumption - qqplot
+qqnorm(resid(lmm.post));qqline(resid(lmm.post))
+# do random effects match normal distbn assumption - qqplot
+qqnorm(ranef(lmm.post)$annot_id$`(Intercept)`);qqline(ranef(lmm.post)$annot_id$`(Intercept)`,main='random effects') 
+# check crudely for autocorrelation of residuals 
+acf(resid(lmm.post))
+# check if the residuals are similar across recording hours 
+boxplot(resid(lmm.post)~d_tordered$rechour)
+```
+
+The quick-check inclusion of the recording hour as a factor also doesn't seem to make the small autocorrelation peak go away. I looked at the residuals themselves once more - there doesn't seem to be a 'trend'. Despite including annotation ID as a random intercept, I guess there's only so much that even the LMM can handle. 
+
+```{r lmmpost}
+
+
+cfdurn.sim.post <- sim(lmm.post, n.sim=num_post)
+cfdurn.fixefs.hpd.post <- round(apply(fixef(cfdurn.sim.post),2,get.hpd),2)
+single_cfdurn.post <- 1/fixef(cfdurn.sim.post)[,1]
+multi_cfdurn.post <- 1/(fixef(cfdurn.sim.post)[,1]+fixef(cfdurn.sim.post)[,2])
+
+cfdurn.rel.increase.post <- multi_cfdurn.post/single_cfdurn.post
+
+
+single.cfdurn.hpd.post <- round(get.hpd(single_cfdurn.post),2)
+multi.cfdurn.hpd.post <- round(get.hpd(multi_cfdurn.post),2)
+cfdurn.rel.hpd.post <- round(get.hpd(cfdurn.rel.increase.post),2)
+
+```
+
+We see the relative change in CF duration still remains very similar (close to the 0.9-1.1 range). The main difference is in the increase in highest posterior density interval of the single bat CF duration. Now both intervals are very overlapping. It seems like including recording hour helped in explaining some systematic differences that were there across time. 
+
+
 ### Final summary {#finalsummary}
 
 The final results do not seem to support a decrease in cF duration in groups. 
+
+#### Model with only group size as fixed effect, and annotation id as random intercept
 
 | Parameter     | 93% compatibility interval |
 |---------------|----------------------------|
@@ -125,12 +169,16 @@ The final results do not seem to support a decrease in cF duration in groups.
 | CF duration, multi (ms)| `r multi.cfdurn.hpd[1]`-`r multi.cfdurn.hpd[2]`|
 | Relative CF duration increase ($\frac{multi}{single}$)| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`|
 
+The CF durations actually seem to overlap between single and multi bat calls. This is in contrast to the result we see from the individual call analysis. 
+
+#### Model with  group size and recording hour as fixed effect, and annotation id as random intercept
 
 
-The CF durations actually seem to overlap between single and multi bat calls. This is in contrast to the 
-result we see from the 
-
-
+| Parameter     | 93% compatibility interval |
+|---------------|----------------------------|
+| CF duration, single (ms)| `r single.cfdurn.hpd.post[1]`-`r single.cfdurn.hpd.post[2]`|
+| CF duration, multi (ms)| `r multi.cfdurn.hpd.post[1]`-`r multi.cfdurn.hpd.post[2]`|
+| Relative CF duration increase ($\frac{multi}{single}$)| `r cfdurn.rel.hpd.post[1]`-`r cfdurn.rel.hpd.post[2]`|
 
 ```{r write-results}
 df <- rbind(single.cfdurn.hpd, multi.cfdurn.hpd, cfdurn.rel.hpd)
