@@ -22,7 +22,7 @@ bibliography: hbc-references.bib
 
 ---
 
-Comment execution status: NM + HRG comments till Section (\@ref(indcallmethods))
+Comment execution status: NM + HRG comments till Section (\@ref(stats))
 
 ```{r echo=FALSE}
 library(knitr)
@@ -83,7 +83,7 @@ sampsizes <- read.csv('../combined_analysis/indcall_sample_sizes.csv')
 
 Per flight activity audio, we chose one call that was not overlapped by other calls and that had a signal-to-noise ratio of at least 20 dB (Figure \@ref(fig:fig1composite)) through a random search protocol (SI \@ref(indcallprotocol)). Briefly, from a randomly determined time point, an experimenter began searching into a randomly determined direction (backward or forward in time) until a suitable horseshoebat call was found. We were able to find 226 individual calls  across all the synchronised audio files. Calls were automatically segmented into their corresponding parts iFM, tFM or CF (Figure \@ref(fig:fig1composite)) ) using the itsfm package [@itsfmcitation]. Most approaches to date segment CF-FM calls into their components by high/low pass filtering around the call's peak frequency [@siemers2005species;@schuchmann2012horseshoe;@tian1997echolocation;@lu2020echolocating;@schoeppler2018precise]. For an accurate estimate of the peak frequency, this approach requires a recording of the call with a prominent CF component, which is suitable under controlled laboratory settings. Peak frequency estimation often fails in the analysis of CF-FM calls recorded in the field under a variety of conditions eg. calls with loud FM and faint CF components. *itsfm* overcomes these limitations by tracking the change in frequency over the call time to segment it into FM and CF components. For our analysis, we defined FM components as those portions of a call where frequency modulation was larger than 2 kHz/ms. Further settings were a maximum acceleration of 3 kHz/ms$^{2}$, an extrapolation window of 50 $\mu$s and a window size of 375 samples. Threshold signal level and time-frequency clip range were manually tuned for each calls using the ```pwvd``` method, since each call had differing received levels.
 
-From the three components of each call, we measured specific parameters. For the CF component, we measured the peak frequency, RMS level and duration. The CF peak frequency was quantified because bats may shift their CF frequencies in the presence of conspecifics. For the FM components, we measured the lowest frequency (at 10 dB below the level of the peak frequency of the FM component), bandwidth (defined as difference between the CF peak frequency and the lowest frequency of the FM component), RMS level and duration. We also calculated the iFM/CF and tFM/CF level difference, i.e., the level of the iFM and tFM components relative to the CF component, because CF-FM bats independently vary the level of call components in a context specific manner [@tian1997echolocation;@lu2020echolocating].
+From the three components of each call, we measured specific parameters. For the CF component, we measured the peak frequency, root-mean-square (RMS) level and duration. The CF peak frequency was quantified because bats may shift their CF frequencies in the presence of conspecifics. For the FM components, we measured the lowest frequency (at 10 dB below the level of the peak frequency of the FM component), bandwidth (defined as difference between the CF peak frequency and the lowest frequency of the FM component), RMS level and duration. We also calculated the iFM/CF and tFM/CF level difference, i.e., the level of the iFM and tFM components relative to the CF component, because CF-FM bats independently vary the level of call components in a context specific manner [@tian1997echolocation;@lu2020echolocating].
 
 
 ```{r,include=FALSE,echo=FALSE}
@@ -92,28 +92,43 @@ From the three components of each call, we measured specific parameters. For the
 ```
 \newpage
 
-```{r fig1composite,echo=FALSE, out.width="100%",fig.cap='Individual and windowed call analysis examples. A-B: 150ms audio snippets from a single bat recording (A), and a multi-bat recording (B). The vertical lines indicate the start and stop of the 50 ms windows. C-D: Example of a manually selected CF-FM call, with its spectrogram (C) and waveform (D) representation. The call was automatically segmented into its initial frequency-modulated (iFM), central constant-frequency (CF) and terminal frequency-modulated (tFM) components based on frequency change over time , using the *itsfm* package. The itsfm package allows accurate segmentation into call components  under challenging recording conditions.'}
+```{r fig1composite,echo=FALSE, out.width="100%",fig.cap="A-B: Examples of a single bat (A) and a multi-bat (B) recording used for windowed call analysis. The vertical lines indicate the borders between the 50-ms-long windows. C-D: Example of a manually selected call used for individual call analysis, showing its spectrogram (C) and waveform (D) representation. The call was automatically segmented into its initial frequency-modulated (iFM), central constant-frequency (CF) and terminal frequency-modulated (tFM) components based on frequency change over time , using the itsfm package"}
+
+# Changes to implement (comments of 2021-07-28)
+# make the labels stand out more
+# make individual call analysis occupy 1st column, and windowed on second column
+# add descriptive text (ind. call analysis and windowed call analysis) above the subplots on the columns 
+#	# if required, reduce the size of the panels and add the text description
+# Push the 'Time, ms' X label below
+# Make the figure into a one column figure
+# Reduce x/y tick fontsize (8 points), details in a panel (6/9 points)
+# Put the units in brackets 'Time (ms)' or 'Frequency (kHz)'
 
 include_graphics('figures/fig1_composite.png')
 ```
 
-### Windowed calls analysis 
+### Windowed calls analysis {#wincallmethods}
 
-Each flight activity audio was split into consecutive 50 ms windows (See Figure \@ref(fig:fig1composite), SI \@ref(windowdetails) for details of window splitting). We chose a window duration of 50 ms as it provided high spectral resolution (20 Hz at 250 kHz sampling rate) that allows to distinguish between multiple CF components that may be contained in the window. Initial observations showed that 50 ms was about the longest observed duration of a bat call in our data, and was about twice the length of typical calls. 
+Each flight activity audio was split into consecutive 50 ms windows (See Figure \@ref(fig:fig1composite), SI \@ref(windowdetails) for details of window splitting). We chose a window duration of 50 ms as it provided high spectral resolution (20 Hz at 250 kHz sampling rate) that allows to distinguish between multiple CF components that may be contained in the window. Another reason we chose 50 ms windows was because initial observations showed most calls were much shorter than this duration, thus allowing one or more calls to be found in a window. 
 
-Over the course of a flight activity audio , there may be multiple windows without calls or very faint calls in them. To exclude those windows, we removed all windows whose RMS level were not at least 20 dB above the maximum RMS level of manually annotated audio segments without calls (for details, see SI \@ref(silentwindow)). From the remaining windows that contained echolocation calls, we measured each window’s received RMS level, dominant frequencies and FM lower frequencies. Dominant frequencies are defined as local frequency peaks in the smoothed power spectrum that are within 14 dB of the window’s peak frequency (i.e., the frequency with highest energy in the spectrum). Dominant frequencies are a measurement of the CF frequencies of multiple calls in the same window (for details of dominant frequency measurement see SI \@ref(domfreqdetails)). FM lower frequencies were determined by a spectrogram- based method which identified FM regions and chose the lowest frequency in all FM regions identified in a window (SI \@ref(lowestfreqdetails)). There could be multiple terminal and dominant frequency values for a single window, however only one received RMS level measurement per window. We chose the measurements in the windowed analysis to be analogous to the measurements in the individual call analyses:  the dominant frequencies in the windowed analysis complements the CF peak frequency measurements in the individual call analysis, while the lower frequencies and RMS measurements of the FM parts are analogous to the bandwidth and RMS level of the FM parts of the individual call analysis.
+To exclude windows without calls or with vrey faint calls, we excluded all windows whose RMS level was less than 20 dB above the maximum RMS level of silent windows (for details, see SI \@ref(silentwindow)). From the remaining windows that contained echolocation calls, we measured each window's received RMS level, dominant frequencies and FM lower frequencies. We chose these measurements to complement the analogous measurements in the individual call analyses. The dominant frequencies describe the CF frequencies of multiple calls in the same windows and were defined as local peaks of the smoothed power spectrum (rolling mean average, 100 Hz bin-equivalent window) with a level of not more than 14 dB below the highest peak (for details see SI \@ref(domfreqdetails)). Dominant frequencies complement the CF peak frequency measurement of individual calls. FM lower frequencies were defined as the lowest frequencies extracted from each identified FM region in a spectrogram representation of the window (see SI \@ref(lowestfreqdetails)). FM lower frequencies in the windowed analysis are analogous to the i/tFM lower frequency of the individual call analysis.The RMS level describes the received level of the window, and was defined as the root-mean-square of all samples in a window. In a single window, there could be multiple terminal and dominant frequency measurement, but only one received RMS level measurement.
 
-The advantage of the windowed analysis is the possibility to make ‘virtual multi-bat’ data [@fawcett2015echolocation;@ratcliffe2004conspecifics] by combining observed single bat call measurements or sequences. We created virtual multi-bat audio by combining single bat audio-files that were of similar durations (SI \@ref(virtualdetails)). This represents a ‘null’ dataset of multiple bats that were echolocating, but not responding to each other’s presence. We performed the same window acoustic analysis on the virtual multi-bat audio as described above.
+We created 'virtual multi-bat' data [@fawcett2015echolocation;@ratcliffe2004conspecifics] by combining single bat audio-files that were of similar durations (SI \@ref(virtualdetails)). This generated a 'null' dataset of multiple bats that were echolocating together without altering their calls in groups. We performed the same windowed call analysis on the virtual multi-bat audio as described above for the real multi-bat audio, to compare real echolocation during group flight and virtual group flight.
 
+# Statistical analysis {#stats}
 
-# Statistical analysis 
-
-We observed up to four bats flying in the cave at the same time. Especially in the individual call dataset the number of recordings of multi-bat ($\geq$ 2 bats) calls was low (N=177, 40, 7, 2 for group sizes of 1, 2, 3, 4 respectively,), we thus combined all annotations with $\geq$ 2 bats into a multi-bat class and compared ‘single’ and ‘multi’ bat calls in the individual call analysis. To maintain consistency with individual call analysis we also performed comparisons of ‘single-bat’, ‘multi-bat’ and ‘virtual-multi-bat’ flight-activity audio in the windowed analysis.
+We observed up to four bats flying in the cave at the same time. Especially in the individual call dataset the number of recordings of multi-bat ($\geq$ 2 bats) calls was low (N=177, 40, 7, 2 for group sizes of 1, 2, 3, 4 respectively,), we thus combined all annotations with $\geq$ 2 bats into a multi-bat class and compared ‘single’ and ‘multi’ bat ($\geq 2$ bats) calls in the individual call analysis. To maintain consistency with individual call analysis we also performed comparisons of ‘single-bat’, ‘multi-bat’ and ‘virtual-multi-bat’ flight-activity audio in the windowed analysis.
 
 
 ## Individual call analysis {#indcallstatanalysis}
 
-We ran linear mixed-models (LMMs) with group size as the predictor and recording hour as random intercept for all parameters.  Model coefficients were estimated using a Bayesian approach with non-informative priors using the ```sim``` function of the 'arm' package [@arm], and the 93% compatibility intervals were used in reporting. The compatibility interval represents the most probable range of values the estimate will lie within, given the statistical model and data at hand.
+```{r statstodo}
+# Convert all intervals to 95% compatibility intervals
+# Include the MAP with Comp. Int for 1) Multi-Single and 2) Multi/Single (ratio)
+# Include regression model structure in the SI tables 
+```
+
+We ran linear mixed-models (LMMs) with group size as the predictor and recording hour as random intercept for all parameters.  Model fit was initially checked by performing residual diagnostics. Model coefficients were estimated using a Bayesian approach with non-informative priors using the ```sim``` function of the 'arm' package [@arm], and the 95% highest posterior-density compatibility intervals (Comp. Int.) were used in reporting. The compatibility interval represents the lower and upper borders of the posterior distribution of the coefficient estimates. We would like to highlight that a compatibility interval is not equivalent to a confidence interval, even though the numerical values may be similar under certain cases [@nalborczyk2019pragmatism]. 
 
 ## Windowed call analysis 
 

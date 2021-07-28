@@ -1,7 +1,7 @@
 ---
 title: "Individual call analysis with LM/Ms"
 author: "Thejasvi Beleyur"
-date: "3/3/2021"
+date: 'Last Updated : `r Sys.time()`'
 bibliography: analysis-refs.bib
 output: html_document
 ---
@@ -45,8 +45,8 @@ d_tordered$ifm_terminal_frequency <- d_tordered$ifm_terminal_frequency * 10^-3
 d_tordered$cf_peak_frequency <- d_tordered$cf_peak_frequency*10^-3
 # number of simulations to get from the posterior distribution
 num_post <- 5000
-# convenience function 
-get.hpd <- function(x,prange=0.93){HPDinterval(as.mcmc(x),prob=prange)}
+# convenience function to generate 95% highest posterior density interval
+get.hpd <- function(x,prange=0.95){HPDinterval(as.mcmc(x),prob=prange)}
 ```
 
 The general approach in this notebook will be to run a linear mixed model with the following structure $Parameter$~$group\:status$, where $group\:status + (1|recoring\:hour)$ is either single or multi-bat, and $(1|recording\:hour)$ is the random intercept to control for multiple recordings in the same time period.
@@ -82,8 +82,21 @@ The fixed effects don't seem to change too much with or without the 'problematic
 tfmdurn.sim <- sim(tfmdurn.lmm, n.sim=num_post)
 tfmdurn.fixefs.hpd <- round(apply(fixef(tfmdurn.sim),2,get.hpd),2)
 tfmdurn.rel.increase <- (fixef(tfmdurn.sim)[,1]+fixef(tfmdurn.sim)[,2])/fixef(tfmdurn.sim)[,1]
+tfmdurn.ms.increase <- fixef(tfmdurn.sim)[,2]
 
+
+# The relative change HPD interval and MAP (maximum a posteriori) estimates
+
+# For relative changes
 tfmdurn.rel.hpd <- round(get.hpd(tfmdurn.rel.increase),2)
+tfmdurn.rel.map <- round(mean(tfmdurn.rel.increase), 2)
+tfmdurn.rel.map.compint <- c(tfmdurn.rel.map, tfmdurn.rel.hpd)
+
+
+# For unit time changes
+tfmdurn.ms.change.hpd <- round(get.hpd(tfmdurn.ms.increase),2)
+tfmdurn.ms.change.map <- round(mean(tfmdurn.ms.increase), 2)
+tfmdurn.ms.change.map.compint <- c(tfmdurn.ms.change.map, tfmdurn.ms.change.hpd)
 ```
 Multi-bat tFMs are `r tfmdurn.fixefs.hpd[1,2]`-`r tfmdurn.fixefs.hpd[2,2]` ms longer than in single-bat calls. The overall relative increase in tFM duration is between `r tfmdurn.rel.hpd`, indicating a scenario with no or slight increase in duration. 
 
@@ -106,8 +119,22 @@ The assumptions are met pretty well, and now we can generate the posterior distr
 ifmdurn.sim <- sim(ifmdurn.lmm, n.sim=num_post)
 
 ifmdurn.fixefs.hpd <- round(apply(fixef(ifmdurn.sim),2,get.hpd),2)
+
+# HPD interval and MAP estimate
+
+# For relative change
 ifmdurn.rel.increase <- (fixef(ifmdurn.sim)[,1]+fixef(ifmdurn.sim)[,2])/fixef(ifmdurn.sim)[,1]
 ifmdurn.rel.hpd <- round(get.hpd(ifmdurn.rel.increase),2)
+ifmdurn.rel.map <- round(mean(ifmdurn.rel.increase), 2)
+ifmdurn.rel.map.compint <- c(ifmdurn.rel.map, ifmdurn.rel.hpd)
+
+
+# For unit time change
+ifmdurn.ms.increase <- fixef(ifmdurn.sim)[,2]
+ifmdurn.ms.change.hpd <- round(get.hpd(ifmdurn.ms.increase), 2)
+ifmdurn.ms.change.map <- round(mean(ifmdurn.ms.increase), 2)
+ifmdurn.ms.change.map.compint <- c(ifmdurn.ms.change.map, ifmdurn.ms.change.hpd)
+
 ```
 The increase in iFM duration is between `r ifmdurn.fixefs.hpd[,2]` ms. The relative increase in iFM duration of multi-bat calls is also somewhat unclear between `r ifmdurn.rel.hpd[1]`-`r ifmdurn.rel.hpd[2]` times that of single bat calls.
 
@@ -138,8 +165,11 @@ qqnorm(resid(cfdurn.lmm2));qqline(resid(cfdurn.lmm2))
 qqnorm(ranef(cfdurn.lmm2)$rechour$`(Intercept)`);qqline(ranef(cfdurn.lmm2)$rechour$`(Intercept)`,main='random effects') 
 
 
+
+
+
 ```
-The residuals fit well, let us now proceed to generate the posterior distribution. 
+The residuals fit pretty well, let us now proceed to generate the posterior distribution. 
 
 ```{r cfdurn-post}
 
@@ -150,10 +180,19 @@ cfdurn.means.multi <- round((1/(fixef(cfdurn.sim)[,1]+fixef(cfdurn.sim)[,2])),2)
 cfdurn.means.single <- round((1/fixef(cfdurn.sim)[,1]),2)
 cfdurn.rel.increase <- cfdurn.means.multi/cfdurn.means.single
 cfdurn.diff <- cfdurn.means.multi-cfdurn.means.single
-cfdurn.diff.hpd <- get.hpd(cfdurn.diff)
 
 
+# milliseconds change
+cfdurn.diff.hpd <- round(get.hpd(cfdurn.diff), 2)
+cfdurn.diff.map <- round(mean(cfdurn.diff), 2)
+cfdurn.diff.map.compint <- c(cfdurn.diff.map, cfdurn.diff.hpd)
+
+# relative change
 cfdurn.rel.hpd <- round(get.hpd(cfdurn.rel.increase),2)
+cfdurn.rel.map <- round(mean(cfdurn.rel.increase), 2)
+cfdurn.rel.map.compint <- c(cfdurn.rel.map, cfdurn.rel.hpd)
+
+
 cfdurn.mean.single <- round(mean(cfdurn.means.single),2)
 cfdurn.single.hpd <- get.hpd(cfdurn.means.single)
 cfdurn.mean.multi <- round(mean(cfdurn.means.multi),2)
@@ -183,8 +222,20 @@ tfmlower.sim <- sim(tfmlower.lmm, n.sim=num_post)
 
 tfmlower.fixefs.hpd <- round(apply(fixef(tfmlower.sim),2,get.hpd),2)
 tfmlower.fixefs.mean <- round(apply(fixef(tfmlower.sim),2,mean),2)
+
+# relative 
 tfmlower.rel.increase <- (fixef(tfmlower.sim)[,1]+fixef(tfmlower.sim)[,2])/fixef(tfmlower.sim)[,1]
 tfmlower.rel.hpd <- round(get.hpd(tfmlower.rel.increase),2)
+tfmlower.rel.map <- round(mean(tfmlower.rel.increase),2)
+tfmlower.rel.map.compint <- c(tfmlower.rel.map, tfmlower.rel.hpd)
+
+# change in kHz
+tfmlower.khz.change <- fixef(tfmlower.sim)[,2]
+tfmlower.khz.hpd <- round(get.hpd(tfmlower.khz.change), 2)
+tfmlower.khz.map <- round(mean(tfmlower.khz.change), 2)
+tfmlower.khz.map.compint <- c(tfmlower.khz.map, tfmlower.khz.hpd)
+
+
 ```
 The mean tFM lower frequency in single bats is `r tfmlower.fixefs.mean[1]`kHz, and multi-bat calls show an average decrease of `r tfmlower.fixefs.mean[2]`kHz. The relative decrease of multi-bat tFM lower frequency is in the range of `r tfmlower.rel.hpd`, in comparison to single bat calls. 
 
@@ -202,15 +253,28 @@ qqnorm(resid(ifmlower.lmm));qqline(resid(ifmlower.lmm))
 qqnorm(ranef(ifmlower.lmm)$rechour$`(Intercept)`);qqline(ranef(ifmlower.lmm)$rechour$`(Intercept)`,main='random effects') 
 
 ```
-The model assumptions are met fairly well. Now let's proceed. 
+The model assumptions are met okay-ish. Now let's proceed. 
+
+
 ```{r ifmlower-sim, warning=F}
 
 ifmlower.sim <- sim(ifmlower.lmm, n.sim=num_post)
-
 ifmlower.fixefs.hpd <- round(apply(fixef(ifmlower.sim),2,get.hpd),2)
 ifmlower.fixefs.mean <- round(apply(fixef(ifmlower.sim),2,mean),2)
+
+# rel change
+
 ifmlower.rel.increase <- (fixef(ifmlower.sim)[,1]+fixef(ifmlower.sim)[,2])/fixef(ifmlower.sim)[,1]
-ifmlower.rel.hpd <- round(get.hpd(ifmlower.rel.increase),2)
+ifmlower.rel.hpd <- round(get.hpd(ifmlower.rel.increase), 2)
+ifmlower.rel.map <- round(mean(ifmlower.rel.increase), 2)
+ifmlower.rel.map.compint <- c(ifmlower.rel.map, ifmlower.rel.hpd)
+
+# change in khz
+ifmlower.khz.increase <- fixef(ifmlower.sim)[,2]
+ifmlower.khz.hpd <- round(get.hpd(ifmlower.khz.increase), 2)
+ifmlower.khz.map <- round(mean(ifmlower.khz.increase), 2)
+ifmlower.khz.map.compint <- c(ifmlower.khz.map, ifmlower.khz.hpd)
+
 ```
 
 The mean ifm lower frequency in single bats is `r ifmlower.fixefs.mean[1]`kHz, and multi-bat calls show an average decrease of `r ifmlower.fixefs.mean[2]`kHz. The relative decrease of multi-bat ifm lower frequency is in the range of `r ifmlower.rel.hpd`, in comparison to single bat calls. 
@@ -229,15 +293,27 @@ qqnorm(resid(cfpeak.lmm));qqline(resid(cfpeak.lmm))
 qqnorm(ranef(cfpeak.lmm)$rechour$`(Intercept)`);qqline(ranef(cfpeak.lmm)$rechour$`(Intercept)`,main='random effects') 
 
 ```
-The model assumptions are met fairly well. Now let's proceed. 
+The model assumptions are met okay'ish. Now let's proceed. 
+
 ```{r cfpeak-sim, warning=F}
 
 cfpeak.sim <- sim(cfpeak.lmm, n.sim=num_post)
 
 cfpeak.fixefs.hpd <- round(apply(fixef(cfpeak.sim),2,get.hpd),2)
 cfpeak.fixefs.mean <- round(apply(fixef(cfpeak.sim),2,mean),2)
+
+# rel increase
 cfpeak.rel.increase <- (fixef(cfpeak.sim)[,1]+fixef(cfpeak.sim)[,2])/fixef(cfpeak.sim)[,1]
-cfpeak.rel.hpd <- round(get.hpd(cfpeak.rel.increase),2)
+cfpeak.rel.hpd <- round(get.hpd(cfpeak.rel.increase),3)
+cfpeak.rel.map <- round(mean(cfpeak.rel.increase), 3)
+cfpeak.rel.map.compint <- c(cfpeak.rel.map, cfpeak.rel.hpd)
+
+# change khz
+cfpeak.increase <- fixef(cfpeak.sim)[,2]
+cfpeak.khz.hpd <- round(get.hpd(cfpeak.increase), 2)
+cfpeak.khz.map <- round(mean(cfpeak.increase), 2)
+cfpeak.khz.map.compint <- c(cfpeak.khz.map, cfpeak.khz.hpd)
+
 ```
 
 
@@ -266,11 +342,15 @@ tfmreclev.sim <- sim(tfmreclev.lmm, n.sim=num_post)
 
 tfmreclev.fixefs.hpd <- round(apply(fixef(tfmreclev.sim),2,get.hpd),2)
 tfmreclev.fixefs.mean <- round(apply(fixef(tfmreclev.sim),2,mean),2)
-tfmreclev.rel.increase <- (fixef(tfmreclev.sim)[,1]+fixef(tfmreclev.sim)[,2]) - fixef(tfmreclev.sim)[,1]
-tfmreclev.rel.hpd <- round(get.hpd(tfmreclev.rel.increase),2)
+
+# increase in dB  -- CALCULATING RATIOS OF DB'S doesn't make sense
+tfmreclev.db.increase <-  fixef(tfmreclev.sim)[,2]
+tfmreclev.db.hpd <- round(get.hpd(tfmreclev.db.increase),2)
+tfmreclev.db.map <- round(mean(tfmreclev.db.increase), 2)
+tfmreclev.db.map.compint <- c(tfmreclev.db.map, tfmreclev.db.hpd)
+
 ```
 
-The mean tFM rec. level in single bats is `r tfmreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r tfmreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat CF peak frequency is in the range of `r tfmreclev.rel.hpd`dB, in comparison to single bat calls. 
 
 ## iFM received level 
 
@@ -287,6 +367,7 @@ qqnorm(resid(ifmreclev.lmm));qqline(resid(ifmreclev.lmm))
 qqnorm(ranef(ifmreclev.lmm)$rechour$`(Intercept)`);qqline(ranef(ifmreclev.lmm)$rechour$`(Intercept)`,main='random effects') 
 
 ```
+The residual fit is not too bad. Now off to estimating the parameter posteriors.
 
 ```{r ifm-reclevel.sim}
 
@@ -294,12 +375,15 @@ ifmreclev.sim <- sim(ifmreclev.lmm, n.sim=num_post)
 
 ifmreclev.fixefs.hpd <- round(apply(fixef(ifmreclev.sim),2,get.hpd),2)
 ifmreclev.fixefs.mean <- round(apply(fixef(ifmreclev.sim),2,mean),2)
-ifmreclev.rel.increase <- (fixef(ifmreclev.sim)[,1]+fixef(ifmreclev.sim)[,2]) - fixef(ifmreclev.sim)[,1]
-ifmreclev.rel.hpd <- round(get.hpd(ifmreclev.rel.increase),2)
+
+# only calculate dB increase -- and not ratios of dB's!!!
+ifmreclev.db.increase <- fixef(ifmreclev.sim)[,2]
+ifmreclev.db.hpd <- round(get.hpd(ifmreclev.db.increase),2)
+ifmreclev.db.map <- round(mean(ifmreclev.db.increase))
+ifmreclev.db.map.compint <- c(ifmreclev.db.map, ifmreclev.db.hpd)
 ```
 
 
-The mean iFM rec. level in single bats is `r ifmreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r ifmreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat CF peak frequency is in the range of `r ifmreclev.rel.hpd`dB, in comparison to single bat calls.
 
 ## CF received level 
   
@@ -325,11 +409,15 @@ cfreclev.sim <- sim(cfreclev.lmm, n.sim=num_post)
 
 cfreclev.fixefs.hpd <- round(apply(fixef(cfreclev.sim),2,get.hpd),2)
 cfreclev.fixefs.mean <- round(apply(fixef(cfreclev.sim),2,mean),2)
-cfreclev.rel.increase <- (fixef(cfreclev.sim)[,1]+fixef(cfreclev.sim)[,2]) - fixef(cfreclev.sim)[,1]
-cfreclev.rel.hpd <- round(get.hpd(cfreclev.rel.increase),2)
-```
 
-The mean cf rec. level in single bats is `r cfreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r cfreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat CF peak frequency is in the range of `r cfreclev.rel.hpd`dB, in comparison to single bat calls.
+# dB ratios -- only difference!
+
+cfreclev.db.increase <- fixef(cfreclev.sim)[,2]
+cfreclev.db.hpd <- round(get.hpd(cfreclev.db.increase),2)
+cfreclev.db.map <- round(mean(cfreclev.db.increase), 2)
+cfreclev.db.map.compint <- c(cfreclev.db.map, cfreclev.db.hpd)
+
+```
 
 ## tFM-CF level ratio 
 
@@ -354,13 +442,15 @@ qqnorm(ranef(tfmcfreclev.lmm)$rechour$`(Intercept)`);qqline(ranef(tfmcfreclev.lm
 
 tfmcfreclev.sim <- sim(tfmcfreclev.lmm, n.sim=num_post)
 
+# dB difference only
 tfmcfreclev.fixefs.hpd <- round(apply(fixef(tfmcfreclev.sim),2,get.hpd),2)
 tfmcfreclev.fixefs.mean <- round(apply(fixef(tfmcfreclev.sim),2,mean),2)
-tfmcfreclev.rel.increase <- (fixef(tfmcfreclev.sim)[,1]+fixef(tfmcfreclev.sim)[,2]) - fixef(tfmcfreclev.sim)[,1]
-tfmcfreclev.rel.hpd <- round(get.hpd(tfmcfreclev.rel.increase),2)
+tfmcfreclev.db <- (fixef(tfmcfreclev.sim)[,1]+fixef(tfmcfreclev.sim)[,2]) - fixef(tfmcfreclev.sim)[,1]
+tfmcfreclev.db.hpd <- round(get.hpd(tfmcfreclev.db),2)
+tfmcfreclev.db.map <- round(mean(tfmcfreclev.db), 2)
+tfmcfreclev.db.map.compint <- c(tfmcfreclev.db.map, tfmcfreclev.db.hpd)
 ```
 
-The mean tfmcf rec. level in single bats is `r tfmcfreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r tfmcfreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat tfmcf peak frequency is in the range of `r tfmcfreclev.rel.hpd`dB, in comparison to single bat calls.
 
 ## iFM-CF level ratio 
 
@@ -387,12 +477,14 @@ ifmcfreclev.sim <- sim(ifmcfreclev.lmm, n.sim=num_post)
 
 ifmcfreclev.fixefs.hpd <- round(apply(fixef(ifmcfreclev.sim),2,get.hpd),2)
 ifmcfreclev.fixefs.mean <- round(apply(fixef(ifmcfreclev.sim),2,mean),2)
-ifmcfreclev.rel.increase <- (fixef(ifmcfreclev.sim)[,1]+fixef(ifmcfreclev.sim)[,2]) - fixef(ifmcfreclev.sim)[,1]
-ifmcfreclev.rel.hpd <- round(get.hpd(ifmcfreclev.rel.increase),2)
+
+# only db difference
+ifmcfreclev.db.increase <- fixef(ifmcfreclev.sim)[,2]
+ifmcfreclev.db.hpd <- round(get.hpd(ifmcfreclev.db.increase),2)
+ifmcfreclev.db.map <- round(mean(ifmcfreclev.db.increase), 2)
+ifmcfreclev.db.map.compint <- c(ifmcfreclev.db.map, ifmcfreclev.db.hpd)
 ```
 
-
-The mean ifmcf rec. level in single bats is `r ifmcfreclev.fixefs.mean[1]`dB rms, and multi-bat calls show an average of `r ifmcfreclev.fixefs.mean[2]`dB difference. The relative increase of multi-bat ifmcf peak frequency is in the range of `r ifmcfreclev.rel.hpd`dB, in comparison to single bat calls.
 
 ## tFM bandwidth 
 
@@ -415,8 +507,19 @@ tfmbw.sim <- sim(tfmbw.lmm, n.sim=num_post)
 
 tfmbw.fixefs.hpd <- round(apply(fixef(tfmbw.sim),2,get.hpd),2)
 tfmbw.fixefs.mean <- round(apply(fixef(tfmbw.sim),2,mean),2)
+
+# relative increase
 tfmbw.rel.increase <- (fixef(tfmbw.sim)[,1]+fixef(tfmbw.sim)[,2])/fixef(tfmbw.sim)[,1]
 tfmbw.rel.hpd <- round(get.hpd(tfmbw.rel.increase),2)
+tfmbw.rel.map <- round(mean(tfmbw.rel.increase), 2)
+tfmbw.rel.map.compint <- c(tfmbw.rel.map, tfmbw.rel.hpd)
+
+# increse khz
+tfmbw.khz.increase <- fixef(tfmbw.sim)[,2]
+tfmbw.khz.hpd <- round(get.hpd(tfmbw.khz.increase), 2)
+tfmbw.khz.map <- round(mean(tfmbw.khz.increase), 2)
+tfbw.khz.map.compint <- c(tfmbw.khz.map, tfmbw.khz.hpd)
+
 ```
 
 
@@ -442,60 +545,91 @@ ifmbw.sim <- sim(ifmbw.lmm, n.sim=num_post)
 
 ifmbw.fixefs.hpd <- round(apply(fixef(ifmbw.sim),2,get.hpd),2)
 ifmbw.fixefs.mean <- round(apply(fixef(ifmbw.sim),2,mean),2)
+
+# relative change
 ifmbw.rel.increase <- (fixef(ifmbw.sim)[,1]+fixef(ifmbw.sim)[,2])/fixef(ifmbw.sim)[,1]
-ifmbw.rel.hpd <- round(get.hpd(ifmbw.rel.increase),2)
+ifmbw.rel.hpd <- round(get.hpd(ifmbw.rel.increase), 2)
+ifmbw.rel.map <- round(mean(ifmbw.rel.increase), 2)
+ifmbw.rel.map.compint <- c(ifmbw.rel.map, ifmbw.rel.hpd)
+
+# khz change
+ifmbw.khz.change <- fixef(ifmbw.sim)[,2]
+ifmbw.khz.hpd <- round(get.hpd(ifmbw.khz.change) ,2)
+ifmbw.khz.map <- round(mean(ifmbw.khz.change), 2)
+ifmbw.khz.map.compint <- c(ifmbw.khz.map, ifmbw.khz.hpd)
+
 ```
 
 
 ## Summary of all parameters {#paramsummary}
 
+```{r shortening}
+# renaming the output variables because they're so long...
+cfdurn.diff.mcoi <- cfdurn.diff.map.compint; cfdurn.rel.mcoi <- cfdurn.rel.map.compint
+tfmdurn.diff.mcoi <- tfmdurn.ms.change.map.compint ; tfmdurn.rel.mcoi <- tfmdurn.rel.map.compint
+ifmdurn.diff.mcoi <- ifmdurn.ms.change.map.compint; ifmdurn.rel.mcoi <- ifmdurn.rel.map.compint
+# frequency stuff
+cfpeak.diff.mcoi <- cfpeak.khz.map.compint ; cfpeak.rel.mcoi <- cfpeak.rel.map.compint
+tfmlower.diff.mcoi <- tfmlower.khz.map.compint; tfmlower.rel.mcoi <- tfmlower.rel.map.compint
+ifmlower.diff.mcoi <- ifmlower.khz.map.compint; ifmlower.rel.mcoi <- ifmlower.rel.map.compint
+# received level
+cfreclev.mcoi <- cfreclev.db.map.compint
+tfmreclev.mcoi <- tfmreclev.db.map.compint
+ifmreclev.mcoi <- ifmreclev.db.map.compint
+# ratios
+tfmcf.ratio.mcoi <- tfmcfreclev.db.map.compint
+ifmcf.ratio.mcoi <- ifmcfreclev.db.map.compint
+# bandwidths
+tfmbw.diff.mcoi <- tfbw.khz.map.compint ; tfmbw.rel.mcoi <- tfmbw.rel.map.compint
+ifmbw.diff.mcoi <- ifmbw.khz.map.compint ; ifmbw.rel.mcoi <- ifmbw.rel.map.compint
+```
 
 
-| Parameter              | $Multi-Single$ difference (93% Co.I)                | $\frac{Multi}{Single}$ relative ratio (93% Co.I)|
-|------------------------|-----------------------------------------------------|-------------------------------------------------|
-| CF duration (ms)       |  `r cfdurn.diff.hpd[1]`- `r cfdurn.diff.hpd[2]`      | `r cfdurn.rel.hpd[1]`- `r cfdurn.rel.hpd[2]`     |
-| tFM duration (ms)      |`r tfmdurn.fixefs.hpd[1,2]`- `r tfmdurn.fixefs.hpd[2,2]`  | `r tfmdurn.rel.hpd[1]`- `r tfmdurn.rel.hpd[2]`   |
-| iFM duration (ms)      |  `r ifmdurn.fixefs.hpd[1,2]`- `r ifmdurn.fixefs.hpd[2,2]`| `r ifmdurn.rel.hpd[1]`- `r ifmdurn.rel.hpd[2]`   |
-| CF peak frequency (kHz)|  `r cfpeak.fixefs.hpd[1,2]`- `r cfpeak.fixefs.hpd[2,2]`| `r cfpeak.rel.hpd[1]`- `r cfpeak.rel.hpd[2]`   |
-|tFM lower frequency (kHz)|`r tfmlower.fixefs.hpd[1,2]`- `r tfmlower.fixefs.hpd[2,2]`| `r tfmlower.rel.hpd[1]`- `r tfmlower.rel.hpd[2]`|
-|iFM lower frequency (kHz)|`r ifmlower.fixefs.hpd[1,2]`- `r ifmlower.fixefs.hpd[2,2]`| `r ifmlower.rel.hpd[1]`- `r ifmlower.rel.hpd[2]`|
-| CF level (dB rms)      |  `r cfreclev.fixefs.hpd[1,2]`- `r cfreclev.fixefs.hpd[2,2]`| -                                         |
-| tFM level (dB rms)     |  `r tfmreclev.fixefs.hpd[1,2]`- `r tfmreclev.fixefs.hpd[2,2]`| -                                       |
-| iFM level (dB rms)     |  `r ifmreclev.fixefs.hpd[1,2]`- `r ifmreclev.fixefs.hpd[2,2]`| -                                       |
-| tFM-CF ratio (dB)      |  `r tfmcfreclev.fixefs.hpd[1,2]`- `r tfmcfreclev.fixefs.hpd[2,2]`| -                                   |
-| iFM-CF ratio (dB)      |  `r ifmcfreclev.fixefs.hpd[1,2]`- `r ifmcfreclev.fixefs.hpd[2,2]`| -                                   |
-| tFM bandwidth (kHz)    |  `r tfmbw.fixefs.hpd[1,2]`- `r tfmbw.fixefs.hpd[2,2]`|`r tfmbw.rel.hpd[1]`- `r tfmbw.rel.hpd[2]`        |
-| iFM bandwidth (kHz)    |  `r ifmbw.fixefs.hpd[1,2]`- `r ifmbw.fixefs.hpd[2,2]`|`r ifmbw.rel.hpd[1]`- `r ifmbw.rel.hpd[2]`        |
+| Parameter              |                    $Multi-Single$ difference: MAP, (95% Comp. Int.)                          |         $\frac{Multi}{Single}$ relative ratio: MAP, (95% Comp. Int.)                    |
+|------------------------|----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| CF duration (ms)       |      `r cfdurn.diff.mcoi[1]`,  (`r cfdurn.diff.mcoi[2]` , `r cfdurn.diff.mcoi[3]`)          | `r cfdurn.rel.mcoi[1]`, (`r cfdurn.rel.mcoi[2]`,`r cfdurn.rel.mcoi[3]`)                 |
+| tFM duration (ms)      |      `r tfmdurn.diff.mcoi[1]`, (`r tfmdurn.diff.mcoi[2]`, `r tfmdurn.diff.mcoi[3]`)         | `r tfmdurn.rel.mcoi[1]`, (`r tfmdurn.rel.mcoi[2]`,`r tfmdurn.rel.mcoi[3]`)              |
+| iFM duration (ms)      |      `r ifmdurn.diff.mcoi[1]`, (`r ifmdurn.diff.mcoi[2]`, `r ifmdurn.diff.mcoi[3]`)         | `r ifmdurn.rel.mcoi[1]`, (`r ifmdurn.rel.mcoi[2]`, `r ifmdurn.rel.mcoi[3]`)             |
+| CF peak frequency (kHz)|    | `r cfpeak.diff.mcoi[1]`,  (`r cfpeak.diff.mcoi[2]`,`r cfpeak.diff.mcoi[3]`)            | `r cfpeak.rel.mcoi[1]`, (`r cfpeak.rel.mcoi[2]`, `r cfpeak.rel.mcoi[3]`)                |
+|tFM lower frequency (kHz)| `r tfmlower.diff.mcoi[1]`, (`r tfmlower.diff.mcoi[2]`, `r tfmlower.diff.mcoi[3]`)          |  `r tfmlower.rel.mcoi[1]`, (`r tfmlower.diff.mcoi[2]`,`r tfmlower.diff.mcoi[3]`)        |
+|iFM lower frequency (kHz)| `r ifmlower.diff.mcoi[1]`, (`r ifmlower.diff.mcoi[2]`, `r ifmlower.diff.mcoi[3]`)          |  `r ifmlower.rel.mcoi[1]`, (`r ifmlower.diff.mcoi[2]`,`r ifmlower.diff.mcoi[3]`)        |
+| CF level (dB rms)      | `r cfreclev.mcoi[1]`, (`r cfreclev.mcoi[2]`, `r cfreclev.mcoi[3]`)                          |  - |
+| tFM level (dB rms)     | `r tfmreclev.mcoi[1]`, (`r tfmreclev.mcoi[2]`, `r tfmreclev.mcoi[3]`)                       | -  |
+| iFM level (dB rms)     | `r ifmreclev.mcoi[1]`, (`r ifmreclev.mcoi[2]`, `r ifmreclev.mcoi[3]`)                       | -  |
+| tFM-CF ratio (dB)      | `r tfmcf.ratio.mcoi[1]`, (`r tfmcf.ratio.mcoi[2]`, `r tfmcf.ratio.mcoi[3]`)                 | - |
+| iFM-CF ratio (dB)      | `r ifmcf.ratio.mcoi[1]`, (`r ifmcf.ratio.mcoi[2]`, `r ifmcf.ratio.mcoi[3]`)                 | - |
+| tFM bandwidth (kHz)    | `r tfmbw.diff.mcoi[1]`, (`r tfmbw.diff.mcoi[2]`, `r tfmbw.diff.mcoi[3]`)                    |`r tfmbw.rel.mcoi[1]`, (`r tfmbw.rel.mcoi[2]`, `r tfmbw.rel.mcoi[3]`)  |
+| iFM bandwidth (kHz)    | `r ifmbw.diff.mcoi[1]`, (`r ifmbw.diff.mcoi[2]`, `r ifmbw.diff.mcoi[3]`)                    | `r ifmbw.rel.mcoi[1]`, (`r ifmbw.rel.mcoi[2]`, `r ifmbw.rel.mcoi[3]`) |
 
-Table: The observed means, estimated mean difference and relative means between multi and single bat call parameters. The 93% highest posterior density compatibility intervals (Co.I) are shown. 
+Table: Derived estimates of mean differences between multi and single bat calls, and relative change of multi-bat calls with respect to single bat calls. The relative change has not been calculated for received levels and relative received levels as the dB scale already represents a relative measurement.
 
 ```{r tabelascsv}
 # save the same table above as a csv file  with additional columns
-component <- c(rep(c('CF','tFM','iFM'),3),'tFM-CF','iFM-CF','tFM','iFM')
-parameter <- c(rep('Duration, ms',3), 'Peak frequency, kHz',
-               rep('Lower frequency, kHz',2), rep('Amplitude, dB rms',3),
-               'Ratio, dB', 'Ratio, dB', rep('Bandwidth',2))
-diff.mean <- rbind(cfdurn.diff.hpd,            tfmdurn.fixefs.hpd[,2],     ifmdurn.fixefs.hpd[,2],
-                   cfpeak.fixefs.hpd[,2],      tfmlower.fixefs.hpd[,2],    ifmlower.fixefs.hpd[,2],
-                   cfreclev.fixefs.hpd[,2],    tfmreclev.fixefs.hpd[,2],   ifmreclev.fixefs.hpd[,2],
-                   tfmcfreclev.fixefs.hpd[,2], ifmcfreclev.fixefs.hpd[,2], 
-                   tfmbw.fixefs.hpd[,2],ifmbw.fixefs.hpd[,2])
-all.ind.summary <- cbind(component, parameter, diff.mean)
-row.names(all.ind.summary)[1]<-""
-write.csv(all.ind.summary,'all_ind_summary.csv')
+# component <- c(rep(c('CF','tFM','iFM'),3),'tFM-CF','iFM-CF','tFM','iFM')
+# parameter <- c(rep('Duration, ms',3), 'Peak frequency, kHz',
+#                rep('Lower frequency, kHz',2), rep('Amplitude, dB rms',3),
+#                'Ratio, dB', 'Ratio, dB', rep('Bandwidth',2))
+# diff.mean <- rbind(cfdurn.diff.hpd,            tfmdurn.fixefs.hpd[,2],     ifmdurn.fixefs.hpd[,2],
+#                    cfpeak.fixefs.hpd[,2],      tfmlower.fixefs.hpd[,2],    ifmlower.fixefs.hpd[,2],
+#                    cfreclev.fixefs.hpd[,2],    tfmreclev.fixefs.hpd[,2],   ifmreclev.fixefs.hpd[,2],
+#                    tfmcfreclev.fixefs.hpd[,2], ifmcfreclev.fixefs.hpd[,2], 
+#                    tfmbw.fixefs.hpd[,2],ifmbw.fixefs.hpd[,2])
+# all.ind.summary <- cbind(component, parameter, diff.mean)
+# row.names(all.ind.summary)[1]<-""
+# write.csv(all.ind.summary,'all_ind_summary.csv')
 ```
 
 
 #### System Information 
 ```{r tabledata}
 # write the table into a csv file:
-summary.data <- data.frame(matrix(ncol=5,nrow=13))
-colnames(summary.data) <- c('param.name','diff.lower','diff.upper','reldiff.lower','reldiff.upper')
-summary.data$param.name <- c('CF duration (ms)','tFM duration (ms)','iFM duration (ms)','CF peak frequency (kHz)',
-                             'tFM lower frequency (kHz)','iFM lower frequency (kHz)','CF level (dB rms)',
-                             'tFM level (dB rms)','iFM level (dB rms)',
-                             'tFM-CF ratio (dB)','iFM-CF ratio (dB)',
-                             'tFM bandwidth (kHz)','iFM bandwidth (kHz)')
+# summary.data <- data.frame(matrix(ncol=5,nrow=13))
+# colnames(summary.data) <- c('param.name','diff.lower','diff.upper','reldiff.lower','reldiff.upper')
+# summary.data$param.name <- c('CF duration (ms)','tFM duration (ms)','iFM duration (ms)','CF peak frequency (kHz)',
+#                              'tFM lower frequency (kHz)','iFM lower frequency (kHz)','CF level (dB rms)',
+#                              'tFM level (dB rms)','iFM level (dB rms)',
+#                              'tFM-CF ratio (dB)','iFM-CF ratio (dB)',
+#                              'tFM bandwidth (kHz)','iFM bandwidth (kHz)')
 
 #diff.hpds <- list(cfdurn.diff.hpd,tfmdurn.fixefs.hpd,ifmdurn.fixefs.hpd,
 #                  cfpeak.fixefs.hpd, tfmlower.fixefs.hpd, ifmlower.fixefs.hpd,
