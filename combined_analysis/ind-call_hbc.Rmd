@@ -7,9 +7,12 @@ output: html_document
 ---
 
 This notebook will detail the use of bayesian linear models and mixed models to 
-quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary).
+quantify the difference between single and multi-bat call properties. The final results are presented in the [Parameter Summary](#paramsummary). The estimated means and their compatibility intervals are in the [ Mean and Comp. Intervals](#meanandcoi) section.
 
-All intervals reported here are 93% highest posterior density compatibility intervals [@gelman2019confidence;@mcelreath2020statistical]. 
+All intervals reported here are 95% highest posterior density compatibility intervals [@gelman2019confidence;@mcelreath2020statistical]. It is important to highlight here that
+the compatibility intervals (also known as credible intervals) are *not* play a similar role of to be confused with confidence intervals. While there may be a series of cases
+where the the confidence and credible intervals converge to the same numerical values - it is important to highlight that this is not the general case, and should not be treated
+as such [@nalborczyk2019pragmatism].  
 
 ```{r loading, echo=T, warning=F,message=F,results='hide'}
 
@@ -45,8 +48,13 @@ d_tordered$ifm_terminal_frequency <- d_tordered$ifm_terminal_frequency * 10^-3
 d_tordered$cf_peak_frequency <- d_tordered$cf_peak_frequency*10^-3
 # number of simulations to get from the posterior distribution
 num_post <- 5000
-# convenience function to generate 95% highest posterior density interval
+# convenience function to generate 95% highest posterior density interval - for compatibility interval
 get.hpd <- function(x,prange=0.95){HPDinterval(as.mcmc(x),prob=prange)}
+
+# convenience function to make a vector with the MAP and compatibility intervals 
+
+get.map.coi <- function(x){c(mean(x), get.hpd(x))}
+
 ```
 
 The general approach in this notebook will be to run a linear mixed model with the following structure $Parameter$~$group\:status$, where $group\:status + (1|recoring\:hour)$ is either single or multi-bat, and $(1|recording\:hour)$ is the random intercept to control for multiple recordings in the same time period.
@@ -97,6 +105,15 @@ tfmdurn.rel.map.compint <- c(tfmdurn.rel.map, tfmdurn.rel.hpd)
 tfmdurn.ms.change.hpd <- round(get.hpd(tfmdurn.ms.increase),2)
 tfmdurn.ms.change.map <- round(mean(tfmdurn.ms.increase), 2)
 tfmdurn.ms.change.map.compint <- c(tfmdurn.ms.change.map, tfmdurn.ms.change.hpd)
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmdurn.single <- fixef(tfmdurn.sim)[,1]
+tfmdurn.multi <- tfmdurn.single + fixef(tfmdurn.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmdurn.mean.mapcoi <- c(get.map.coi(tfmdurn.single), get.map.coi(tfmdurn.multi))
+
+
 ```
 Multi-bat tFMs are `r tfmdurn.fixefs.hpd[1,2]`-`r tfmdurn.fixefs.hpd[2,2]` ms longer than in single-bat calls. The overall relative increase in tFM duration is between `r tfmdurn.rel.hpd`, indicating a scenario with no or slight increase in duration. 
 
@@ -134,6 +151,14 @@ ifmdurn.ms.increase <- fixef(ifmdurn.sim)[,2]
 ifmdurn.ms.change.hpd <- round(get.hpd(ifmdurn.ms.increase), 2)
 ifmdurn.ms.change.map <- round(mean(ifmdurn.ms.increase), 2)
 ifmdurn.ms.change.map.compint <- c(ifmdurn.ms.change.map, ifmdurn.ms.change.hpd)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmdurn.single <- fixef(ifmdurn.sim)[,1]
+ifmdurn.multi <- ifmdurn.single + fixef(ifmdurn.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmdurn.mean.mapcoi <- c(get.map.coi(ifmdurn.single), get.map.coi(ifmdurn.multi))
 
 ```
 The increase in iFM duration is between `r ifmdurn.fixefs.hpd[,2]` ms. The relative increase in iFM duration of multi-bat calls is also somewhat unclear between `r ifmdurn.rel.hpd[1]`-`r ifmdurn.rel.hpd[2]` times that of single bat calls.
@@ -197,6 +222,15 @@ cfdurn.mean.single <- round(mean(cfdurn.means.single),2)
 cfdurn.single.hpd <- get.hpd(cfdurn.means.single)
 cfdurn.mean.multi <- round(mean(cfdurn.means.multi),2)
 cfdurn.multi.hpd <- get.hpd(cfdurn.means.multi)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+cfdurn.single <- 1/fixef(cfdurn.sim)[,1]
+cfdurn.multi <- 1/(fixef(cfdurn.sim)[,1] + fixef(cfdurn.sim)[,2])
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+cfdurn.mean.mapcoi <- c(get.map.coi(cfdurn.single), get.map.coi(cfdurn.multi))
+
 ```
 The mean for CF duration for single bats is `r cfdurn.mean.single`ms, and between `r cfdurn.single.hpd`ms. The mean of multi-bat CF duration is `r cfdurn.mean.multi`ms, and between `r cfdurn.multi.hpd`ms. There is a relative decrease in CF duration in multi-bat calls of between `r cfdurn.rel.hpd` in comparison to single-bat calls.
 
@@ -234,6 +268,14 @@ tfmlower.khz.change <- fixef(tfmlower.sim)[,2]
 tfmlower.khz.hpd <- round(get.hpd(tfmlower.khz.change), 2)
 tfmlower.khz.map <- round(mean(tfmlower.khz.change), 2)
 tfmlower.khz.map.compint <- c(tfmlower.khz.map, tfmlower.khz.hpd)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmlower.single <- fixef(tfmlower.sim)[,1]
+tfmlower.multi <- tfmlower.single + fixef(tfmlower.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmlower.mean.mapcoi <- c(get.map.coi(tfmlower.single), get.map.coi(tfmlower.multi))
 
 
 ```
@@ -275,6 +317,15 @@ ifmlower.khz.hpd <- round(get.hpd(ifmlower.khz.increase), 2)
 ifmlower.khz.map <- round(mean(ifmlower.khz.increase), 2)
 ifmlower.khz.map.compint <- c(ifmlower.khz.map, ifmlower.khz.hpd)
 
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmlower.single <- fixef(ifmlower.sim)[,1]
+ifmlower.multi <- ifmlower.single + fixef(ifmlower.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmlower.mean.mapcoi <- c(get.map.coi(ifmlower.single), get.map.coi(ifmlower.multi))
+
 ```
 
 The mean ifm lower frequency in single bats is `r ifmlower.fixefs.mean[1]`kHz, and multi-bat calls show an average decrease of `r ifmlower.fixefs.mean[2]`kHz. The relative decrease of multi-bat ifm lower frequency is in the range of `r ifmlower.rel.hpd`, in comparison to single bat calls. 
@@ -314,6 +365,16 @@ cfpeak.khz.hpd <- round(get.hpd(cfpeak.increase), 2)
 cfpeak.khz.map <- round(mean(cfpeak.increase), 2)
 cfpeak.khz.map.compint <- c(cfpeak.khz.map, cfpeak.khz.hpd)
 
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+cfpeak.single <- fixef(cfpeak.sim)[,1]
+cfpeak.multi <- cfpeak.single + fixef(cfpeak.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+cfpeak.mean.mapcoi <- c(get.map.coi(cfpeak.single), get.map.coi(cfpeak.multi))
+
 ```
 
 
@@ -349,6 +410,15 @@ tfmreclev.db.hpd <- round(get.hpd(tfmreclev.db.increase),2)
 tfmreclev.db.map <- round(mean(tfmreclev.db.increase), 2)
 tfmreclev.db.map.compint <- c(tfmreclev.db.map, tfmreclev.db.hpd)
 
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmreclev.single <- fixef(tfmreclev.sim)[,1]
+tfmreclev.multi <- tfmreclev.single + fixef(tfmreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmreclev.mean.mapcoi <- c(get.map.coi(tfmreclev.single), get.map.coi(tfmreclev.multi))
+
 ```
 
 
@@ -381,6 +451,14 @@ ifmreclev.db.increase <- fixef(ifmreclev.sim)[,2]
 ifmreclev.db.hpd <- round(get.hpd(ifmreclev.db.increase),2)
 ifmreclev.db.map <- round(mean(ifmreclev.db.increase))
 ifmreclev.db.map.compint <- c(ifmreclev.db.map, ifmreclev.db.hpd)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmreclev.single <- fixef(ifmreclev.sim)[,1]
+ifmreclev.multi <- ifmreclev.single + fixef(ifmreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmreclev.mean.mapcoi <- c(get.map.coi(ifmreclev.single), get.map.coi(ifmreclev.multi))
 ```
 
 
@@ -417,6 +495,15 @@ cfreclev.db.hpd <- round(get.hpd(cfreclev.db.increase),2)
 cfreclev.db.map <- round(mean(cfreclev.db.increase), 2)
 cfreclev.db.map.compint <- c(cfreclev.db.map, cfreclev.db.hpd)
 
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+cfreclev.single <- fixef(cfreclev.sim)[,1]
+cfreclev.multi <- cfreclev.single + fixef(cfreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+cfreclev.mean.mapcoi <- c(get.map.coi(cfreclev.single), get.map.coi(cfreclev.multi))
+
 ```
 
 ## tFM-CF level ratio 
@@ -449,6 +536,16 @@ tfmcfreclev.db <- (fixef(tfmcfreclev.sim)[,1]+fixef(tfmcfreclev.sim)[,2]) - fixe
 tfmcfreclev.db.hpd <- round(get.hpd(tfmcfreclev.db),2)
 tfmcfreclev.db.map <- round(mean(tfmcfreclev.db), 2)
 tfmcfreclev.db.map.compint <- c(tfmcfreclev.db.map, tfmcfreclev.db.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmcfreclev.single <- fixef(tfmcfreclev.sim)[,1]
+tfmcfreclev.multi <- tfmcfreclev.single + fixef(tfmcfreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmcfreclev.mean.mapcoi <- c(get.map.coi(tfmcfreclev.single), get.map.coi(tfmcfreclev.multi))
+
 ```
 
 
@@ -483,6 +580,15 @@ ifmcfreclev.db.increase <- fixef(ifmcfreclev.sim)[,2]
 ifmcfreclev.db.hpd <- round(get.hpd(ifmcfreclev.db.increase),2)
 ifmcfreclev.db.map <- round(mean(ifmcfreclev.db.increase), 2)
 ifmcfreclev.db.map.compint <- c(ifmcfreclev.db.map, ifmcfreclev.db.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmcfreclev.single <- fixef(ifmcfreclev.sim)[,1]
+ifmcfreclev.multi <- ifmcfreclev.single + fixef(ifmcfreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmcfreclev.mean.mapcoi <- c(get.map.coi(ifmcfreclev.single), get.map.coi(ifmcfreclev.multi))
 ```
 
 
@@ -519,6 +625,16 @@ tfmbw.khz.increase <- fixef(tfmbw.sim)[,2]
 tfmbw.khz.hpd <- round(get.hpd(tfmbw.khz.increase), 2)
 tfmbw.khz.map <- round(mean(tfmbw.khz.increase), 2)
 tfbw.khz.map.compint <- c(tfmbw.khz.map, tfmbw.khz.hpd)
+
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmbw.single <- fixef(tfmbw.sim)[,1]
+tfmbw.multi <- tfmbw.single + fixef(tfmbw.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmbw.mean.mapcoi <- c(get.map.coi(tfmbw.single), get.map.coi(tfmbw.multi))
 
 ```
 
@@ -558,6 +674,15 @@ ifmbw.khz.hpd <- round(get.hpd(ifmbw.khz.change) ,2)
 ifmbw.khz.map <- round(mean(ifmbw.khz.change), 2)
 ifmbw.khz.map.compint <- c(ifmbw.khz.map, ifmbw.khz.hpd)
 
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmbw.single <- fixef(ifmbw.sim)[,1]
+ifmbw.multi <- ifmbw.single + fixef(ifmbw.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmbw.mean.mapcoi <- c(get.map.coi(ifmbw.single), get.map.coi(ifmbw.multi))
+
 ```
 
 
@@ -577,8 +702,8 @@ cfreclev.mcoi <- cfreclev.db.map.compint
 tfmreclev.mcoi <- tfmreclev.db.map.compint
 ifmreclev.mcoi <- ifmreclev.db.map.compint
 # ratios
-tfmcf.ratio.mcoi <- tfmcfreclev.db.map.compint
-ifmcf.ratio.mcoi <- ifmcfreclev.db.map.compint
+tfmcf.diff.mcoi <- tfmcfreclev.db.map.compint
+ifmcf.diff.mcoi <- ifmcfreclev.db.map.compint
 # bandwidths
 tfmbw.diff.mcoi <- tfbw.khz.map.compint ; tfmbw.rel.mcoi <- tfmbw.rel.map.compint
 ifmbw.diff.mcoi <- ifmbw.khz.map.compint ; ifmbw.rel.mcoi <- ifmbw.rel.map.compint
@@ -596,8 +721,8 @@ ifmbw.diff.mcoi <- ifmbw.khz.map.compint ; ifmbw.rel.mcoi <- ifmbw.rel.map.compi
 | CF level (dB rms)      | `r cfreclev.mcoi[1]`, (`r cfreclev.mcoi[2]`, `r cfreclev.mcoi[3]`)                          |  - |
 | tFM level (dB rms)     | `r tfmreclev.mcoi[1]`, (`r tfmreclev.mcoi[2]`, `r tfmreclev.mcoi[3]`)                       | -  |
 | iFM level (dB rms)     | `r ifmreclev.mcoi[1]`, (`r ifmreclev.mcoi[2]`, `r ifmreclev.mcoi[3]`)                       | -  |
-| tFM-CF ratio (dB)      | `r tfmcf.ratio.mcoi[1]`, (`r tfmcf.ratio.mcoi[2]`, `r tfmcf.ratio.mcoi[3]`)                 | - |
-| iFM-CF ratio (dB)      | `r ifmcf.ratio.mcoi[1]`, (`r ifmcf.ratio.mcoi[2]`, `r ifmcf.ratio.mcoi[3]`)                 | - |
+| tFM-CF ratio (dB)      | `r tfmcf.diff.mcoi[1]`, (`r tfmcf.diff.mcoi[2]`, `r tfmcf.diff.mcoi[3]`)                 | - |
+| iFM-CF ratio (dB)      | `r ifmcf.diff.mcoi[1]`, (`r ifmcf.diff.mcoi[2]`, `r ifmcf.diff.mcoi[3]`)                 | - |
 | tFM bandwidth (kHz)    | `r tfmbw.diff.mcoi[1]`, (`r tfmbw.diff.mcoi[2]`, `r tfmbw.diff.mcoi[3]`)                    |`r tfmbw.rel.mcoi[1]`, (`r tfmbw.rel.mcoi[2]`, `r tfmbw.rel.mcoi[3]`)  |
 | iFM bandwidth (kHz)    | `r ifmbw.diff.mcoi[1]`, (`r ifmbw.diff.mcoi[2]`, `r ifmbw.diff.mcoi[3]`)                    | `r ifmbw.rel.mcoi[1]`, (`r ifmbw.rel.mcoi[2]`, `r ifmbw.rel.mcoi[3]`) |
 
@@ -605,46 +730,51 @@ Table: Derived estimates of mean differences between multi and single bat calls,
 
 ```{r tabelascsv}
 # save the same table above as a csv file  with additional columns
-# component <- c(rep(c('CF','tFM','iFM'),3),'tFM-CF','iFM-CF','tFM','iFM')
-# parameter <- c(rep('Duration, ms',3), 'Peak frequency, kHz',
-#                rep('Lower frequency, kHz',2), rep('Amplitude, dB rms',3),
-#                'Ratio, dB', 'Ratio, dB', rep('Bandwidth',2))
-# diff.mean <- rbind(cfdurn.diff.hpd,            tfmdurn.fixefs.hpd[,2],     ifmdurn.fixefs.hpd[,2],
-#                    cfpeak.fixefs.hpd[,2],      tfmlower.fixefs.hpd[,2],    ifmlower.fixefs.hpd[,2],
-#                    cfreclev.fixefs.hpd[,2],    tfmreclev.fixefs.hpd[,2],   ifmreclev.fixefs.hpd[,2],
-#                    tfmcfreclev.fixefs.hpd[,2], ifmcfreclev.fixefs.hpd[,2], 
-#                    tfmbw.fixefs.hpd[,2],ifmbw.fixefs.hpd[,2])
-# all.ind.summary <- cbind(component, parameter, diff.mean)
-# row.names(all.ind.summary)[1]<-""
-# write.csv(all.ind.summary,'all_ind_summary.csv')
+component <- c(rep(c('CF','tFM','iFM'),3),'tFM-CF','iFM-CF','tFM','iFM')
+parameter <- c(rep('Duration, ms',3), 'Peak frequency, kHz',
+                rep('Lower frequency, kHz',2), rep('Amplitude, dB rms',3),
+                'Level difference, dB', 'Level difference, dB', rep('Bandwidth, kHz',2))
+
+# The Multi-Single difference and 95% HPD limits
+diff.map.coi <- rbind(cfdurn.diff.mcoi,            tfmdurn.diff.mcoi,     ifmdurn.diff.mcoi,
+                  cfpeak.diff.mcoi,      tfmlower.diff.mcoi,    ifmlower.diff.mcoi,
+                  cfreclev.mcoi,    tfmreclev.mcoi,   ifmreclev.mcoi,
+                  tfmcf.diff.mcoi, ifmcf.diff.mcoi, 
+                  tfmbw.diff.mcoi,ifmbw.diff.mcoi)
+
+# The Multi/Single relative ratio and 95% HPD limits
+rel.map.coi <- rbind(cfdurn.rel.mcoi, tfmdurn.rel.mcoi, ifmdurn.rel.mcoi,
+                     cfpeak.rel.mcoi, tfmlower.rel.mcoi, ifmlower.rel.mcoi,
+                     rep(NA, 3), rep(NA, 3), rep(NA, 3), 
+                    rep(NA, 3),  rep(NA, 3), 
+                    tfmbw.rel.mcoi, ifmbw.rel.mcoi)
+                    
+
+all.ind.summary <- data.frame(cbind(component, parameter, diff.map.coi, rel.map.coi))
+row.names(all.ind.summary) <- NULL
+colnames(all.ind.summary) <- c('Component', 'Parameter', 'Difference-MAP', 'diff_lower_95pcHPD','diff_upper_95pcHPD', 'Ratio-MAP', 'ratio_lower_95pcHPD', 'ratio_upper_95pcHPD')
+write.csv(all.ind.summary,'all_ind_summary.csv')
+
+# irrelevant one-liner lapply(all.ind.summary$diff_lower_95pcHPD, function(x) format(as.numeric(x), nsmall=2))
 ```
+
+## Mean and compatibility Intervals {#meanandcoi}
+
+```{r mapandcoi}
+
+all_mean_mapcoi <-  data.frame(rbind(cfdurn.mean.mapcoi, tfmdurn.mean.mapcoi, ifmdurn.mean.mapcoi,
+                          cfpeak.mean.mapcoi, tfmlower.mean.mapcoi, ifmlower.mean.mapcoi,
+                          cfreclev.mean.mapcoi, tfmreclev.mean.mapcoi, ifmreclev.mean.mapcoi,
+                          tfmcfreclev.mean.mapcoi, ifmcfreclev.mean.mapcoi,
+                          tfmbw.mean.mapcoi, ifmbw.mean.mapcoi))
+colnames(all_mean_mapcoi) <- c('single-map', 'single-95hpd-lo','single-95hpd-hi','multi-map','multi-95hpd-lo','multi-95hpd-hi')
+write.csv(all_mean_mapcoi, 'single-multi_estimatedmeans.csv')
+
+```
+
 
 
 #### System Information 
-```{r tabledata}
-# write the table into a csv file:
-# summary.data <- data.frame(matrix(ncol=5,nrow=13))
-# colnames(summary.data) <- c('param.name','diff.lower','diff.upper','reldiff.lower','reldiff.upper')
-# summary.data$param.name <- c('CF duration (ms)','tFM duration (ms)','iFM duration (ms)','CF peak frequency (kHz)',
-#                              'tFM lower frequency (kHz)','iFM lower frequency (kHz)','CF level (dB rms)',
-#                              'tFM level (dB rms)','iFM level (dB rms)',
-#                              'tFM-CF ratio (dB)','iFM-CF ratio (dB)',
-#                              'tFM bandwidth (kHz)','iFM bandwidth (kHz)')
-
-#diff.hpds <- list(cfdurn.diff.hpd,tfmdurn.fixefs.hpd,ifmdurn.fixefs.hpd,
-#                  cfpeak.fixefs.hpd, tfmlower.fixefs.hpd, ifmlower.fixefs.hpd,
-#                  cfreclev.fixefs.hpd ,tfmreclev.fixefs.hpd, ifmreclev.fixefs.hpd,
-#                  tfmcfreclev.fixefs.hpd, ifmcfreclev.fixefs.hpd,
-#                  tfmbw.fixefs.hpd, ifmbw.fixefs.hpd)
-
-#rel.hpds <- list(cfdurn.rel.hpd, tfmdurn.rel.hpd,ifmdurn.rel.hpd,
-#                 cfpeak.rel.hpd, tfmlower.rel.hpd, ifmlower.rel.hpd,
-#                 )
-#summary.data$diff.lower <- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[1]} else {X[1,2]}}))
-#summary.data$diff.upper <- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[2]} else {X[2,2]}}))
-
-#write.csv(summary.data,'lmm_table_data.csv')
-```
 
 ```{r sessioninfo}
 sessionInfo()

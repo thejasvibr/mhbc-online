@@ -22,7 +22,8 @@ bibliography: hbc-references.bib
 
 ---
 
-Comment execution status: NM + HRG comments till Section (\@ref(stats))
+Comment execution status: NM + HRG comments till Section \@ref(indcallstatanalysis) - now working on 
+Section \@ref(windowstatanalysis)
 
 ```{r echo=FALSE}
 library(knitr)
@@ -130,7 +131,7 @@ We observed up to four bats flying in the cave at the same time. Especially in t
 
 We ran linear mixed-models (LMMs) with group size as the predictor and recording hour as random intercept for all parameters.  Model fit was initially checked by performing residual diagnostics. Model coefficients were estimated using a Bayesian approach with non-informative priors using the ```sim``` function of the 'arm' package [@arm], and the 95% highest posterior-density compatibility intervals (Comp. Int.) were used in reporting. The compatibility interval represents the lower and upper borders of the posterior distribution of the coefficient estimates. We would like to highlight that a compatibility interval is not equivalent to a confidence interval, even though the numerical values may be similar under certain cases [@nalborczyk2019pragmatism]. 
 
-## Windowed call analysis 
+## Windowed call analysis {#windowstatanalysis}
 
 We first calculated the dominant frequency range ($max_{dominant \: frequency}-min_{dominant \:frequency}$) across each flight activity audio. We expect variation in the dominant frequency (and thus a non-zero range of dominant frequency) across a flight activity for two reasons: 1) the effect of the bat’s Doppler shift compensation and 2) the Doppler shift due to the bat’s motion relative to the microphone will cause variation in the dominant frequency.  These two effects will lead to non-zero dominant frequency range even for single-bat flight activities (SI \@ref(simdomfreqranges)). In multi-bat and virtual-multi-bat situations, we expect an increased dominant frequency range due to multiple bats calling at different individual frequencies. The difference in dominant frequency range between multi, single and virtual multi-bat audio was analysed using a linear model with group type as predictor. Residual analysis showed no correlation with any of the predictors, or any form of auto-correlation, and a simple linear model was thus justified.
 
@@ -175,7 +176,7 @@ single.cfpfr <- round(getminmax(singleind$cf_peak_frequency),1);multi.cfpfr <- r
 
 ```{r indcallrawdata, echo=FALSE, fig.cap=paste("\\label{fig:indcallrawdata} Measured acoustic parameters for the constant frequency (CF), initial frequency modulated (iFM) and terminal frequency modulated (tFM) components of individual calls emitted under single-bat and multi-bat conditions. Each column shows the measurements per call component, while each row shows a group of related measurements: A-C) duration D-F) spectral measurements G-I) received level J-K) relative FM-CF ratios L-M) FM component bandwidths. $Ncalls_{single}=$",nsingle_indcall, ", $N_{multi-bat}$=",nmulti_indcall,". Raw data points are plotted over box plots showing the median, quartiles and whiskers of 1.5 times the inter-quartile range.")}
 
-include_graphics('../combined_analysis/measurements_and_derivedparams_multipanel.png')
+include_graphics('figures/measurements_and_derivedparams_multipanel.png')
 ```
 
 We measured 13 acoustic parameters of the initial and terminal frequency-modulated (iFM, tFM) and of the central constant-frequency (CF) component of 226 individual horseshoe bat echolocation calls (Figure \@ref(fig:indcallrawdata)). Most call parameters showed little or no difference between single-bat and multi-bat observations (Table \@ref(tab:incalldata)).The CF component of multi-bat calls showed slight reduction in duration between 1.37-4.29 ms. The CF, tFM and iFM components seemed to show a slight decrease in amplitude of upto 1-4 dB in multi-bat calls. tFM bandwidth appeared to show an increase in multi-bat calls of between 0.02-2.58 kHz. The rest of the parameters show in Table \@ref(tab:incalldata) showed much smaller differences or the estimate of mean difference was centred around zero. 
@@ -245,31 +246,37 @@ multibat.ranges <- rbind(multi.cfdurn,  multi.tfmdurn,multi.ifmdurn,
 ```
 \newpage
 
-```{r incalldata, echo=FALSE, tab.cap="Difference between means and range of values for multi and single bat call parameters. The 93% compatibility interval (CI) for the difference of means is reported."}
+```{r incalldata, echo=FALSE, message=FALSE, tab.cap="The predicted difference and ratio between multi and single bat call parameters. The maximum a posteriori (MAP) is the most likely estimate, and 95% highest posterior density compatibility intervals (CoI) provides the range of uncertainty in the parameter estimate."}
 library(flextable)
+library(dplyr)
 
 indcallsummary <- read.csv('../combined_analysis/all_ind_summary.csv')
 indcallsummary <- indcallsummary[,2:ncol(indcallsummary)]
-indcallsummary$single.range <- apply(singlebat.ranges,1,function(X){paste(as.character(X[1]),as.character(X[2]),sep='-')})
-indcallsummary$multi.range <- apply(multibat.ranges,1,function(X){paste(as.character(X[1]),as.character(X[2]),sep='-')})
-indcallsummary$lowerupper <- paste('(',as.character(indcallsummary$lower),',',as.character(indcallsummary$upper),')',sep='')
-
-indcallsum.part <- indcallsummary[,c('component','parameter','lowerupper','single.range','multi.range')]
-
-
-colnames <- c("Component","Measurement","Difference,(3.5,96.5)%CI", "Single bat range",'Multi bat range')
-
-indtable <- flextable(indcallsum.part)
-indtable <- set_header_labels(indtable, component=colnames[1], parameter=colnames[2], 
-                              lowerupper=colnames[3], single.range=colnames[4],
-                              multi.range=colnames[5])
-indtable <- width(indtable, width = 1.25)
-indtable
-
-
-
+indcallsummary <- cbind(indcallsummary[,2], indcallsummary[,1], indcallsummary[3:ncol(indcallsummary)])
+colnames(indcallsummary)[c(1,2)] <- c('msmt', 'comp')
+indcallsummary$msmt[c(2,3,6,8,9,11,13)] <- ' '
+indcallsummary$msmt[10] <- 'Level difference, dB'
+indcallsummary[c(7:11),c(6:8)] <- ' - '
+ft2 <- flextable(indcallsummary) 
+ft2 <- fontsize(ft2, i=seq(1,13), size=8, part='body')
+ft2 <- fontsize(ft2, i=1, size=8, part='header') 
+ft2 <- ft2 %>% width(j=seq(4,8), width=0.6) %>% width(j=c(1,2), width=0.7)
+ft2 <- ft2 %>% width(j=c(2,3), width=0.8) %>% width(j=1, width=0.85) %>% width(j=6, width=0.83)
+ft2 <- ft2 %>% height( i = seq(1,13), height=0.125, part = "body")
+ft2 <- ft2 %>% add_header_row(top=TRUE, values=c("Measurement", "Component", "Difference (Multi-Single)", "Difference, 95% CoI", "", "Ratio (Multi/Single)", "Ratio, 95% CoI", "")) %>% fontsize( size=10, part='header')
+ft2 <- ft2 %>%  set_header_labels(msmt="",
+                    comp="",
+                    Difference.MAP='MAP',
+                    diff_lower_95pcHPD='Lower',
+                    diff_upper_95pcHPD='Upper',
+                    Ratio.MAP='MAP',
+                    ratio_lower_95pcHPD='Lower',
+                    ratio_upper_95pcHPD='Upper') %>% hline(i=c(3,4,6,9,11), part='body') %>% merge_at(i = 1, j = 4:5, part = "header") %>% merge_at(i = 1, j = 7:8, part = "header") 
+ft2 <- ft2 %>% merge_at(i=1, j=2, part='header') %>% merge_at(i=1, j=3, part='header') %>% merge_at(i=1, j=6, part='header')
+ft2
 
 ```
+
 \newpage
 
 

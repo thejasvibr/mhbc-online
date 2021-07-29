@@ -29,7 +29,7 @@ set.seed(82319)
 # number of simulations to get from the posterior distribution
 num_post <- 5000
 # convenience function 
-get.hpd <- function(x,prange=0.93){HPDinterval(as.mcmc(x),prob=prange)}
+get.hpd <- function(x,prange=0.95){HPDinterval(as.mcmc(x),prob=prange)}
 
 
 # let's load the split-measure data from the whole audio analysis 
@@ -44,6 +44,10 @@ virt_splitmeasure$video_annot_id <- sapply(virt_splitmeasure$video_annot_id,func
 
 # rescale posix timestmap  and convert to minutes
 obs_splitmeasure_timestamp$centred_posix_minute <- (obs_splitmeasure_timestamp$posix_timestamp - mean(obs_splitmeasure_timestamp$posix_timestamp))/60.0
+
+
+# include hour as variable for random effects
+
 
 # RMS data
 obs_reclevel <- subset(obs_splitmeasure_timestamp, measurement=='rms')
@@ -96,8 +100,11 @@ virt_domfrange$group_status <- 2
 ## Received level : RMS {#reclevel}
 
 And now build the simplest model that will account for the expected auto-correlation in segments, windows and time in general. 
+
 ```{r reclevel-model, warning=F}
+# all dbrms are negative values -- convert them to +ve to allow square rooting
 obs_reclevel$sqrtdbrms <- sqrt(abs(min(obs_reclevel$dbrms))+obs_reclevel$dbrms)
+
 obsrec.m1 <- lmer(sqrtdbrms ~ group_status + centred_posix_minute+(1|video_annot_id), data=obs_reclevel)
 raneffects.m1 <- ranef(obsrec.m1)$video_annot_id$'(Intercept)'
 par(mfrow=c(2,2))

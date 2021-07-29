@@ -188,13 +188,13 @@ pre code {
 
 <h1 class="title toc-ignore">Individual call analysis with LM/Ms</h1>
 <h4 class="author">Thejasvi Beleyur</h4>
-<h4 class="date">Last Updated : 2021-07-28 20:05:51</h4>
+<h4 class="date">Last Updated : 2021-07-29 18:38:00</h4>
 
 </div>
 
 
-<p>This notebook will detail the use of bayesian linear models and mixed models to quantify the difference between single and multi-bat call properties. The final results are presented in the <a href="#paramsummary">Parameter Summary</a>.</p>
-<p>All intervals reported here are 93% highest posterior density compatibility intervals <span class="citation">(Gelman and Greenland 2019; McElreath 2020)</span>.</p>
+<p>This notebook will detail the use of bayesian linear models and mixed models to quantify the difference between single and multi-bat call properties. The final results are presented in the <a href="#paramsummary">Parameter Summary</a>. The estimated means and their compatibility intervals are in the <a href="#meanandcoi">Mean and Comp. Intervals</a> section.</p>
+<p>All intervals reported here are 95% highest posterior density compatibility intervals <span class="citation">(Gelman and Greenland 2019; McElreath 2020)</span>. It is important to highlight here that the compatibility intervals (also known as credible intervals) are <em>not</em> play a similar role of to be confused with confidence intervals. While there may be a series of cases where the the confidence and credible intervals converge to the same numerical values - it is important to highlight that this is not the general case, and should not be treated as such <span class="citation">(Nalborczyk et al. 2019)</span>.</p>
 <pre class="r"><code>library(arm)
 library(coda)
 library(lme4)
@@ -227,8 +227,12 @@ d_tordered$ifm_terminal_frequency &lt;- d_tordered$ifm_terminal_frequency * 10^-
 d_tordered$cf_peak_frequency &lt;- d_tordered$cf_peak_frequency*10^-3
 # number of simulations to get from the posterior distribution
 num_post &lt;- 5000
-# convenience function to generate 95% highest posterior density interval
-get.hpd &lt;- function(x,prange=0.95){HPDinterval(as.mcmc(x),prob=prange)}</code></pre>
+# convenience function to generate 95% highest posterior density interval - for compatibility interval
+get.hpd &lt;- function(x,prange=0.95){HPDinterval(as.mcmc(x),prob=prange)}
+
+# convenience function to make a vector with the MAP and compatibility intervals 
+
+get.map.coi &lt;- function(x){c(mean(x), get.hpd(x))}</code></pre>
 <p>The general approach in this notebook will be to run a linear mixed model with the following structure <span class="math inline">\(Parameter\)</span>~<span class="math inline">\(group\:status\)</span>, where <span class="math inline">\(group\:status + (1|recoring\:hour)\)</span> is either single or multi-bat, and <span class="math inline">\((1|recording\:hour)\)</span> is the random intercept to control for multiple recordings in the same time period.</p>
 <div id="duration-parameters" class="section level2">
 <h2>Duration parameters</h2>
@@ -272,7 +276,14 @@ tfmdurn.rel.map.compint &lt;- c(tfmdurn.rel.map, tfmdurn.rel.hpd)
 # For unit time changes
 tfmdurn.ms.change.hpd &lt;- round(get.hpd(tfmdurn.ms.increase),2)
 tfmdurn.ms.change.map &lt;- round(mean(tfmdurn.ms.increase), 2)
-tfmdurn.ms.change.map.compint &lt;- c(tfmdurn.ms.change.map, tfmdurn.ms.change.hpd)</code></pre>
+tfmdurn.ms.change.map.compint &lt;- c(tfmdurn.ms.change.map, tfmdurn.ms.change.hpd)
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmdurn.single &lt;- fixef(tfmdurn.sim)[,1]
+tfmdurn.multi &lt;- tfmdurn.single + fixef(tfmdurn.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmdurn.mean.mapcoi &lt;- c(get.map.coi(tfmdurn.single), get.map.coi(tfmdurn.multi))</code></pre>
 <p>Multi-bat tFMs are -0.01-0.39 ms longer than in single-bat calls. The overall relative increase in tFM duration is between 0.99, 1.23, indicating a scenario with no or slight increase in duration.</p>
 </div>
 </div>
@@ -305,7 +316,15 @@ ifmdurn.rel.map.compint &lt;- c(ifmdurn.rel.map, ifmdurn.rel.hpd)
 ifmdurn.ms.increase &lt;- fixef(ifmdurn.sim)[,2]
 ifmdurn.ms.change.hpd &lt;- round(get.hpd(ifmdurn.ms.increase), 2)
 ifmdurn.ms.change.map &lt;- round(mean(ifmdurn.ms.increase), 2)
-ifmdurn.ms.change.map.compint &lt;- c(ifmdurn.ms.change.map, ifmdurn.ms.change.hpd)</code></pre>
+ifmdurn.ms.change.map.compint &lt;- c(ifmdurn.ms.change.map, ifmdurn.ms.change.hpd)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmdurn.single &lt;- fixef(ifmdurn.sim)[,1]
+ifmdurn.multi &lt;- ifmdurn.single + fixef(ifmdurn.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmdurn.mean.mapcoi &lt;- c(get.map.coi(ifmdurn.single), get.map.coi(ifmdurn.multi))</code></pre>
 <p>The increase in iFM duration is between -0.16, 0.19 ms. The relative increase in iFM duration of multi-bat calls is also somewhat unclear between 0.88-1.15 times that of single bat calls.</p>
 </div>
 <div id="cf-duration" class="section level2">
@@ -352,7 +371,15 @@ cfdurn.rel.map.compint &lt;- c(cfdurn.rel.map, cfdurn.rel.hpd)
 cfdurn.mean.single &lt;- round(mean(cfdurn.means.single),2)
 cfdurn.single.hpd &lt;- get.hpd(cfdurn.means.single)
 cfdurn.mean.multi &lt;- round(mean(cfdurn.means.multi),2)
-cfdurn.multi.hpd &lt;- get.hpd(cfdurn.means.multi)</code></pre>
+cfdurn.multi.hpd &lt;- get.hpd(cfdurn.means.multi)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+cfdurn.single &lt;- 1/fixef(cfdurn.sim)[,1]
+cfdurn.multi &lt;- 1/(fixef(cfdurn.sim)[,1] + fixef(cfdurn.sim)[,2])
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+cfdurn.mean.mapcoi &lt;- c(get.map.coi(cfdurn.single), get.map.coi(cfdurn.multi))</code></pre>
 <p>The mean for CF duration for single bats is 18.93ms, and between 18.03, 19.91ms. The mean of multi-bat CF duration is 16.07ms, and between 14.88, 17.36ms. There is a relative decrease in CF duration in multi-bat calls of between 0.77, 0.93 in comparison to single-bat calls.</p>
 </div>
 <div id="tfm-lower-frequency" class="section level2">
@@ -381,7 +408,15 @@ tfmlower.rel.map.compint &lt;- c(tfmlower.rel.map, tfmlower.rel.hpd)
 tfmlower.khz.change &lt;- fixef(tfmlower.sim)[,2]
 tfmlower.khz.hpd &lt;- round(get.hpd(tfmlower.khz.change), 2)
 tfmlower.khz.map &lt;- round(mean(tfmlower.khz.change), 2)
-tfmlower.khz.map.compint &lt;- c(tfmlower.khz.map, tfmlower.khz.hpd)</code></pre>
+tfmlower.khz.map.compint &lt;- c(tfmlower.khz.map, tfmlower.khz.hpd)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmlower.single &lt;- fixef(tfmlower.sim)[,1]
+tfmlower.multi &lt;- tfmlower.single + fixef(tfmlower.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmlower.mean.mapcoi &lt;- c(get.map.coi(tfmlower.single), get.map.coi(tfmlower.multi))</code></pre>
 <p>The mean tFM lower frequency in single bats is 93.27kHz, and multi-bat calls show an average decrease of -0.87kHz. The relative decrease of multi-bat tFM lower frequency is in the range of 0.97, 1.01, in comparison to single bat calls.</p>
 </div>
 <div id="ifm-lower-frequency" class="section level2">
@@ -410,7 +445,16 @@ ifmlower.rel.map.compint &lt;- c(ifmlower.rel.map, ifmlower.rel.hpd)
 ifmlower.khz.increase &lt;- fixef(ifmlower.sim)[,2]
 ifmlower.khz.hpd &lt;- round(get.hpd(ifmlower.khz.increase), 2)
 ifmlower.khz.map &lt;- round(mean(ifmlower.khz.increase), 2)
-ifmlower.khz.map.compint &lt;- c(ifmlower.khz.map, ifmlower.khz.hpd)</code></pre>
+ifmlower.khz.map.compint &lt;- c(ifmlower.khz.map, ifmlower.khz.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmlower.single &lt;- fixef(ifmlower.sim)[,1]
+ifmlower.multi &lt;- ifmlower.single + fixef(ifmlower.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmlower.mean.mapcoi &lt;- c(get.map.coi(ifmlower.single), get.map.coi(ifmlower.multi))</code></pre>
 <p>The mean ifm lower frequency in single bats is 96.38kHz, and multi-bat calls show an average decrease of 0.02kHz. The relative decrease of multi-bat ifm lower frequency is in the range of 0.99, 1.02, in comparison to single bat calls.</p>
 </div>
 <div id="cf-peak-frequency" class="section level2">
@@ -439,7 +483,17 @@ cfpeak.rel.map.compint &lt;- c(cfpeak.rel.map, cfpeak.rel.hpd)
 cfpeak.increase &lt;- fixef(cfpeak.sim)[,2]
 cfpeak.khz.hpd &lt;- round(get.hpd(cfpeak.increase), 2)
 cfpeak.khz.map &lt;- round(mean(cfpeak.increase), 2)
-cfpeak.khz.map.compint &lt;- c(cfpeak.khz.map, cfpeak.khz.hpd)</code></pre>
+cfpeak.khz.map.compint &lt;- c(cfpeak.khz.map, cfpeak.khz.hpd)
+
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+cfpeak.single &lt;- fixef(cfpeak.sim)[,1]
+cfpeak.multi &lt;- cfpeak.single + fixef(cfpeak.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+cfpeak.mean.mapcoi &lt;- c(get.map.coi(cfpeak.single), get.map.coi(cfpeak.multi))</code></pre>
 <p>The mean CF peak frequency in single bats is 105.55kHz, and multi-bat calls show an average difference of 0.4kHz. The relative increase of multi-bat CF peak frequency is in the range of 0.998, 1.01, in comparison to single bat calls.</p>
 </div>
 <div id="tfm-received-level" class="section level2">
@@ -462,7 +516,16 @@ tfmreclev.fixefs.mean &lt;- round(apply(fixef(tfmreclev.sim),2,mean),2)
 tfmreclev.db.increase &lt;-  fixef(tfmreclev.sim)[,2]
 tfmreclev.db.hpd &lt;- round(get.hpd(tfmreclev.db.increase),2)
 tfmreclev.db.map &lt;- round(mean(tfmreclev.db.increase), 2)
-tfmreclev.db.map.compint &lt;- c(tfmreclev.db.map, tfmreclev.db.hpd)</code></pre>
+tfmreclev.db.map.compint &lt;- c(tfmreclev.db.map, tfmreclev.db.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmreclev.single &lt;- fixef(tfmreclev.sim)[,1]
+tfmreclev.multi &lt;- tfmreclev.single + fixef(tfmreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmreclev.mean.mapcoi &lt;- c(get.map.coi(tfmreclev.single), get.map.coi(tfmreclev.multi))</code></pre>
 </div>
 <div id="ifm-received-level" class="section level2">
 <h2>iFM received level</h2>
@@ -484,7 +547,15 @@ ifmreclev.fixefs.mean &lt;- round(apply(fixef(ifmreclev.sim),2,mean),2)
 ifmreclev.db.increase &lt;- fixef(ifmreclev.sim)[,2]
 ifmreclev.db.hpd &lt;- round(get.hpd(ifmreclev.db.increase),2)
 ifmreclev.db.map &lt;- round(mean(ifmreclev.db.increase))
-ifmreclev.db.map.compint &lt;- c(ifmreclev.db.map, ifmreclev.db.hpd)</code></pre>
+ifmreclev.db.map.compint &lt;- c(ifmreclev.db.map, ifmreclev.db.hpd)
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmreclev.single &lt;- fixef(ifmreclev.sim)[,1]
+ifmreclev.multi &lt;- ifmreclev.single + fixef(ifmreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmreclev.mean.mapcoi &lt;- c(get.map.coi(ifmreclev.single), get.map.coi(ifmreclev.multi))</code></pre>
 </div>
 <div id="cf-received-level" class="section level2">
 <h2>CF received level</h2>
@@ -507,7 +578,16 @@ cfreclev.fixefs.mean &lt;- round(apply(fixef(cfreclev.sim),2,mean),2)
 cfreclev.db.increase &lt;- fixef(cfreclev.sim)[,2]
 cfreclev.db.hpd &lt;- round(get.hpd(cfreclev.db.increase),2)
 cfreclev.db.map &lt;- round(mean(cfreclev.db.increase), 2)
-cfreclev.db.map.compint &lt;- c(cfreclev.db.map, cfreclev.db.hpd)</code></pre>
+cfreclev.db.map.compint &lt;- c(cfreclev.db.map, cfreclev.db.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+cfreclev.single &lt;- fixef(cfreclev.sim)[,1]
+cfreclev.multi &lt;- cfreclev.single + fixef(cfreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+cfreclev.mean.mapcoi &lt;- c(get.map.coi(cfreclev.single), get.map.coi(cfreclev.multi))</code></pre>
 </div>
 <div id="tfm-cf-level-ratio" class="section level2">
 <h2>tFM-CF level ratio</h2>
@@ -531,7 +611,16 @@ tfmcfreclev.fixefs.mean &lt;- round(apply(fixef(tfmcfreclev.sim),2,mean),2)
 tfmcfreclev.db &lt;- (fixef(tfmcfreclev.sim)[,1]+fixef(tfmcfreclev.sim)[,2]) - fixef(tfmcfreclev.sim)[,1]
 tfmcfreclev.db.hpd &lt;- round(get.hpd(tfmcfreclev.db),2)
 tfmcfreclev.db.map &lt;- round(mean(tfmcfreclev.db), 2)
-tfmcfreclev.db.map.compint &lt;- c(tfmcfreclev.db.map, tfmcfreclev.db.hpd)</code></pre>
+tfmcfreclev.db.map.compint &lt;- c(tfmcfreclev.db.map, tfmcfreclev.db.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmcfreclev.single &lt;- fixef(tfmcfreclev.sim)[,1]
+tfmcfreclev.multi &lt;- tfmcfreclev.single + fixef(tfmcfreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmcfreclev.mean.mapcoi &lt;- c(get.map.coi(tfmcfreclev.single), get.map.coi(tfmcfreclev.multi))</code></pre>
 </div>
 <div id="ifm-cf-level-ratio" class="section level2">
 <h2>iFM-CF level ratio</h2>
@@ -556,7 +645,16 @@ ifmcfreclev.fixefs.mean &lt;- round(apply(fixef(ifmcfreclev.sim),2,mean),2)
 ifmcfreclev.db.increase &lt;- fixef(ifmcfreclev.sim)[,2]
 ifmcfreclev.db.hpd &lt;- round(get.hpd(ifmcfreclev.db.increase),2)
 ifmcfreclev.db.map &lt;- round(mean(ifmcfreclev.db.increase), 2)
-ifmcfreclev.db.map.compint &lt;- c(ifmcfreclev.db.map, ifmcfreclev.db.hpd)</code></pre>
+ifmcfreclev.db.map.compint &lt;- c(ifmcfreclev.db.map, ifmcfreclev.db.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmcfreclev.single &lt;- fixef(ifmcfreclev.sim)[,1]
+ifmcfreclev.multi &lt;- ifmcfreclev.single + fixef(ifmcfreclev.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmcfreclev.mean.mapcoi &lt;- c(get.map.coi(ifmcfreclev.single), get.map.coi(ifmcfreclev.multi))</code></pre>
 </div>
 <div id="tfm-bandwidth" class="section level2">
 <h2>tFM bandwidth</h2>
@@ -585,7 +683,17 @@ tfmbw.rel.map.compint &lt;- c(tfmbw.rel.map, tfmbw.rel.hpd)
 tfmbw.khz.increase &lt;- fixef(tfmbw.sim)[,2]
 tfmbw.khz.hpd &lt;- round(get.hpd(tfmbw.khz.increase), 2)
 tfmbw.khz.map &lt;- round(mean(tfmbw.khz.increase), 2)
-tfbw.khz.map.compint &lt;- c(tfmbw.khz.map, tfmbw.khz.hpd)</code></pre>
+tfbw.khz.map.compint &lt;- c(tfmbw.khz.map, tfmbw.khz.hpd)
+
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+tfmbw.single &lt;- fixef(tfmbw.sim)[,1]
+tfmbw.multi &lt;- tfmbw.single + fixef(tfmbw.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+tfmbw.mean.mapcoi &lt;- c(get.map.coi(tfmbw.single), get.map.coi(tfmbw.multi))</code></pre>
 </div>
 <div id="ifm-bandwidth" class="section level2">
 <h2>iFM bandwidth</h2>
@@ -615,7 +723,16 @@ ifmbw.rel.map.compint &lt;- c(ifmbw.rel.map, ifmbw.rel.hpd)
 ifmbw.khz.change &lt;- fixef(ifmbw.sim)[,2]
 ifmbw.khz.hpd &lt;- round(get.hpd(ifmbw.khz.change) ,2)
 ifmbw.khz.map &lt;- round(mean(ifmbw.khz.change), 2)
-ifmbw.khz.map.compint &lt;- c(ifmbw.khz.map, ifmbw.khz.hpd)</code></pre>
+ifmbw.khz.map.compint &lt;- c(ifmbw.khz.map, ifmbw.khz.hpd)
+
+
+
+#Single and Multi bat mean MAP and Compatibility Intervals
+ifmbw.single &lt;- fixef(ifmbw.sim)[,1]
+ifmbw.multi &lt;- ifmbw.single + fixef(ifmbw.sim)[,2]
+
+# the columns are ordered so: single-mean-MAP, single-mean-lowerCoI, single-mean-upperCoI, multi-mean-lowerCoI, multi-mean-upperCoI
+ifmbw.mean.mapcoi &lt;- c(get.map.coi(ifmbw.single), get.map.coi(ifmbw.multi))</code></pre>
 </div>
 <div id="paramsummary" class="section level2">
 <h2>Summary of all parameters</h2>
@@ -632,8 +749,8 @@ cfreclev.mcoi &lt;- cfreclev.db.map.compint
 tfmreclev.mcoi &lt;- tfmreclev.db.map.compint
 ifmreclev.mcoi &lt;- ifmreclev.db.map.compint
 # ratios
-tfmcf.ratio.mcoi &lt;- tfmcfreclev.db.map.compint
-ifmcf.ratio.mcoi &lt;- ifmcfreclev.db.map.compint
+tfmcf.diff.mcoi &lt;- tfmcfreclev.db.map.compint
+ifmcf.diff.mcoi &lt;- ifmcfreclev.db.map.compint
 # bandwidths
 tfmbw.diff.mcoi &lt;- tfbw.khz.map.compint ; tfmbw.rel.mcoi &lt;- tfmbw.rel.map.compint
 ifmbw.diff.mcoi &lt;- ifmbw.khz.map.compint ; ifmbw.rel.mcoi &lt;- ifmbw.rel.map.compint</code></pre>
@@ -720,42 +837,44 @@ ifmbw.diff.mcoi &lt;- ifmbw.khz.map.compint ; ifmbw.rel.mcoi &lt;- ifmbw.rel.map
 </tbody>
 </table>
 <pre class="r"><code># save the same table above as a csv file  with additional columns
-# component &lt;- c(rep(c(&#39;CF&#39;,&#39;tFM&#39;,&#39;iFM&#39;),3),&#39;tFM-CF&#39;,&#39;iFM-CF&#39;,&#39;tFM&#39;,&#39;iFM&#39;)
-# parameter &lt;- c(rep(&#39;Duration, ms&#39;,3), &#39;Peak frequency, kHz&#39;,
-#                rep(&#39;Lower frequency, kHz&#39;,2), rep(&#39;Amplitude, dB rms&#39;,3),
-#                &#39;Ratio, dB&#39;, &#39;Ratio, dB&#39;, rep(&#39;Bandwidth&#39;,2))
-# diff.mean &lt;- rbind(cfdurn.diff.hpd,            tfmdurn.fixefs.hpd[,2],     ifmdurn.fixefs.hpd[,2],
-#                    cfpeak.fixefs.hpd[,2],      tfmlower.fixefs.hpd[,2],    ifmlower.fixefs.hpd[,2],
-#                    cfreclev.fixefs.hpd[,2],    tfmreclev.fixefs.hpd[,2],   ifmreclev.fixefs.hpd[,2],
-#                    tfmcfreclev.fixefs.hpd[,2], ifmcfreclev.fixefs.hpd[,2], 
-#                    tfmbw.fixefs.hpd[,2],ifmbw.fixefs.hpd[,2])
-# all.ind.summary &lt;- cbind(component, parameter, diff.mean)
-# row.names(all.ind.summary)[1]&lt;-&quot;&quot;
-# write.csv(all.ind.summary,&#39;all_ind_summary.csv&#39;)</code></pre>
+component &lt;- c(rep(c(&#39;CF&#39;,&#39;tFM&#39;,&#39;iFM&#39;),3),&#39;tFM-CF&#39;,&#39;iFM-CF&#39;,&#39;tFM&#39;,&#39;iFM&#39;)
+parameter &lt;- c(rep(&#39;Duration, ms&#39;,3), &#39;Peak frequency, kHz&#39;,
+                rep(&#39;Lower frequency, kHz&#39;,2), rep(&#39;Amplitude, dB rms&#39;,3),
+                &#39;Level difference, dB&#39;, &#39;Level difference, dB&#39;, rep(&#39;Bandwidth, kHz&#39;,2))
+
+# The Multi-Single difference and 95% HPD limits
+diff.map.coi &lt;- rbind(cfdurn.diff.mcoi,            tfmdurn.diff.mcoi,     ifmdurn.diff.mcoi,
+                  cfpeak.diff.mcoi,      tfmlower.diff.mcoi,    ifmlower.diff.mcoi,
+                  cfreclev.mcoi,    tfmreclev.mcoi,   ifmreclev.mcoi,
+                  tfmcf.diff.mcoi, ifmcf.diff.mcoi, 
+                  tfmbw.diff.mcoi,ifmbw.diff.mcoi)
+
+# The Multi/Single relative ratio and 95% HPD limits
+rel.map.coi &lt;- rbind(cfdurn.rel.mcoi, tfmdurn.rel.mcoi, ifmdurn.rel.mcoi,
+                     cfpeak.rel.mcoi, tfmlower.rel.mcoi, ifmlower.rel.mcoi,
+                     rep(NA, 3), rep(NA, 3), rep(NA, 3), 
+                    rep(NA, 3),  rep(NA, 3), 
+                    tfmbw.rel.mcoi, ifmbw.rel.mcoi)
+                    
+
+all.ind.summary &lt;- data.frame(cbind(component, parameter, diff.map.coi, rel.map.coi))
+row.names(all.ind.summary) &lt;- NULL
+colnames(all.ind.summary) &lt;- c(&#39;Component&#39;, &#39;Parameter&#39;, &#39;Difference-MAP&#39;, &#39;diff_lower_95pcHPD&#39;,&#39;diff_upper_95pcHPD&#39;, &#39;Ratio-MAP&#39;, &#39;ratio_lower_95pcHPD&#39;, &#39;ratio_upper_95pcHPD&#39;)
+write.csv(all.ind.summary,&#39;all_ind_summary.csv&#39;)
+
+# irrelevant one-liner lapply(all.ind.summary$diff_lower_95pcHPD, function(x) format(as.numeric(x), nsmall=2))</code></pre>
+</div>
+<div id="meanandcoi" class="section level2">
+<h2>Mean and compatibility Intervals</h2>
+<pre class="r"><code>all_mean_mapcoi &lt;-  data.frame(rbind(cfdurn.mean.mapcoi, tfmdurn.mean.mapcoi, ifmdurn.mean.mapcoi,
+                          cfpeak.mean.mapcoi, tfmlower.mean.mapcoi, ifmlower.mean.mapcoi,
+                          cfreclev.mean.mapcoi, tfmreclev.mean.mapcoi, ifmreclev.mean.mapcoi,
+                          tfmcfreclev.mean.mapcoi, ifmcfreclev.mean.mapcoi,
+                          tfmbw.mean.mapcoi, ifmbw.mean.mapcoi))
+colnames(all_mean_mapcoi) &lt;- c(&#39;single-map&#39;, &#39;single-95hpd-lo&#39;,&#39;single-95hpd-hi&#39;,&#39;multi-map&#39;,&#39;multi-95hpd-lo&#39;,&#39;multi-95hpd-hi&#39;)
+write.csv(all_mean_mapcoi, &#39;single-multi_estimatedmeans.csv&#39;)</code></pre>
 <div id="system-information" class="section level4">
 <h4>System Information</h4>
-<pre class="r"><code># write the table into a csv file:
-# summary.data &lt;- data.frame(matrix(ncol=5,nrow=13))
-# colnames(summary.data) &lt;- c(&#39;param.name&#39;,&#39;diff.lower&#39;,&#39;diff.upper&#39;,&#39;reldiff.lower&#39;,&#39;reldiff.upper&#39;)
-# summary.data$param.name &lt;- c(&#39;CF duration (ms)&#39;,&#39;tFM duration (ms)&#39;,&#39;iFM duration (ms)&#39;,&#39;CF peak frequency (kHz)&#39;,
-#                              &#39;tFM lower frequency (kHz)&#39;,&#39;iFM lower frequency (kHz)&#39;,&#39;CF level (dB rms)&#39;,
-#                              &#39;tFM level (dB rms)&#39;,&#39;iFM level (dB rms)&#39;,
-#                              &#39;tFM-CF ratio (dB)&#39;,&#39;iFM-CF ratio (dB)&#39;,
-#                              &#39;tFM bandwidth (kHz)&#39;,&#39;iFM bandwidth (kHz)&#39;)
-
-#diff.hpds &lt;- list(cfdurn.diff.hpd,tfmdurn.fixefs.hpd,ifmdurn.fixefs.hpd,
-#                  cfpeak.fixefs.hpd, tfmlower.fixefs.hpd, ifmlower.fixefs.hpd,
-#                  cfreclev.fixefs.hpd ,tfmreclev.fixefs.hpd, ifmreclev.fixefs.hpd,
-#                  tfmcfreclev.fixefs.hpd, ifmcfreclev.fixefs.hpd,
-#                  tfmbw.fixefs.hpd, ifmbw.fixefs.hpd)
-
-#rel.hpds &lt;- list(cfdurn.rel.hpd, tfmdurn.rel.hpd,ifmdurn.rel.hpd,
-#                 cfpeak.rel.hpd, tfmlower.rel.hpd, ifmlower.rel.hpd,
-#                 )
-#summary.data$diff.lower &lt;- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[1]} else {X[1,2]}}))
-#summary.data$diff.upper &lt;- as.vector(lapply(diff.hpds, function(X){if (all(dim(X)==c(1,2))){X[2]} else {X[2,2]}}))
-
-#write.csv(summary.data,&#39;lmm_table_data.csv&#39;)</code></pre>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 4.0.4 (2021-02-15)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
@@ -808,6 +927,9 @@ Gelman, Andrew, and Sander Greenland. 2019. <span>“Are Confidence Intervals Be
 </div>
 <div id="ref-mcelreath2020statistical" class="csl-entry">
 McElreath, Richard. 2020. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. CRC press.
+</div>
+<div id="ref-nalborczyk2019pragmatism" class="csl-entry">
+Nalborczyk, Ladislas, Paul-Christian Bürkner, Donald R Williams, and Victoria Savalei. 2019. <span>“Pragmatism Should Not Be a Substitute for Statistical Literacy, a Commentary on Albers, Kiers, and van Ravenzwaaij (2018).”</span> <em>Collabra: Psychology</em> 5 (1).
 </div>
 </div>
 </div>
