@@ -44,6 +44,17 @@ groupsize_dict[1] = 'single'
 
 multibat_indcall['groupsize'] = multibat_indcall['num_bats'].apply(lambda X: groupsize_dict[X])
 
+#%% 
+# Load the overlapping CF call analysis
+overlap_cfdurn = pd.read_csv('../../cf_alteration_analysis/verified_cf_detections.csv')
+overlap_cfdurn['groupsize'] = overlap_cfdurn['num_bats'].apply(lambda X: groupsize_dict[X])
+overlap_cfdurn['duration'] *= 1000 # conv from s to ms
+
+cf_alteration_results = pd.read_csv('../../cf_alteration_analysis/statistical_analysis/cf_duration_change_summary.csv')
+#cf_alteration_results.loc[:, 'MAP':] *= 1000
+
+
+#%% 
 def remove_top_right_spines():
     plt.gca().spines['right'].set_visible(False)
     plt.gca().spines['top'].set_visible(False)
@@ -63,7 +74,7 @@ def plot_map_compint(df_row, xpos=[0.55, 1.55]):
     # the dot
     
     plt.plot(xpos[0],df_row['single-map'],'o',color='blue', markersize=dotsize)
-    plt.plot(xpos[1],df_row['multi-map'],'^',color='orange', markersize=dotsize)
+    plt.plot(xpos[1],df_row['multi-map'],'o',color='orange', markersize=dotsize)
     # the vertical line
     plt.errorbar(xpos[0],df_row['single-map'], yerr=err1, linewidth=linethickness)
     plt.errorbar(xpos[1],df_row['multi-map'], yerr=err2, linewidth=linethickness)
@@ -75,7 +86,7 @@ BIGGGSIZE = (6,4)
 fig2e = plt.figure(figsize=one_column_size)
 # DONT have constrained_layout=True --- THIS MAKES A HUUUUGE DIFFERENCE!!
 spec2e = gridspec.GridSpec(ncols=48, nrows=54, figure=fig2e)
-spec2e.update(wspace=0.05,hspace=0.02) # set the spacing between axes. 
+#spec2e.update(wspace=0.2,hspace=0.2) # set the spacing between axes. 
 
 row1 = list(range(10))
 row2 = list(range(10,20))
@@ -114,7 +125,7 @@ f2e_ax19 = fig2e.add_subplot(spec2e[row5[0]:row5[-1],col4[0]:col4[-1]])
 
 point_size = 1.1
 
-ylabx, ylaby = -.75, -.1
+ylabx, ylaby = -.55, -.1
 ylab_fontsize=6
 yticks_fontsize=6
 
@@ -124,13 +135,13 @@ def make_single_multi_labels():
     plt.text(-0.25, -0.25, 'single', fontsize=yticks_fontsize, transform=plt.gca().transAxes)
     plt.text(0.55, -0.25, 'multi', fontsize=yticks_fontsize, transform=plt.gca().transAxes)
 
-def make_subplotlabel(axesname, letter,subplotx=0.9, subploty=0.8):
+def make_subplotlabel(axesname, letter,subplotx=0.75, subploty=0.8):
     plt.text(subplotx, subploty, letter, transform=axesname.transAxes,
                              fontsize=6)
 #plt.show()
  
 plt.sca(f2e_ax1) 
-plt.text(newcallpart_labelx, newcallpart_labely, 'CF', transform=plt.gca().transAxes, fontsize=6,weight='bold')
+plt.text(newcallpart_labelx+0.55, newcallpart_labely, 'CF', transform=plt.gca().transAxes, fontsize=6,weight='bold')
 plt.sca(f2e_ax2)
 f2e_ax2.text(newcallpart_labelx, newcallpart_labely, 'tFM', transform=plt.gca().transAxes, fontsize=6,weight='bold')
 plt.sca(f2e_ax3)
@@ -145,11 +156,31 @@ sns.boxplot(y='cf_duration',x='groupsize', data=multibat_indcall,
 sns.swarmplot(y='cf_duration',x='groupsize', data=multibat_indcall, order=['single','multi'],size=point_size,alpha=0.4)
 plt.ylim(0,60)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
-plt.text(ylabx, ylaby, 'Duration (ms)', transform=f2e_ax1.transAxes,fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
+plt.text(ylabx, ylaby+0.25, 'Duration\n(ms)', transform=f2e_ax1.transAxes,fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
 f2e_ax1.tick_params(axis='y', which='major', pad=0.025);plt.yticks([0,25,50],['0','','50'],fontsize=yticks_fontsize)
 make_subplotlabel(plt.gca(),'A1');plt.xlim(-0.5,1.7)
 
 plot_map_compint(mean_estimates.loc[0,:])
+
+plt.sca(f2e_ax12)
+
+remove_three_spines()
+sns.boxplot(y='duration',x='groupsize', data=overlap_cfdurn,
+            order=['single','multi'], color='white', showfliers=False, width=0.5,
+            linewidth=0.8, whis=0 )
+sns.swarmplot(y='duration',x='groupsize', data=overlap_cfdurn, order=['single','multi'],size=point_size,alpha=0.4)
+plt.ylim(0,60)
+plt.xlabel(''); plt.xticks([]);plt.ylabel('')
+#plt.text(0.25, 0.25, 'MOCK\nPLOT', transform=f2e_ax12.transAxes,fontsize=ylab_fontsize, multialignment='center')
+f2e_ax12.tick_params(axis='y', which='major', pad=0.025);
+plt.yticks([0,25,50],['','',''],fontsize=yticks_fontsize)
+make_subplotlabel(plt.gca(),'A2');plt.xlim(-0.5,1.7)
+
+overla_cfdurn_intervals = pd.concat((cf_alteration_results.loc[2,'MAP':], cf_alteration_results.loc[3,'MAP':])).tolist()
+cfdurn_intervals = pd.DataFrame(np.array(overla_cfdurn_intervals)).T
+cfdurn_intervals.columns = ['single-map','single-95hpd-lo','single-95hpd-hi','multi-map','multi-95hpd-lo','multi-95hpd-hi']
+plot_map_compint(cfdurn_intervals.loc[0,:])
+
 
 plt.sca(f2e_ax2)
 remove_three_spines()
@@ -296,8 +327,10 @@ sns.boxplot(y='tfm-cf_dbratio',x='groupsize', data=multibat_indcall,
 
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 plt.ylim(-20,6);plt.yticks([-18,-6,6], ['-18','','6'],fontsize=yticks_fontsize)
-plt.text(ylabx, ylaby, 'tFM-CF $\Delta$ level (dB)', transform=f2e_ax14.transAxes,
-                              fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
+plt.text(ylabx, ylaby+0.3, '$\Delta$ level (dB)\ntFM-CF', transform=f2e_ax14.transAxes, 
+                             fontsize=ylab_fontsize, rotation='vertical', multialignment='center')
+#plt.text(ylabx+0.3, ylaby+0.3, 'tFM-CF', transform=f2e_ax14.transAxes,
+#                              fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
 f2e_ax14.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
 make_subplotlabel(plt.gca(),'J')
 plot_map_compint(mean_estimates.loc[9,:])
@@ -311,7 +344,7 @@ sns.boxplot(y='ifm-cf_dbratio',x='groupsize', data=multibat_indcall,
             linewidth=0.8, whis=0)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 plt.ylim(-20,6);plt.yticks([-18,-6,6], ['-18','','6'], fontsize=yticks_fontsize)
-plt.text(ylabx, ylaby, 'iFM-CF $\Delta$ level (dB)', transform=f2e_ax15.transAxes,
+plt.text(ylabx+0.3, ylaby+0.45, 'iFM-CF', transform=f2e_ax15.transAxes,
                               fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
 f2e_ax15.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
 plt.gca().axes.yaxis.set_ticklabels([])
@@ -331,7 +364,7 @@ sns.boxplot(y='tfm_bw',x='groupsize', data=multibat_indcall,
 
 plt.ylim(0,24);plt.ylabel('');plt.yticks([0,12,24],['0','','24'],fontsize=yticks_fontsize)
 
-plt.text(ylabx, ylaby, 'Bandwidth (kHz)', transform=plt.gca().transAxes,
+plt.text(ylabx, ylaby+0.25, 'Bandwidth\n(kHz)', transform=plt.gca().transAxes,
                               fontsize=ylab_fontsize, rotation='vertical', multialignment='center')
 f2e_ax18.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
 make_subplotlabel(plt.gca(),'L')
@@ -362,5 +395,5 @@ f2e_ax19.axes.xaxis.set_ticklabels([]);plt.xlabel('');
 
  #plt.sca(f2e_ax20)
  #plt.axis('off')
-plt.savefig('measurements_and_derivedparams_multipanel.png')
+plt.savefig('measurements_and_derivedparams_multipanel.png', bbox_inches='tight')
 

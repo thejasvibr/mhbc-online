@@ -84,7 +84,25 @@ sampsizes <- read.csv('../combined_analysis/indcall_sample_sizes.csv')
 
 Per flight activity audio, we chose one call that was not overlapped by other calls and that had a signal-to-noise ratio of at least 20 dB (Figure \@ref(fig:fig1composite)) through a random search protocol (SI \@ref(indcallprotocol)). Briefly, from a randomly determined time point, an experimenter began searching into a randomly determined direction (backward or forward in time) until a suitable horseshoebat call was found. We were able to find 226 individual calls  across all the synchronised audio files. Calls were automatically segmented into their corresponding parts iFM, tFM or CF (Figure \@ref(fig:fig1composite)) ) using the itsfm package [@itsfmcitation]. Most approaches to date segment CF-FM calls into their components by high/low pass filtering around the call's peak frequency [@siemers2005species;@schuchmann2012horseshoe;@tian1997echolocation;@lu2020echolocating;@schoeppler2018precise]. For an accurate estimate of the peak frequency, this approach requires a recording of the call with a prominent CF component, which is suitable under controlled laboratory settings. Peak frequency estimation often fails in the analysis of CF-FM calls recorded in the field under a variety of conditions eg. calls with loud FM and faint CF components. *itsfm* overcomes these limitations by tracking the change in frequency over the call time to segment it into FM and CF components. For our analysis, we defined FM components as those portions of a call where frequency modulation was larger than 2 kHz/ms. Further settings were a maximum acceleration of 3 kHz/ms$^{2}$, an extrapolation window of 50 $\mu$s and a window size of 375 samples. Threshold signal level and time-frequency clip range were manually tuned for each calls using the ```pwvd``` method, since each call had differing received levels.
 
-From the three components of each call, we measured specific parameters. For the CF component, we measured the peak frequency, root-mean-square (RMS) level and duration. The CF peak frequency was quantified because bats may shift their CF frequencies in the presence of conspecifics. For the FM components, we measured the lowest frequency (at 10 dB below the level of the peak frequency of the FM component), bandwidth (defined as difference between the CF peak frequency and the lowest frequency of the FM component), RMS level and duration. We also calculated the iFM/CF and tFM/CF level difference, i.e., the level of the iFM and tFM components relative to the CF component, because CF-FM bats independently vary the level of call components in a context specific manner [@tian1997echolocation;@lu2020echolocating].
+```{r echo=FALSE}
+# REMOVE THE CF PEAK FREQUENCY BIOLOGICAL JUSTIFICATION
+```
+
+From the three components of each call, we measured specific parameters. For the CF component, we measured the peak frequency, root-mean-square (RMS) level and duration. For the FM components, we measured the lowest frequency (at 10 dB below the level of the peak frequency of the FM component), bandwidth (defined as difference between the CF peak frequency and the lowest frequency of the FM component), RMS level and duration. We also calculated the iFM/CF and tFM/CF level difference, i.e., the level of the iFM and tFM components relative to the CF component, because CF-FM bats independently vary the level of call components in a context specific manner [@tian1997echolocation;@lu2020echolocating].
+
+Our statistical analysis revealed that multi-bat calls showed a reduction in CF duration. The apparent reduction may have also been due to a bias in our individual call selection that favoured shorter calls, that were less likely to be overlapped.  To eliminate the possibility of a methodological bias we extended the CF duration analysis by measuring multiple calls within each flight activity audio. The spectrogram of a flight activity audio was calculated, and a 'main' band was chosen consisting of the peak frequency $\pm$ 1.5 kHz. The main band typically consisted of the CF portions of one bat (multi-bat audio where CF frequencies of the bats were ambigously close were not analysed).  Within the main band, continuous regions that were above a manually chosen threshold were detected, and labelled as candidate CF call components. These candidate detections were then manually verified and only reliable detections were then used for further statistical analysis. 
+
+```{r echo=FALSE}
+# introduce CF analysis #2
+# 
+# Names for this extended approach:
+# * multi-call approach?
+# * single-call/ multi-call 
+# * 
+# wE USEd another APPROACH that includes all det. individual calls coming from a single bat? 
+# 
+# given the possibility that the analysis 1 could introduce a methodlogical bias, 
+```
 
 
 ```{r,include=FALSE,echo=FALSE}
@@ -176,6 +194,13 @@ single.cfpfr <- round(getminmax(singleind$cf_peak_frequency),1);multi.cfpfr <- r
 
 ```{r indcallrawdata, echo=FALSE, fig.cap=paste("\\label{fig:indcallrawdata} Measured acoustic parameters for the constant frequency (CF), initial frequency modulated (iFM) and terminal frequency modulated (tFM) components of individual calls emitted under single-bat and multi-bat conditions. Each column shows the measurements per call component, while each row shows a group of related measurements: A-C) duration D-F) spectral measurements G-I) received level J-K) relative FM-CF ratios L-M) FM component bandwidths. $Ncalls_{single}=$",nsingle_indcall, ", $N_{multi-bat}$=",nmulti_indcall,". Raw data points are plotted over box plots showing the median, quartiles and whiskers of 1.5 times the inter-quartile range.")}
 
+# Comments after now
+# horizontal line instead of circle 
+# centre the single multi x labels
+# increase digital file resolution (>600dpi)
+# increase ytick separation between subplots
+# make the yticks symmetrical 
+
 include_graphics('figures/measurements_and_derivedparams_multipanel.png')
 ```
 
@@ -247,8 +272,20 @@ multibat.ranges <- rbind(multi.cfdurn,  multi.tfmdurn,multi.ifmdurn,
 \newpage
 
 ```{r incalldata, echo=FALSE, message=FALSE, tab.cap="The predicted difference and ratio between multi and single bat call parameters. The maximum a posteriori (MAP) is the most likely estimate, and 95% highest posterior density compatibility intervals (CoI) provides the range of uncertainty in the parameter estimate."}
+
+# Make the headers just; Difference *Multi-single) and Ratio (multi/singe)
+# lower row is then MAP lower 95%CoI etc..
+# INCLUDE CF ALTERATION ANALYSIS ALSO AS CF analysis 1 and CF analysis 2
+# include brackets for all units 
+
 library(flextable)
 library(dplyr)
+
+cfdurn_multicall <- read.csv('../cf_alteration_analysis/statistical_analysis/cf_duration_change_summary.csv')
+cfdurn2_small <- cbind(cfdurn_multicall[1,], cfdurn_multicall[2,])[c(2,3,4,6,7,8)]
+cfdurn2_small <- cbind(' ','CF (multi-call extension)',cfdurn2_small)
+cfdurn2_small[, 3:8] <- round(cfdurn2_small[, 3:8], 2)
+
 
 indcallsummary <- read.csv('../combined_analysis/all_ind_summary.csv')
 indcallsummary <- indcallsummary[,2:ncol(indcallsummary)]
@@ -257,8 +294,15 @@ colnames(indcallsummary)[c(1,2)] <- c('msmt', 'comp')
 indcallsummary$msmt[c(2,3,6,8,9,11,13)] <- ' '
 indcallsummary$msmt[10] <- 'Level difference, dB'
 indcallsummary[c(7:11),c(6:8)] <- ' - '
+
+# now add the cf durn analysis 2
+colnames(cfdurn2_small) <- colnames(indcallsummary)
+indcallsummary <- rbind(indcallsummary[1,], cfdurn2_small,indcallsummary[2:13,])
+
+
+
 ft2 <- flextable(indcallsummary) 
-ft2 <- fontsize(ft2, i=seq(1,13), size=8, part='body')
+ft2 <- fontsize(ft2, i=seq(1,14), size=8, part='body')
 ft2 <- fontsize(ft2, i=1, size=8, part='header') 
 ft2 <- ft2 %>% width(j=seq(4,8), width=0.6) %>% width(j=c(1,2), width=0.7)
 ft2 <- ft2 %>% width(j=c(2,3), width=0.8) %>% width(j=1, width=0.85) %>% width(j=6, width=0.83)
@@ -271,7 +315,7 @@ ft2 <- ft2 %>%  set_header_labels(msmt="",
                     diff_upper_95pcHPD='Upper',
                     Ratio.MAP='MAP',
                     ratio_lower_95pcHPD='Lower',
-                    ratio_upper_95pcHPD='Upper') %>% hline(i=c(3,4,6,9,11), part='body') %>% merge_at(i = 1, j = 4:5, part = "header") %>% merge_at(i = 1, j = 7:8, part = "header") 
+                    ratio_upper_95pcHPD='Upper') %>% hline(i=c(4,5,7,10,12), part='body') %>% merge_at(i = 1, j = 4:5, part = "header") %>% merge_at(i = 1, j = 7:8, part = "header") 
 ft2 <- ft2 %>% merge_at(i=1, j=2, part='header') %>% merge_at(i=1, j=3, part='header') %>% merge_at(i=1, j=6, part='header')
 ft2
 
@@ -354,6 +398,10 @@ Comparing virtual-multi bat recordings with observed multi-bat recordings allowe
 
 ```{r domfreqgraph, echo=FALSE,fig.cap='\\label{domfreqgraph} Measured dominant frequency range (max-min) across flight activities in single-bats, multi-bat and virtual multi-bat conditions. Variation in dominant frequency in single-bat condition arises from the combination of active Doppler-shift compensation by the bat and Doppler-shift due to bat flight past the microphone. The dominant frequency range in multi-bat and virtual multi-bat is larger because of there are more than one bat.'}
 
+# STANDARDISE FIGURE SIZE TO MATCH THE INDIVIDAUL CALL ANALYSIS -- 1 COL WIDTH 
+# REMOVE WHISKERS SHOWING MIN-MAX
+# INCLUde the other windowed-analysis parameters
+
 include_graphics('../combined_analysis/domfreqranges.png')
 
 multivirt.wholewin <- subset(wholewindowresults,comparison=='multi-virtual multi')
@@ -414,6 +462,11 @@ tfm.probs <- round(sort(overlap.probs2$tfm_overlap_prob),3)*100
 There are a set of parameters that we were not able to measure and thus excluded in our analyses. We did not measure call-sequence related parameters such as inter-call-intervals or duty-cycle. Bats in acoustically difficult situations are known to alter their call rate [@amichai2015calling;@jarvis2013groups] and thus their duty cycle. Measuring inter-call-intervals is possible in single bat contexts, but extremely challenging in multi-bat recordings with overlapping calls and reverberation. Calls are difficult to assign to their source individuals, which complicates call interval measurement. 
 
 What are the possible explanations for the absence of a strong echolocation response in groups? Our data suggests that echolocation in groups with a few bats (2-4) bats may not be very challenging for multiple reasons. CF-FM bats rely on the tFM component to detect the distance of objects around them [@tian1997echolocation]. The tFM components are short ($\leq$ `r tfm.95pctile`ms, 95 percentile value), and likely emitted every 40-50 ms which is equivalent to a tFM duty cycle between `r dutycycle.sorted[1]`-`r dutycycle.sorted[2]`%. For a pair of bats at these duty cycles, the probability of one tFM echo being overlapped by another bat’s tFM call component is relatively low at most between `r paste(tfm.probs[1],'-',tfm.probs[2])`% (SI \@ref(simtfmoverlap) for calculations). Even if a single tFM echo is overlapped by another call, a bat may still be able to detect it if the signal-to-noise ratio is sufficient. FM bats in small groups are unlikely to face major detriments to their echolocation [@beleyur2019modeling], which should also apply to using the FM for ranging, explaining why the horseshoe bats did not show call changes from solitary echolocation. Secondly, @fawcett2015echolocation observed an increased tFM duration and bandwidth in R. capensis flying in pairs in a novel flight room setting. The combination of flight room characteristics [@surlykke2009echolocating] and species differences, may perhaps have led to the difference in results between their study and ours.  Bats show long-term spatial memory [@barchi2013spatial;@mohres1949versuche] and familiarity with the cave's structure may have allowed them to easily recognise their location over time. Bats also use echoes across multiple calls and are thus resistant to occasional disruptions in echo arrival [@Salles202011719]. The combination of spatial memory and multi-echo integration may have allowed our bats to continue echolocating with conspecifics without altering their calls drastically.
+
+*Our results thus match the increasing evidence that jamming does not
+pose a problem for FM-bats (CITATIONS NEED FORMATTING!!! Amichai et al., 2015; Cvikel et al., 2015b;
+Götze et al., 2016; Beleyur & Goerlitz, 2019; Mazar & Yovel, 2020), now
+extending this to high-duty cycle CF bats.*
 
 It is well established that bats adapt and alter their echolocation strategy in the face of sensory challenge. Our results add a subtle twist to the literature by suggesting that bats may not always employ a special echolocation strategy even when faced with the sensory challenge of a group. We highlight the importance of observational studies in field settings to understand the frequency with which various sensory strategies are actually employed in ecological contexts.
 

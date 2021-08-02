@@ -43,7 +43,11 @@ d_tordered$duration <- d_tordered$duration*10^3
 
 num_post <- 5000
 # convenience function 
-get.hpd <- function(x,prange=0.93){HPDinterval(as.mcmc(x),prob=prange)}
+get.hpd <- function(x,prange=0.95){HPDinterval(as.mcmc(x),prob=prange)}
+
+get.map.coi <- function(x){c(mean(x), get.hpd(x))}
+
+
 ```
 ## Quick data plotting 
 
@@ -77,21 +81,25 @@ multiple calls from the same audio file, we can expect that the CF durations are
 we need to include annotation ID as a factor in a mixed effects model. 
 
 ## Linear mixed-model: accounting for correlations within each audio clip
-Let's build a LMM with the annotation-ID (recording ID) as the random intercept, and
+Let's build a LMM with the annotation-ID (recording ID) and recording hour as the random intercepts, and
 the group size (single/multi) as a fixed effect. There can be multiple CF duration measurements 
-from the same recording, and so this is the main source of correlation in the dataset.
+from the same recording, and the same bats may be seen within the span of an hour, so this is likely to be the main source of correlation in the dataset.
+
+*Note*: ```rechour``` added as a random intercept on 2021-07-30, and the  ```rechour``` as a fixed effect analysis aren't reported in the paper anymore. 
 
 ```{r lmm-model}
-lmm0 <- lmer(invdurn~as.factor(multi_bat)+(1|annot_id), data=d_tordered)
+lmm0 <- lmer(invdurn~as.factor(multi_bat)+(1|annot_id) +(1|rechour), data=d_tordered)
 
 
-par(mfrow=c(2,2))
+par(mfrow=c(2,3))
 # check residuals vs multi_bat
 plot(d_tordered$multi_bat,resid(lmm0),main='residuals - duration,1/ms') 
 # do residuals match the normal distbn assumption - qqplot
 qqnorm(resid(lmm0));qqline(resid(lmm0))
 # do random effects match normal distbn assumption - qqplot
 qqnorm(ranef(lmm0)$annot_id$`(Intercept)`);qqline(ranef(lmm0)$annot_id$`(Intercept)`,main='random effects') 
+# do random effects match normal distbn assumption - qqplot
+qqnorm(ranef(lmm0)$rechour$`(Intercept)`);qqline(ranef(lmm0)$rechour$`(Intercept)`,main='random effects') 
 # check crudely for autocorrelation of residuals 
 acf(resid(lmm0))
 ```
@@ -105,7 +113,17 @@ cfdurn.fixefs.hpd <- round(apply(fixef(cfdurn.sim),2,get.hpd),2)
 single_cfdurn <- 1/fixef(cfdurn.sim)[,1]
 multi_cfdurn <- 1/(fixef(cfdurn.sim)[,1]+fixef(cfdurn.sim)[,2])
 
+# difference in ms:
+cfdurn.diff <- multi_cfdurn - single_cfdurn
+cfdurn.diff.mapcoi <- get.map.coi(cfdurn.diff)
+
+# Mean MAP and CoI
+cfdurn.single.mapcoi <- get.map.coi(single_cfdurn)
+cfdurn.multi.mapcoi <- get.map.coi(multi_cfdurn)
+
 cfdurn.rel.increase <- multi_cfdurn/single_cfdurn
+# ratio MAP and CoI
+cfdurn.rel.mapcoi <- get.map.coi(cfdurn.rel.increase)
 
 
 single.cfdurn.hpd <- round(get.hpd(single_cfdurn),2)
@@ -115,42 +133,42 @@ cfdurn.rel.hpd <- round(get.hpd(cfdurn.rel.increase),2)
 ```
 
 
-### Round 2 analysis (2021-07-14)
+### Round 2 analysis (2021-07-14) (not used anymore)
 These are my attempts at checking to see if the small peak in the residual autocorrelation is perhaps because I didn't consider an additional variable (eg. recording hour). Even though I don't have reason to, I also see that the recording hour itself may have systematic effects because the same bat flew repeatedly within a period of time. Broadly speaking, the 'null' result from the primary analysis is not surprising.
 
 ```{r post-analysis}
-lmm.post <- lmer(invdurn~as.factor(multi_bat)+(1|annot_id)+rechour, data=d_tordered)
-
-
-par(mfrow=c(3,2))
-# check residuals vs multi_bat
-plot(d_tordered$multi_bat,resid(lmm.post),main='residuals - duration,1/ms') 
-# do residuals match the normal distbn assumption - qqplot
-qqnorm(resid(lmm.post));qqline(resid(lmm.post))
-# do random effects match normal distbn assumption - qqplot
-qqnorm(ranef(lmm.post)$annot_id$`(Intercept)`);qqline(ranef(lmm.post)$annot_id$`(Intercept)`,main='random effects') 
-# check crudely for autocorrelation of residuals 
-acf(resid(lmm.post))
-# check if the residuals are similar across recording hours 
-boxplot(resid(lmm.post)~d_tordered$rechour)
+# lmm.post <- lmer(invdurn~as.factor(multi_bat)+(1|annot_id)+rechour, data=d_tordered)
+# 
+# 
+# par(mfrow=c(3,2))
+# # check residuals vs multi_bat
+# plot(d_tordered$multi_bat,resid(lmm.post),main='residuals - duration,1/ms') 
+# # do residuals match the normal distbn assumption - qqplot
+# qqnorm(resid(lmm.post));qqline(resid(lmm.post))
+# # do random effects match normal distbn assumption - qqplot
+# qqnorm(ranef(lmm.post)$annot_id$`(Intercept)`);qqline(ranef(lmm.post)$annot_id$`(Intercept)`,main='random effects') 
+# # check crudely for autocorrelation of residuals 
+# acf(resid(lmm.post))
+# # check if the residuals are similar across recording hours 
+# boxplot(resid(lmm.post)~d_tordered$rechour)
 ```
 
 The quick-check inclusion of the recording hour as a factor also doesn't seem to make the small autocorrelation peak go away. I looked at the residuals themselves once more - there doesn't seem to be a 'trend'. Despite including annotation ID as a random intercept, I guess there's only so much that even the LMM can handle. 
 
 ```{r lmmpost}
-
-
-cfdurn.sim.post <- sim(lmm.post, n.sim=num_post)
-cfdurn.fixefs.hpd.post <- round(apply(fixef(cfdurn.sim.post),2,get.hpd),2)
-single_cfdurn.post <- 1/fixef(cfdurn.sim.post)[,1]
-multi_cfdurn.post <- 1/(fixef(cfdurn.sim.post)[,1]+fixef(cfdurn.sim.post)[,2])
-
-cfdurn.rel.increase.post <- multi_cfdurn.post/single_cfdurn.post
-
-
-single.cfdurn.hpd.post <- round(get.hpd(single_cfdurn.post),2)
-multi.cfdurn.hpd.post <- round(get.hpd(multi_cfdurn.post),2)
-cfdurn.rel.hpd.post <- round(get.hpd(cfdurn.rel.increase.post),2)
+# 
+# 
+# cfdurn.sim.post <- sim(lmm.post, n.sim=num_post)
+# cfdurn.fixefs.hpd.post <- round(apply(fixef(cfdurn.sim.post),2,get.hpd),2)
+# single_cfdurn.post <- 1/fixef(cfdurn.sim.post)[,1]
+# multi_cfdurn.post <- 1/(fixef(cfdurn.sim.post)[,1]+fixef(cfdurn.sim.post)[,2])
+# 
+# cfdurn.rel.increase.post <- multi_cfdurn.post/single_cfdurn.post
+# 
+# 
+# single.cfdurn.hpd.post <- round(get.hpd(single_cfdurn.post),2)
+# multi.cfdurn.hpd.post <- round(get.hpd(multi_cfdurn.post),2)
+# cfdurn.rel.hpd.post <- round(get.hpd(cfdurn.rel.increase.post),2)
 
 ```
 
@@ -159,30 +177,20 @@ We see the relative change in CF duration still remains very similar (close to t
 
 ### Final summary {#finalsummary}
 
-The final results do not seem to support a decrease in cF duration in groups. 
+The final results do not seem to support a decrease in cF duration in groups, as suggested by the individual call analysis. The 
+multi-call CF duration analysis is more robust because of the increased sample sizes - and so I'd side more with these results.
 
-#### Model with only group size as fixed effect, and annotation id as random intercept
 
-| Parameter     | 93% compatibility interval |
-|---------------|----------------------------|
-| CF duration, single (ms)| `r single.cfdurn.hpd[1]`-`r single.cfdurn.hpd[2]`|
-| CF duration, multi (ms)| `r multi.cfdurn.hpd[1]`-`r multi.cfdurn.hpd[2]`|
-| Relative CF duration increase ($\frac{multi}{single}$)| `r cfdurn.rel.hpd[1]`-`r cfdurn.rel.hpd[2]`|
-
-The CF durations actually seem to overlap between single and multi bat calls. This is in contrast to the result we see from the individual call analysis. 
 
 #### Model with  group size and recording hour as fixed effect, and annotation id as random intercept
 
 
-| Parameter     | 93% compatibility interval |
-|---------------|----------------------------|
-| CF duration, single (ms)| `r single.cfdurn.hpd.post[1]`-`r single.cfdurn.hpd.post[2]`|
-| CF duration, multi (ms)| `r multi.cfdurn.hpd.post[1]`-`r multi.cfdurn.hpd.post[2]`|
-| Relative CF duration increase ($\frac{multi}{single}$)| `r cfdurn.rel.hpd.post[1]`-`r cfdurn.rel.hpd.post[2]`|
 
 ```{r write-results}
-df <- rbind(single.cfdurn.hpd, multi.cfdurn.hpd, cfdurn.rel.hpd)
-row.names(df) <- c('single-cf-durn','multi-cf-durn','cf-durn-relincrease')
+
+df <- rbind(cfdurn.diff.mapcoi, cfdurn.rel.mapcoi, cfdurn.single.mapcoi, cfdurn.multi.mapcoi)
+row.names(df) <- c('durn-difference','durn-ratio','single','multi')
+colnames(df)<- c('MAP','lower-95pcHPD', 'upper-95pcHPD')
 write.csv(df, 'cf_duration_change_summary.csv')
 ```
 

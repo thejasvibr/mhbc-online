@@ -1,0 +1,7 @@
+"","Comparison","Parameter","Difference-(MAP)","Lower-95%CoI","Upper-95%CoI","Ratio-(MAP)","Lower-95%CoI","Upper-95%CoI"
+"table_multisingle_reclevel","Multi-Single","Received level (dB RMS)","0.2","-0.4","0.9","-","-","-"
+"table_multivirtmulti_reclevel","Multi-Virtual multi","Received level (dB RMS)","0.5","-0.4","1.4","-","-","-"
+"table_multisingle_lowerfreq","Multi-Single","Lower frequency (kHz)","-0.21","-0.79","0.34","1","0.99","1"
+"table_multivirtmulti_lowerfreq","Multi-Virtual multi","Lower frequency (kHz)","-0.3","-1.11","0.5","1","0.99","1.01"
+"table_multisingle_domfreq_","Multi-Single","Dominant frequency range (kHz)","2.14","1.74","2.62","4.91","3.48","6.48"
+"table_multivirtmulti_domfreq_","Multi-Virtual multi","Dominant frequency range (kHz)","-0.03","-0.8","0.78","1","0.71","1.29"
