@@ -71,7 +71,11 @@ obs_lowerfreq <- subset(obs_splitmeasure_timestamp, measurement=='fm_terminal_fr
 virt_lowerfreq <- subset(virt_splitmeasure, measurement=='fm_terminal_freqs')
 # convert frequency to kHz
 obs_lowerfreq$lowerfreqkhz <- obs_lowerfreq$value*10^-3
+# remove a few aberrant zero's
+obs_lowerfreq <- obs_lowerfreq[obs_lowerfreq$lowerfreqkhz>70,]
+
 virt_lowerfreq$lowerfreqkhz <- virt_lowerfreq$value*10^-3
+virt_lowerfreq <- virt_lowerfreq[virt_lowerfreq$lowerfreqkhz>70,]
 
 # Dominant frequency data
 obs_domfreq <- subset(obs_splitmeasure_timestamp, measurement=='dominant_frequencies')
@@ -163,6 +167,9 @@ virt_reclevel_subset <- virt_reclevel[,c('segment_number','dbrms','rechour','vid
 virt_reclevel_subset$sqrtdbrms <- sqrt(abs(min(obs_reclevel$dbrms))+virt_reclevel_subset$dbrms)
 virt_reclevel_subset$group_status <- as.factor(2)
 obsvirt_reclevel <- rbind(obs_reclevel_subset, virt_reclevel_subset)
+
+write.csv(obsvirt_reclevel, 'obsvirt_reclevel.csv')
+
 ```
 
 ```{r m3.reclevel, warning=F, message=F}
@@ -204,6 +211,12 @@ table_multisingle_reclevel <- c('Multi-Single','Received level (dB RMS)',multisi
 table_multivirtmulti_reclevel <- c('Multi-Virtual multi','Received level (dB RMS)',multivirtmulti_reclevel_mapcoi,'-','-','-')
 table_reclevel <- rbind(table_multisingle_reclevel,table_multivirtmulti_reclevel )
 
+# plot data mean MAP and CoI
+plotdata_reclevel_meancoi <- data.frame(t(unlist(lapply(list(single.reclevel, multi.reclevel, virt.reclevel), get.map.coi ))))
+colnames(plotdata_reclevel_meancoi) <- c('single-map','single-95hpd-lower','single-95hpd-upper',
+                                         'multi-map','multi-95hpd-lower','multi-95hpd-upper',
+                                         'virtmulti-map','virtmulti-95hpd-lower','virtmulti-95hpd-upper')
+rownames(plotdata_reclevel_meancoi) <- c('rec-level')
 
 ```
 
@@ -278,6 +291,8 @@ virt_lowerfreq_subset$group_status <- as.factor(2)
 obsvirt_lowerfreq <- rbind(obslowerfreq.nona_subset, virt_lowerfreq_subset)
 obsvirt_lowerfreq <- obsvirt_lowerfreq[!is.na(obsvirt_lowerfreq$lowerfreqkhz),]
 
+write.csv(obsvirt_lowerfreq, 'obsvirt_lowerfreq.csv')
+
 ```
 
 
@@ -331,6 +346,14 @@ table_multivirtmulti_lowerfreq <- c('Multi-Virtual multi','Lower frequency (kHz)
 table_lowerfreq <- rbind(table_multisingle_lowerfreq,table_multivirtmulti_lowerfreq )
 
 print(table_lowerfreq)
+
+# table from plots
+
+plotdata_lowerfreq_meancoi <- data.frame(t(unlist(lapply(list(single.lower.b, multi.lower.b, virt.lower.b), get.map.coi ))))
+colnames(plotdata_lowerfreq_meancoi) <- c('single-map','single-95hpd-lower','single-95hpd-upper',
+                                         'multi-map','multi-95hpd-lower','multi-95hpd-upper',
+                                         'virtmulti-map','virtmulti-95hpd-lower','virtmulti-95hpd-upper')
+rownames(plotdata_lowerfreq_meancoi) <- c('lowerfreq')
 
 ```
 Here we see that the lower-frequencies of single, multi and virtual-multi bat audio windows are very similar:
@@ -408,7 +431,7 @@ raneffect.m2 <-  ranef(obsdomf.m2)$rechour$'(Intercept)'
 par(mfrow=c(2,2))
 #scatter.smooth(obsvirt_lowerfreq$centred_posix_minute,resid(obslower.m3.noutliers))
 scatter.smooth(obs_domfrange$group_status,resid(obsdomf.m2))
-qqnorm(resid(obslower.m3.noutliers));qqline(resid(obslower.m3.noutliers))
+qqnorm(resid(obsdomf.m2));qqline(resid(obsdomf.m2))
 qqnorm(raneffect.m2);qqline(raneffect.m2)
 acf(resid(obsdomf.m2))
 
@@ -462,6 +485,7 @@ qqnorm(resid(obsdomf.m3));qqline(resid(obsdomf.m3))
 qqnorm(raneffect.m2);qqline(raneffect.m2)
 acf(resid(obsdomf.m2))
 
+write.csv(obsvirt_domfrange, 'obsvirt_domfrange.csv')
 
 ```
 
@@ -496,6 +520,15 @@ table_domfreq_ <- rbind(table_multisingle_domfreq_,table_multivirtmulti_domfreq_
 
 print(table_domfreq_)
 
+
+# plot data mean MAP and CoI
+
+plotdata_domfreq_meancoi <- data.frame(t(unlist(lapply(list(single.domfreq, multi.domfreq, virt.domfreq), get.map.coi ))))
+colnames(plotdata_domfreq_meancoi) <- c('single-map','single-95hpd-lower','single-95hpd-upper',
+                                         'multi-map','multi-95hpd-lower','multi-95hpd-upper',
+                                         'virtmulti-map','virtmulti-95hpd-lower','virtmulti-95hpd-upper')
+rownames(plotdata_domfreq_meancoi) <- c('domfreq')
+
 ```
 
 ## Summarised results {#summary}
@@ -513,6 +546,15 @@ write.csv(all_params, 'window-analysis-table.csv')
 
 flextable(data.frame(all_params))
 ```
+```{r mean-map-coi}
+
+# here put together the mean MAP and CoI for the windowed analysis measurements + results 
+
+windowed_analysis_mapcoi <- rbind(round(plotdata_domfreq_meancoi,2), round(plotdata_lowerfreq_meancoi,2), round(plotdata_reclevel_meancoi,1))
+
+write.csv(windowed_analysis_mapcoi, 'windowed_mean-map-coi-table.csv')
+```
+
 
 ## Computational environment 
 

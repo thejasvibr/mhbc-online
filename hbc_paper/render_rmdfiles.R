@@ -1,3 +1,4 @@
-files <- c('hbc_paper.Rmd','hbc_paper_SI.Rmd')
+
+files <- c('main_paper.Rmd','SI.Rmd')
 print(files)
 for (f in files) {rmarkdown::render(f)}

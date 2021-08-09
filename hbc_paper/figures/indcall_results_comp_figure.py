@@ -76,8 +76,8 @@ def plot_map_compint(df_row, xpos=[0.55, 1.55]):
     plt.plot(xpos[0],df_row['single-map'],'o',color='blue', markersize=dotsize)
     plt.plot(xpos[1],df_row['multi-map'],'o',color='orange', markersize=dotsize)
     # the vertical line
-    plt.errorbar(xpos[0],df_row['single-map'], yerr=err1, linewidth=linethickness)
-    plt.errorbar(xpos[1],df_row['multi-map'], yerr=err2, linewidth=linethickness)
+    plt.errorbar(xpos[0],df_row['single-map'], yerr=np.abs(err1), linewidth=linethickness)
+    plt.errorbar(xpos[1],df_row['multi-map'], yerr=np.abs(err2), linewidth=linethickness)
 
 #%% 
 
@@ -154,7 +154,7 @@ sns.boxplot(y='cf_duration',x='groupsize', data=multibat_indcall,
             order=['single','multi'], color='white', showfliers=False, width=0.5,
             linewidth=0.8, whis=0 )
 sns.swarmplot(y='cf_duration',x='groupsize', data=multibat_indcall, order=['single','multi'],size=point_size,alpha=0.4)
-plt.ylim(0,60)
+plt.ylim(-2,55)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 plt.text(ylabx, ylaby+0.25, 'Duration\n(ms)', transform=f2e_ax1.transAxes,fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
 f2e_ax1.tick_params(axis='y', which='major', pad=0.025);plt.yticks([0,25,50],['0','','50'],fontsize=yticks_fontsize)
@@ -169,7 +169,7 @@ sns.boxplot(y='duration',x='groupsize', data=overlap_cfdurn,
             order=['single','multi'], color='white', showfliers=False, width=0.5,
             linewidth=0.8, whis=0 )
 sns.swarmplot(y='duration',x='groupsize', data=overlap_cfdurn, order=['single','multi'],size=point_size,alpha=0.4)
-plt.ylim(0,60)
+plt.ylim(-2,55)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 #plt.text(0.25, 0.25, 'MOCK\nPLOT', transform=f2e_ax12.transAxes,fontsize=ylab_fontsize, multialignment='center')
 f2e_ax12.tick_params(axis='y', which='major', pad=0.025);
@@ -190,7 +190,7 @@ sns.boxplot(y='tfm_duration',x='groupsize', data=multibat_indcall,
             linewidth=0.8, whis=0)
 # plt.text(ylabx, ylaby+0.2, 'Duration\n(ms)', transform=plt.gca().transAxes, fontsize=11, rotation='vertical',multialignment='center')
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
-plt.ylim(0,6)
+plt.ylim(-0.5,5.5)
 plt.text(ylabx, ylaby, '', transform=f2e_ax2.transAxes,
                               fontsize=11, rotation='vertical')
 f2e_ax2.tick_params(axis='y', which='major', pad=0.025);
@@ -207,7 +207,7 @@ sns.boxplot(y='ifm_duration',x='groupsize', data=multibat_indcall,
 plt.yticks([0,2.5,5],['0','','5'],fontsize=yticks_fontsize)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 #plt.text(ylabx, ylaby+0.2, 'Duration\n(ms)', transform=plt.gca().transAxes, fontsize=11, rotation='vertical',multialignment='center')
-plt.ylim(0,6)
+plt.ylim(-0.5,5.5)
 plt.text(ylabx, ylaby, '', transform=f2e_ax3.transAxes,
                               fontsize=11, rotation='vertical')
 f2e_ax3.axes.yaxis.set_ticklabels([])
@@ -226,11 +226,11 @@ sns.boxplot(y='cf_peak_frequency',x='groupsize', data=multibat_indcall,
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 plt.text(ylabx, ylaby, ' Peak frequency\n(kHz)', transform=f2e_ax5.transAxes,
                               fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
-plt.yticks([100,112],fontsize=yticks_fontsize);plt.ylim(100,112.5)
+plt.yticks([100,106,112],[100,'',112],fontsize=yticks_fontsize);
 f2e_ax5.tick_params(axis='y', which='major', pad=0.025)
 make_subplotlabel(plt.gca(),'D'); plt.xlim(-0.5,1.7)
 plot_map_compint(mean_estimates.loc[3,:])
-
+plt.ylim(99.5,112.5)
 
 plt.sca(f2e_ax6)
 remove_three_spines()
@@ -239,13 +239,13 @@ sns.boxplot(y='tfm_terminal_frequency',x='groupsize', data=multibat_indcall,
              order=['single','multi'], color='white', showfliers=False, width=0.5,
             linewidth=0.8, whis=0)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
-plt.ylim(80,111); plt.yticks([80,100,120],['80','','120'], fontsize=yticks_fontsize)
+plt.yticks([80,100,120],['80','','120'], fontsize=yticks_fontsize)
 f2e_ax6.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
 make_subplotlabel(plt.gca(),'E')
 plt.text(ylabx-0.05, ylaby, 'Lower frequency\n(kHz)', transform=plt.gca().transAxes,
          fontsize=ylab_fontsize, rotation='vertical', multialignment='center')
 plot_map_compint(mean_estimates.loc[4,:])
-
+plt.ylim(79,121);
 
 
 plt.sca(f2e_ax7)
@@ -258,11 +258,12 @@ sns.boxplot(y='ifm_terminal_frequency',x='groupsize', data=multibat_indcall,
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 plt.text(ylabx, ylaby, '', transform=f2e_ax7.transAxes,
                               fontsize=11, rotation='vertical')
-plt.ylim(80,111); plt.yticks([80,100,120],['80','','120'], fontsize=yticks_fontsize)
+plt.yticks([80,100,120],['80','','120'], fontsize=yticks_fontsize)
 f2e_ax7.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
 f2e_ax7.axes.yaxis.set_ticklabels([])
 make_subplotlabel(plt.gca(),'F')
 plot_map_compint(mean_estimates.loc[5,:])
+plt.ylim(79,121);
 
 #%% Received level
 
@@ -275,7 +276,7 @@ sns.boxplot(y='cf_rmsdb',x='groupsize', data=multibat_indcall,
 plt.xlabel('');plt.ylabel('')
 plt.text(ylabx, ylaby+0.05, 'Received level\n (dB rms)', transform=plt.gca().transAxes,
                               fontsize=ylab_fontsize, rotation='vertical', multialignment='center')
-plt.yticks([-42,-24,-6],['-42','','-6'], fontsize=yticks_fontsize);plt.ylim(-42,-6)
+plt.yticks([-42,-24,-6],['-42','','-6'], fontsize=yticks_fontsize);plt.ylim(-43,-5)
 f2e_ax9.axes.xaxis.set_ticklabels([]);
 
 make_single_multi_labels()
@@ -294,7 +295,7 @@ sns.boxplot(y='tfm_rmsdb',x='groupsize', data=multibat_indcall,
             linewidth=0.8, whis=0)
 # plt.text(ylabx, ylaby, 'Received level\n(dB rms)', transform=plt.gca().transAxes, fontsize=11, rotation='vertical', multialignment='center')
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
-plt.ylim(-54,-10);plt.yticks([-50, -30, -10],['-50','','-10'], fontsize=yticks_fontsize)
+plt.ylim(-52,-8);plt.yticks([-50, -30, -10],['-50','','-10'], fontsize=yticks_fontsize)
 plt.text(ylabx, ylaby, '', transform=f2e_ax10.transAxes, fontsize=11, rotation='vertical')
 f2e_ax10.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
 make_subplotlabel(plt.gca(),'H')
@@ -309,7 +310,7 @@ sns.boxplot(y='ifm_rmsdb',x='groupsize', data=multibat_indcall,
             linewidth=0.8, whis=0)
 #  plt.text(ylabx, ylaby, 'Received level\n(dB rms)', transform=plt.gca().transAxes,  fontsize=11, rotation='vertical', multialignment='center')
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
-plt.ylim(-54,-10);plt.ylabel('');plt.yticks([-50, -30, -10], fontsize=yticks_fontsize)
+plt.ylim(-52,-8);plt.ylabel('');plt.yticks([-50, -30, -10], fontsize=yticks_fontsize)
 plt.text(ylabx, ylaby, '', transform=f2e_ax11.transAxes,
                               fontsize=11, rotation='vertical')
 f2e_ax11.axes.yaxis.set_ticklabels([])
@@ -326,7 +327,7 @@ sns.boxplot(y='tfm-cf_dbratio',x='groupsize', data=multibat_indcall,
             linewidth=0.8, whis=0)
 
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
-plt.ylim(-20,6);plt.yticks([-18,-6,6], ['-18','','6'],fontsize=yticks_fontsize)
+plt.ylim(-20,8);plt.yticks([-18,-6,6], ['-18','','6'],fontsize=yticks_fontsize)
 plt.text(ylabx, ylaby+0.3, '$\Delta$ level (dB)\ntFM-CF', transform=f2e_ax14.transAxes, 
                              fontsize=ylab_fontsize, rotation='vertical', multialignment='center')
 #plt.text(ylabx+0.3, ylaby+0.3, 'tFM-CF', transform=f2e_ax14.transAxes,
@@ -343,7 +344,7 @@ sns.boxplot(y='ifm-cf_dbratio',x='groupsize', data=multibat_indcall,
              order=['single','multi'], color='white', showfliers=False, width=0.5,
             linewidth=0.8, whis=0)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
-plt.ylim(-20,6);plt.yticks([-18,-6,6], ['-18','','6'], fontsize=yticks_fontsize)
+plt.ylim(-20,8);plt.yticks([-18,-6,6], ['-18','','6'], fontsize=yticks_fontsize)
 plt.text(ylabx+0.3, ylaby+0.45, 'iFM-CF', transform=f2e_ax15.transAxes,
                               fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
 f2e_ax15.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
@@ -362,7 +363,7 @@ sns.boxplot(y='tfm_bw',x='groupsize', data=multibat_indcall,
             linewidth=0.8, whis=0)
 
 
-plt.ylim(0,24);plt.ylabel('');plt.yticks([0,12,24],['0','','24'],fontsize=yticks_fontsize)
+plt.ylim(-2,25);plt.ylabel('');plt.yticks([0,12,24],['0','','24'],fontsize=yticks_fontsize)
 
 plt.text(ylabx, ylaby+0.25, 'Bandwidth\n(kHz)', transform=plt.gca().transAxes,
                               fontsize=ylab_fontsize, rotation='vertical', multialignment='center')
@@ -379,8 +380,9 @@ sns.swarmplot(y='ifm_bw',x='groupsize', data=multibat_indcall, order=['single','
 sns.boxplot(y='ifm_bw',x='groupsize', data=multibat_indcall,
              order=['single','multi'], color='white', showfliers=False, width=0.5,
             linewidth=0.8, whis=0)
+plt.ylim(-2,25);
  # plt.text(ylabx, ylaby+0.2, 'Bandwidth\n(kHz)', transform=plt.gca().transAxes, fontsize=11, rotation='vertical', multialignment='center')
-plt.ylabel('');plt.ylim(0,24);plt.ylabel('');plt.yticks([0,12,24],fontsize=yticks_fontsize)
+plt.ylabel('');plt.ylabel('');plt.yticks([0,12,24],fontsize=yticks_fontsize)
 plt.xlabel('');
 plt.text(ylabx, ylaby, '', transform=f2e_ax19.transAxes,
                               fontsize=11, rotation='vertical')
@@ -395,5 +397,5 @@ f2e_ax19.axes.xaxis.set_ticklabels([]);plt.xlabel('');
 
  #plt.sca(f2e_ax20)
  #plt.axis('off')
-plt.savefig('measurements_and_derivedparams_multipanel.png', bbox_inches='tight')
+plt.savefig('measurements_and_derivedparams_multipanel.png', bbox_inches='tight', dpi=600)
 
