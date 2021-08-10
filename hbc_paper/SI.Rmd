@@ -1,7 +1,7 @@
 ---
 title: "Supplementary Information: High duty-cycle bats in the field do not alter echolocation calls when flying in groups"
-author: "Neetash Mysuru Rajagopalachari$^{*}$$^{1}$, Thejasvi Beleyur$^{*}$$^{1}$, Aditya Krishna$^{1,2}$, Holger R Goerlitz$^{1}$; \\n $^{*}$: joint first authors"
-   
+author: "Neetash Mysuru$^{*}$$^{1}$, Thejasvi Beleyur$^{*}$$^{1}$, Aditya Krishna$^{1,2}$, Holger R Goerlitz$^{1}$; \\n $^{*}$: joint first authors"
+
 
 date: 'Last Updated : `r Sys.time()`'
 
@@ -30,7 +30,7 @@ For each bat flight activity period identified in the video, we identified the c
 
 The audio and video data were synchronised using the protocol of [@laurijssen2018low]. A Raspberry Pi 3 was used to drive an ON/OFF signal from a GPIO port. This ON/OFF signal was then split between an LED and a circuit linked to capacitor. The capacitor converted the DC ON/OFF signal into positive and negative spikes - thus allowing the signal to be correctly digitised. Not all soundcards are capable of digitising DC voltages, and thus the capacitor helps in making the protocol independent of soundcard type. The entire circuit can be assembled from easily available parts (Figure \@ref(fig:breadboardschem))
 
-```{r breadboardschem, echo=FALSE, fig.height=3, fig.cap="\\label{fig:breadboardschem} Top: The experimental realisation of the audio-video synchronisation signal splitting. The components can easily be assembled onto a hobby breadboard, and are easily portable. Here the breadboard is pasted on the inside of a lunch box lid, allowing easy and safe transport of the breadboard and the Raspberry Pi in the box itself. Bottom: The circuit plan of the synchronisation signal splitter"}
+```{r breadboardschem, echo=FALSE, fig.height=3, fig.cap="\\label{fig:breadboardschem} Top: The experimental realisation of the audio-video synchronisation signal splitting. The components can easily be assembled onto a hobby breadboard, and are easily portable. Here the breadboard is pasted on the inside of a lunch box lid, allowing easy and safe transport of the breadboard and the Raspberry Pi in the box itself. Bottom: The circuit diagram of the synchronisation signal splitter"}
 
 include_graphics('associated_docs/breadboard_and_circuit.png')
 ```
@@ -79,14 +79,9 @@ while True:
 
 One optional change that can be made to the code above is to set the seed manually with ```np.random.seed``` after the numpy import. 
 Setting a fixed seed can have the advantage that problems in audio-video file synchronisation post data collection can be better
-fixed. A fixed seed however means that the output signal is the same across all sessions used - which might make distinguishing 
-audio and video recordings from different sessions difficult, though not exclude it.
+fixed. A fixed seed however means that the output signal is the same across all sessions used - which might make distinguishing audio and video recordings from different sessions difficult.
 
-Another important aspect to pay attention to is the ```time_ranges``` variable. In this experiment it was assumed that the camera frame rate
-was going to be 25 Hz, and thus the lowest ON/OFF time was set to 0.08s, which corresponds to a signal with 12.5Hz periodicity of the Nyquist frequency. However, as @laurijssen2018low suggest, it would have been better to set the lowest duration to a longer period, which was a few times lower than the Nyquist frequency of 12.5 Hz, eg. 0.2s (5 Hz). In our experiments, the cameras turned out to have a frame rate of 22Hz, which meant that the LED signal was aliased. However, despite the
-aliasing, we were still able to synchronise audio and video - showing the robustness of the methodology. 
-
-
+Another important aspect to pay attention to is the ```time_ranges``` variable. In this experiment it was assumed that the camera frame rate was going to be 25 Hz, and thus the lowest ON/OFF time was set to 0.08s, which corresponds to a signal with 12.5Hz periodicity of the Nyquist frequency. However, as @laurijssen2018low suggest, it would have been better to set the lowest duration to a longer period, which was a few times lower than the Nyquist frequency of 12.5 Hz, eg. 0.2s (5 Hz). In our experiments, the cameras turned out to have a frame rate of 22Hz, which meant that the LED signal was aliased. However, despite the aliasing, we were still able to synchronise audio and video - showing the robustness of the methodology. The key to success in our case was probably that the ON/OFF signal had a large bandwidth (5-12.5 Hz), and thus much of the signal was not altered due to aliasing - allowing the cross-correlation to accurately match video and audio segments. 
 
 
 # Video annotation of bat flight activity in the cave {#annotprotocol}
@@ -176,7 +171,7 @@ The FM lower frequency (Figure \@ref(fig:fmterminal)) is determined in the follo
 1. Identify contiguous clusters of FM pixels. These clusters represent single iFM or tFM components of calls. 
 1. From the identified continuous clusters, extract the lowest frequency pixel in a cluster
 
-Given the current parameter values used for our analysis, the lower frequency measurements have a spectral resolution of 488 Hz.
+Given the current parameter values used for our analysis, the lower frequency measurements have a spectral resolution of 488 Hz. For comparison @fawcett2015echolocation had a spectral resolution of 292 Hz (300 kHz sampling rate, 1024 FFT window) in the tFM and iFM minimum frequency measurements. While the method above has a comparitively lower spectral resolution, it should be sufficient to pick up the relative large effects of ~ 5 kHz shifts reported in tFM minimum frequency by @fawcett2015echolocation. 
 
 The code to execute this function is available in the ```inbuilt_measurement_functions.py``` module. 
 
@@ -215,16 +210,16 @@ The code to execute this function is available in the ```Making virtual multi ba
 
 # Calculating expected dominant frequency ranges due to Doppler shift {#simdomfreqranges}
 
-The amount of Doppler shift in our audio recordings is primarily affected by multiple factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone 3) active Doppler shift compensation carried out by the bats and 4) the acoustic fovea of each individual bat. These factors may combine to give rise to a dominant frequency (DF) max-min range of upto around 3 kHz even when a single bat flies by the microphone. For example, a bat echolocating with a very high acoustic fovea that flies fast will result in a larger DF range than a slow flying bat with the same foveal frequency but flying slower. 
+The amount of Doppler shift in our audio recordings is primarily affected by multiple factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone 3) active Doppler shift compensation carried out by the bats and 4) differences the acoustic fovea of each individual bat. These factors may combine to give rise to a dominant frequency (DF) max-min range of up to around 3 kHz even when a single bat flies by the microphone. For example, a bat echolocating with a very high individual call frequency  that flies fast will result in a larger DF range than a slow flying bat with the same foveal frequency but flying slower. 
 
 ```{r, dopplerschematic, echo=FALSE,fig.cap="Schematic showing the simple model used to calculate the expected dominant frequency variation arising from a single bat flying past the microphone. $F_{e}$ is the doppler compensated emitted frequency. $F_{rec \\:start}$ is the received frequency at the start of the flight, $F_{rec \\:end}$ the received frequency at the end of the flight. $v_{start}$ and $v_{end}$ are the speed of the bat at the start and end of the flight. $F_{rec}$ is a function of the emitted frequency, relative flight angle and flight speed at the start and end of the fly by."}
 include_graphics('figures/doppler_shift_schematic.png')
 ```
 
 
-Our simulations recreated the frequency recorded at the micrphone at the 'start' and 'end' of the bat's flight past the microphone (Figure \@ref(fig:dopplerschematic)). The start position was assumed to be 45 degrees and end position was 135 degrees relative to the microphone (where 90 deg. corresponds to the bat flying exactly perpendicular to the microphone's direction). The speed at the start and end flight positions of the bat was assumed to be between 1.5-4.5 m/s, and the acoustic fovea's of the bat population was assumed to be between 100-111 kHz, matching the range of the study species' *R. euryale/mehelyi*. The frequency recorded at the microphone due to Doppler shift from the bat flying at an angle was calculated by: $\frac{v_{sound}}{v_{sound}-v_{bat}cos(\theta)}$. The bat's Doppler shift compensation was modelled by assuming the bat perfectly compensated for Doppler shift due to it's own flight speed. The $F_{e}$ was calculated at the start and end points as $F_{e}=\frac{F_{o}}{\frac{v_{sound}+v_{bat}}{v_{sound}-v_{bat}}}$, where $v_{bat}$ depended on the flight speed at the start and end points, $v_{sound}=330$m/s, and $F_{o}$ was a randomly chosen value between 100-111 kHz.The DF range was calculated as $DF_{range}=abs(F_{rec\:start}-F_{rec\:end})$. Figure \@ref(fig:singledomfreqrangesim) shows that our the DF ranges from simulations match the observed DF ranges well for the single bat case.
+Our simulations recreated the frequency recorded at the micrphone at the 'start' and 'end' of the bat's flight past the microphone (Figure \@ref(fig:dopplerschematic)). The start position was assumed to be 45 degrees and end position was 135 degrees relative to the microphone (where 90 deg. corresponds to the bat flying exactly perpendicular to the microphone's direction). The speed at the start and end flight positions of the bat was assumed to be between 1.5-4.5\ m/s, and the acoustic fovea's of the bat population was assumed to be between 100-111\ kHz, matching the range of the study species' *R. euryale/mehelyi*. The frequency recorded at the microphone due to Doppler shift from the bat flying at an angle was calculated by: $\frac{v_{sound}}{v_{sound}-v_{bat}cos(\theta)}$. The bat's Doppler shift compensation was modelled by assuming the bat perfectly compensated for Doppler shift due to it's own flight speed. The $F_{e}$ was calculated at the start and end points as $F_{e}=\frac{F_{o}}{\frac{v_{sound}+v_{bat}}{v_{sound}-v_{bat}}}$, where $v_{bat}$ depended on the flight speed at the start and end points, $v_{sound}=330$m/s, and $F_{o}$ was a randomly chosen value between 100-111 kHz.The DF range was calculated as $DF_{range}=abs(F_{rec\:start}-F_{rec\:end})$. Figure \@ref(fig:singledomfreqrangesim) shows that our the DF ranges from simulations match the observed DF ranges well for the single bat case.
 
-```{r singledomfreqrangesim, echo=FALSE, fig.cap="\\label{fig:singledomfreqrangesim} Calculated (left) and observed (right) dominant frequency range for a single bat flying past the microphone. The calculated and observed ranges match fairly well, indicating the broad processes behind the observed  dominant frequency range have been captured. Violinplots describe data distribution, and horizontal bars indicate the minimum and maximum values. "}
+```{r singledomfreqrangesim, echo=FALSE, fig.cap="\\label{fig:singledomfreqrangesim} Calculated (left) and observed (right) dominant frequency range for a single bat flying past the microphone. The calculated and observed ranges match fairly well, indicating the broad processes behind the observed  dominant frequency range have been captured. Violinplots describe data distribution, and horizontal bars indicate the minimum and maximum values. The shape of the simulated distribution does not match exactly, and this may require further parametrisation of the flight speeds or individual call frequency distribution."}
 include_graphics('../combined_analysis/domfreq_range_single.png')
 ```
 
@@ -233,7 +228,7 @@ When two or more bats echolocate in the same volume, it is expected that the DF 
 Figure \@ref(fig:multidomfreqsim) shows the dominant frequency ranges expected from single and a pair of bats. The median difference of the multi-single DF ranges is expected to be around 3.9 kHz, even though there is a wide variation in the observed DF ranges. The experimentally observed multi-single DF range difference of ~2 kHz falls within the range difference shown in Figure \@ref(fig:multidomfreqsim), however more detailed parametrisation of the flight speeds and relative positions may lead to a better match of the observed data. 
 
 
-```{r multidomfreqsim, echo=FALSE, fig.cap="\\label{fig:multidomfreqsim} The distribution of dominant frequency ranges expected when a single bat echolocates (left), observed when a single bat (middle), and calculated when two bats fly. Violinplots indicate data distribution, horizontal lines indicate the 25, 50, and 75th percentiles."}
+```{r multidomfreqsim, echo=FALSE, fig.cap="\\label{fig:multidomfreqsim} The distribution of dominant frequency ranges expected when a single bat echolocates (left), observed when a single bat (middle), and calculated when two bats fly. Violinplots indicate data distribution, horizontal lines indicate the 25, 50, and 75th percentiles. The y-axis is log10 scaled."}
 include_graphics('../combined_analysis/domfreqrange_singlemultisim.png')
 ```
 
