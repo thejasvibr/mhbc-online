@@ -1,0 +1,15 @@
+---
+title: "Cover letter: HBC paper"
+
+bibliography: hbc-references.bib
+csl: vancouver.csl
+output: word_document
+---
+
+
+Dear Editors of Royal Society Interface, 
+Hereby, we submit our manuscript entitled '**High duty-cycle bats in the field do not alter echolocation calls when flying in groups**' for consideration as a research report in your journal. 
+Individuals in active sensing groups, be they drones, robots or echolocating bats - face the common problem of jamming each other. Individuals in man-made groups can perhaps overcome jamming 
+through the use of unique frequencies or co-ordinating their probes, animals in groups rarely have the luxury of doing so. We investigate how groups of the so-called 'CF-FM' bats manage to echolocate in groups. CF-FM bats are particularly likely to undergo jamming as they emit long calls, but also have very short silences between calls - leading to a high probability of jamming even in small groups. In our multi-disciplinary study, we bring together methodological developments in acoustic analysis and simulations to understand how CF-FM bat groups deal with their group members.
+
+The call overlaps that challenge bats, also have the same effect on researchers over the past decades , who have at most studied groups of two to three CF-FM bats together under lab conditions [@jones1994individual;@fawcett2015echolocation;].  
