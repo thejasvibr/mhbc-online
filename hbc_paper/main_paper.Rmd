@@ -1,15 +1,25 @@
 ---
 title: "High duty-cycle bats in the field do not alter echolocation calls when flying in groups"
-author: "Neetash Mysuru$^{*}$$^{1}$, Thejasvi Beleyur$^{*}$$^{1}$, Aditya Krishna$^{1,2}$, Holger R Goerlitz$^{1}$; \\n $^{*}$: joint first authors"
+#author: ", , , ; \\n $^{*}$: joint first authors"
+author:
+  - Neetash Mysuru$^{*}$$^{a}$
+  - Thejasvi Beleyur$^{*}$$^{a}$^[miaowmiaow@asdf.com]
+  - Aditya Krishna$^{a,b}$
+  - Holger R Goerlitz$^{a}$
+  
+date: $*$:Equal contribution
+      $a$:Acoustic and Functional Ecology, Max Planck Institute for Ornithology, Seewiesen  \newline
+      $b$:Indian Institute of Science Education and Research, Mohali 
 
-date: 'Last Updated : `r Sys.time()`'
+
+#date: 'Last Updated : `r Sys.time()`'
 
 output:
   bookdown::word_document2: 
     fig_caption: yes
     number_sections: true
 
-abstract: "Living in groups provides animals with many advantages, including disadvantages such as the possibility of sensory overload. Many animals however form large groups to roost and mate - that are filled with a multitude of signals of varying relevance to each individual. Here we focus on echolocating bats, that experiences the problem of sensory overload rather acutely due to their active sensing system. When in groups, echolocating bats may not be able to detect their surroundings because of masking from the loud calls and echoes from neighbouring bats. We investigate the echolocation of high duty-cycle bat groups in the field that emit calls very often with short silences in between. The high duty-cycle call emission means, the chances of call-overlaps are very high - which challenges acoustic measurements. We use a synchronised audio-video recording system to count the number of bats and record their echolocation across single and multi-bat flights. To quantify change in echolocation behaviour we develop methods to measure and analyse individual CF-FM calls and groups of overlapping calls. We find no major difference in quantified echolocation parameters between single and multi-bat flights. Our results highlight the robustness of bat echolocation, and the importance of studying behaviour under natural conditions."
+abstract: "Living in groups has many benefits, but also costs such as the possibility of sensory overload. Large aggregations formed by animals to roost and mate are filled with a multitude of signals of varying relevance to each individual. Here, we focus on echolocating bats, which may experience strong sensory overload due to their active sensory system, particularly in groups (jamming). Consequently, several bat species may alter their vocalizations to reduce jamming. We investigated the echolocation behaviour of high duty-cycle constant-frequency bats, which emit long calls with short pauses, while flying in groups in a natural cave environment. Due to their call characteristics, high duty-cycle have high chances of spectro-temporal overlaps. Overlaps increases the likelihood of jamming for the bats, and also challenges acoustic measurements. We used synchronised audio-video recordings to count the number of bats and quantify their echolocation in single and multi-bat contexts. To quantify change in echolocation behaviour we develop methods to measure and analyse individual CF-FM calls and groups of overlapping calls. We find no major difference in quantified echolocation parameters between single and multi-bat flights. Our results highlight the robustness of bat echolocation, and the importance of studying behaviour under natural conditions."
 
 bibliography: hbc-references.bib
 csl: vancouver.csl
@@ -22,6 +32,8 @@ csl: vancouver.csl
 ---
 
 **Keywords : active sensing, echolocation, cocktail-party problem, group-living**
+
+text to be incroporated?: *We thus show that horseshoe bats, despite their long calls that are prone to spectro-temporal overlap, do not alter their calls when flying in groups of up to four bats in a complex echoic cave environment*
 
 
 For this version COAUTHORS CAN:
@@ -37,6 +49,7 @@ OTHER THINGS TO DO:
 
 	#. Finalise SI section numbers (They are blank right now on purpose)
 	#. Check references for missing entries/typos
+\newpage
 
 ```{r echo=FALSE}
 library(knitr)
@@ -45,7 +58,10 @@ library(stringi)
 ``` 
 
 # Introduction {#intro}
-Living in groups provides both costs and benefits to the group members, which individuals have to balance. Advantages of being in a group might be increased foraging success, offspring survival, or thermoregulation, while challenges might include increased parasitism, and competition [@pulliam1984living]. An individual’s sensory perception is also challenged in groups, due to the multitude of dynamic sensory information from group members, for example in leks, roosting sites, or even at human gatherings [@cherry1953a;@bee2008a]. Only a small fraction of this information is relevant to a receiver [@carrasco2014spatial;@krauzlis2014attention], which necessitates various adaptations to filter out irrelevant information, including unique calls  or avoiding signal overlap with neighbours [@socialintegr]. 
+Living in groups provides both costs and benefits to the group members [@pulliam1984living;@krause2002living]. From a sensory perspective, group living can be challenging due to the multitude of dynamic sensory information provided by group members, for example in leks, at roosting sites, or at cocktail parties [@cherry1953a;@bee2008a]. Since only a small fraction of this information is relevant, it receiver apply massive filtering and selection during sensory processing and perception to extract relevant information [@carrasco2014spatial;@krauzlis2014attention]. This sensory challenge in groups is becoming worse for animals that perceive their environment by actively radiating energy (9-11), i.e., active sensing animals in the strict sense (7, 8) such as electrolocating fish and echolocating bats. 
+
+
+Living in groups provides both costs and benefits to the group members, which individuals have to balance. Advantages of being in a group might be increased foraging success, offspring survival, or thermoregulation, while challenges might include increased parasitism, and competition [@pulliam1984living;@krause2002living]. An individual’s sensory perception is also challenged in groups, due to the multitude of dynamic sensory information from group members, for example in leks, roosting sites, or even at human gatherings [@cherry1953a;@bee2008a]. Only a small fraction of this information is relevant to a receiver [@carrasco2014spatial;@krauzlis2014attention], which necessitates various adaptations to filter out irrelevant information, including unique calls  or avoiding signal overlap with neighbours [@socialintegr]. 
 
 Many studies to date have focused on sensory filtering in passive sensing animals, i.e., animals that sense their surroundings by receiving external energy (e.g., penguins, frogs, humans)[@zweifel2020defining;@nelson2006a]. As each passively-sensing group member receives external information independently, their sensory processes do not affect other individuals around them. In contrast, active sensing animals like electrolocating fish or echolocating bats face a unique sensory challenge when actively sensing in social groups  [@ulanovsky2008bat;@gillambrasiliensis;@watanabe1963change]. Echolocating bats emit intense ultrasonic calls and detect their surroundings by listening for the echoes reflecting off objects around them [@griffin1958listening]. In groups however, a bat’s returning echoes can be overlapped by the calls and echoes from its neighbours, preventing detection of its surroundings[@ulanovsky2008bat].  Active sensing animals thus face the issue that their information of interest is potentially masked by the multitude of surrounding signals in a group. An echolocating bat in a group may thus end up metaphorically flying ‘blind’, as without detecting its own echoes the bat cannot sense the environment. 
 

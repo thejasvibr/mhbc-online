@@ -5,12 +5,18 @@ author: "Neetash Mysuru$^{*}$$^{1}$, Thejasvi Beleyur$^{*}$$^{1}$, Aditya Krishn
 
 date: 'Last Updated : `r Sys.time()`'
 
+
+
+
 output:
   bookdown::word_document2: 
     fig_caption: yes
     number_sections: true
+
+  
 bibliography: hbc-references.bib
 csl: vancouver.csl
+
 # Notes working with Rmarkdown ---> word file
 # managed to get the figure labelling working on the Ubuntu comp thanks to the help of colton @
 # https://stackoverflow.com/a/51677100/4955732
@@ -25,6 +31,8 @@ library(knitr)
 # Checking matched audio for each annotated bat flight activity
 
 For each bat flight activity period identified in the video, we identified the corresponding region of the recorded audio. We quantified the median intensity of the pixels in the region around the LED for each frame and then cross-correlated the normalized pixel intensity with the recorded ON/OFF voltage signal in the audio files. We managed to successfully find audio matches for 1181 bat flight activity periods (55% of 2132). The low match rate is primarily due to the fluctuating camera frame rates, and because many of the matched audio files originated from non-target bat species, which could not be visually discriminated from our target species *R. mehelyi/euryale* while annotating bat activity periods in the videos. Observed non-target species were *R. ferrumequinum*, vespertilionid and miniopterid FM bats, all of which occur in the Orlova Chuka cave system [@ivanova2005important]. For the acoustic analysis we chose matched audio files that contained only calls of *R. euryale* and/or *R. meheyli*.
+
+\beginsupplement
 
 # Audio-video synchronisation: hardware and software implementations {#avmatching}
 
@@ -206,9 +214,9 @@ Virtual multi bat audio files (Figure \@ref(fig:virtualmultibat)) were created w
 The code to execute this function is available in the ```Making virtual multi bat audio.ipynb``` notebook and its HTML printout. 
 
 
+# Supporting Results
 
-
-# Calculating expected dominant frequency ranges due to Doppler shift {#simdomfreqranges}
+## Calculating expected dominant frequency ranges due to Doppler shift {#simdomfreqranges}
 
 The amount of Doppler shift in our audio recordings is primarily affected by multiple factors: 1) the flight speed of the bat 2) the flight direction of the bat with respect to the microphone 3) active Doppler shift compensation carried out by the bats and 4) differences the acoustic fovea of each individual bat. These factors may combine to give rise to a dominant frequency (DF) max-min range of up to around 3 kHz even when a single bat flies by the microphone. For example, a bat echolocating with a very high individual call frequency  that flies fast will result in a larger DF range than a slow flying bat with the same foveal frequency but flying slower. 
 
@@ -234,7 +242,7 @@ include_graphics('../combined_analysis/domfreqrange_singlemultisim.png')
 
 The code to implement this calculation is in the ```Combined analysis notebook.ipynb``` and its HTML version. 
 
-# tFM echo-call overlap probabilities {#simtfmoverlap}
+## tFM echo-call overlap probabilities {#simtfmoverlap}
 ```{r echocall, echo=FALSE}
 
 # load simulation results
