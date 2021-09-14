@@ -531,6 +531,19 @@ rownames(plotdata_domfreq_meancoi) <- c('domfreq')
 
 ```
 
+
+```{r, samplesizes}
+
+# dominant frequency 
+domfreq.samplesizes <- data.frame(table(obsvirt_domfrange$group_status))
+domfreq.samplesizes[,1] <- c('single','multi','virtual-multi')
+colnames(domfreq.samplesizes) <- c('group-status','sample-size')
+
+# Received level 
+n_windows_reclevel <- table(obsvirt_reclevel$group_status)
+
+```
+
 ## Summarised results {#summary}
 
 ```{r summary.table.}
