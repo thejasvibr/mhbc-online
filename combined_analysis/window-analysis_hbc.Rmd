@@ -533,7 +533,8 @@ rownames(plotdata_domfreq_meancoi) <- c('domfreq')
 
 
 ```{r, samplesizes}
-
+num.files <- function(X){length(unique(X$video_annot_id))}
+num.windows <- function(X){length(unique(X$windowid))}
 # dominant frequency 
 domfreq.samplesizes <- data.frame(table(obsvirt_domfrange$group_status))
 domfreq.samplesizes[,1] <- c('single','multi','virtual-multi')
@@ -541,6 +542,13 @@ colnames(domfreq.samplesizes) <- c('group-status','sample-size')
 
 # Received level 
 n_windows_reclevel <- table(obsvirt_reclevel$group_status)
+n_files_reclevel <- by(obsvirt_reclevel, obsvirt_reclevel$group_status, num.files)
+
+# lower frequency 
+obsvirt_lowerfreq$windowid <- do.call(paste0, obsvirt_lowerfreq[c("video_annot_id", "segment_number")])
+n_msmts_lowerfreq <- table(obsvirt_lowerfreq$group_status)
+n_windows <- by(obsvirt_lowerfreq, obsvirt_lowerfreq$group_status, num.windows)
+n_files_lowerfreq <- by(obsvirt_lowerfreq, obsvirt_lowerfreq$group_status, num.files)
 
 ```
 

@@ -328,7 +328,7 @@ sns.boxplot(y='tfm-cf_dbratio',x='groupsize', data=multibat_indcall,
 
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 plt.ylim(-20,8);plt.yticks([-18,-6,6], ['-18','','6'],fontsize=yticks_fontsize)
-plt.text(ylabx, ylaby+0.3, '$\Delta$ level (dB)\ntFM-CF', transform=f2e_ax14.transAxes, 
+plt.text(ylabx, ylaby+0.3, '$\Delta$ received\nlevel (dB)', transform=f2e_ax14.transAxes, 
                              fontsize=ylab_fontsize, rotation='vertical', multialignment='center')
 #plt.text(ylabx+0.3, ylaby+0.3, 'tFM-CF', transform=f2e_ax14.transAxes,
 #                              fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
@@ -345,8 +345,8 @@ sns.boxplot(y='ifm-cf_dbratio',x='groupsize', data=multibat_indcall,
             linewidth=0.8, whis=0)
 plt.xlabel(''); plt.xticks([]);plt.ylabel('')
 plt.ylim(-20,8);plt.yticks([-18,-6,6], ['-18','','6'], fontsize=yticks_fontsize)
-plt.text(ylabx+0.3, ylaby+0.45, 'iFM-CF', transform=f2e_ax15.transAxes,
-                              fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
+#plt.text(ylabx+0.3, ylaby+0.45, 'iFM-CF', transform=f2e_ax15.transAxes,
+#                              fontsize=ylab_fontsize, rotation='vertical',multialignment='center')
 f2e_ax15.tick_params(axis='y', which='major', pad=0.025);plt.xlim(-0.5,1.7)
 plt.gca().axes.yaxis.set_ticklabels([])
 make_subplotlabel(plt.gca(),'K')
