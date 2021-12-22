@@ -547,7 +547,7 @@ n_files_reclevel <- by(obsvirt_reclevel, obsvirt_reclevel$group_status, num.file
 # lower frequency 
 obsvirt_lowerfreq$windowid <- do.call(paste0, obsvirt_lowerfreq[c("video_annot_id", "segment_number")])
 n_msmts_lowerfreq <- table(obsvirt_lowerfreq$group_status)
-n_windows <- by(obsvirt_lowerfreq, obsvirt_lowerfreq$group_status, num.windows)
+n_windows_lowerfreq <- by(obsvirt_lowerfreq, obsvirt_lowerfreq$group_status, num.windows)
 n_files_lowerfreq <- by(obsvirt_lowerfreq, obsvirt_lowerfreq$group_status, num.files)
 
 ```

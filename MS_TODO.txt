@@ -1,0 +1,5 @@
+
+2021-12-22
+
+* Reduce word count to suit RSOS requirements, implement NMR changes as of V7
+
