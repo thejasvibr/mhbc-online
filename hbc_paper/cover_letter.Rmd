@@ -6,9 +6,11 @@ csl: vancouver.csl
 output: word_document
 ---
 
-Dear Editors of Royal Society Interface, 
+Dear Editors of INSERT JOURNAL HERE!, 
 
 Hereby, we submit our manuscript entitled '**High duty-cycle bats in the field do not alter echolocation calls when flying in groups**' for consideration as a research report in your journal. 
+
+*FOCUS ON THE METHODOLOGICAL RIGOUR OF THE RESULTS -- EVERYTHING IS AS AUTOMATED AS POSSIBLE TO AVOID EXPERIMENTER BIAS AND REPLICABILITY!!! UNLIKE PREVIOUS STUDIES THAT HAVE ONLY HEAVILY USE MANUAL ANNOTATIONS TO OBTAIN THEIR RESULTS - WHICH HAVE KNOWN FLAWS (BRUMM/ZOLLINGER)*
 
 Individuals in active sensing groups, be they drones, robots or echolocating bats - face the common problem of jamming each other. Individuals in most man-made groups can perhaps overcome jamming through the use of unique frequencies or co-ordinating emission times of their probes. Animals in groups rarely have the luxury of doing so. Echolocating bats especially face a problem when in groups as the range of frequency shifting (among other strategies) each individual can perform is limited by their morphology and energetics [@jones2006evolution;@currie2020echolocation]. We investigate how one group of echolocating bats, the 'high duty-cycle' bats manage to echolocate in groups. High duty-cycle bats are particularly susceptible to jamming as they emit long calls, but also have very short silences between calls. This rapid emission of long calls means even small groups of a few bats present jamming-type situations. Despite this expectation, tens of high duty-cycle bats are often seen to fly together in nature. We ask if high duty-cycle  bats show alterations in their echolocation in the presence of other bats. 
 

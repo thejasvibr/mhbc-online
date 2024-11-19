@@ -148,6 +148,9 @@ include_graphics('./figures/matching_annotaudio_Aditya_2018-08-17_01_58_hp.png')
 The actual functions used to detect and measure CF durations are in the ```cf_detector.py``` module, and the Jupyter notebook used to generate measurements for this paper is called ```cf-detection-notebook.ipynb```.
 
 
+## *itsfm* parameters
+An FM component was defined as any region of a call with greater or equal to 2 kHz/ms frequency modulation. Further settings were a maximum acceleration of 3 kHz/ms$^{2}$, an extrapolation window of 50 $\mu$s and a window size of 375 samples. Threshold signal level and time-frequency clip range were manually tuned for each calls using the ```pwvd``` method, since each call had differing received levels.
+
 #  Windowed call analysis {#windowdetails}
 Each flight activity audio was split into consecutive 50ms windows. All tail-end audio that was <50 ms was discarded. 
 
