@@ -134,7 +134,7 @@ detect CF components even in situations with overlapping calls. The same audio f
 The 'multi-call extension' CF duration measurements involved the following steps:
 
 #. Load the audio file and choose the loudest 0.5 second segment of the audio. If the audio is shorter than 0.5 seconds, then load the entire audio. 
-#. Choose the 'band of interest', defined as the peak frequency $\pm$ 1.5 kHz. The band of interest typically holds the CF calls from the bat with the louder calls eg. the band of interest is 104.5-107.5 kHz for an audio clip with peak frequency at 106 kHz. 
+#. Choose the 'band of interest', defined as the peak frequency $\pm$ 1.5 kHz. The band of interest typically holds the CF calls from the bat with the louder calls eg. the band of interest is 104.5-107.5 kHz for an audio clip with peak frequency at 106 kHz. If bat calls with ambiguously close CF calls are present, abort analysis and move to the next audio clip.
 #. Make a spectrogram with 128 samples FFT window and 127 samples overlap. At 250 kHz sampling rate, this corresponds to 1.95 kHz spectral resolution
 and 0.5 ms temporal resolution. 
 #. Check the spectrogram for all 'pixels' that are above a predefined threshold within the band of interest. For our data, -140 dB was set as the threshold. 
