@@ -45,7 +45,6 @@ library(knitr)
 library(stringi)
 #opts_knit$set(eval.after = "fig.cap")
 ``` 
-STILL NEED TO IMPLEMENT THE CHANGES FROM METHODS ONWARDS IN V7!!!
 
 # Introduction {#intro}
 Living in groups provides both costs and benefits to the group members [@pulliam1984living;@krause2002living]. From a sensory perspective, group living can be challenging due to the high volume of sensory information provided by group members and the environment, for example in leks, roosting sites, or at cocktail parties [@cherry1953a;@bee2008a]. Since only a small fraction of this information is relevant, the receiver must apply massive filtering and selection to extract and process only the relevant information [@carrasco2014spatial;@krauzlis2014attention]. This sensory challenge in groups is even higher for animals that perceive their environment by actively emitting energy into their environment [@ulanovsky2008bat;@bullock1972jamming], i.e., active sensing animals [@zweifel2020defining;@nelson2006a] such as electrolocating fish and echolocating bats. 
@@ -161,6 +160,7 @@ Signal analysis, data manipulation and visualisation were done in Python [@van19
 
 We recorded echolocation and flight behaviour of mixed-species groups of the high-duty cycle bats *Rhinolophus euryale* and *R. mehelyi* as they flew alone and with other bats in a natural cave. The bats performed various flight behaviours in the cave, such as circling, approaches (when two or more bats flew towards each other) and following (one bat behind another) flights.  The duration of continuously observed flight bouts varied strongly, ranging from about 0.1 s to 62 s (median: 1.04 s , 95%ile range: 0.5-8.54 s WHAT SAMPLE SIZE????). 
 
+GET SUMMARY DATA FROM 'generating_summary_data_and_plot_for_manuscript.ipynb' with jupyter notebook --notebook-dir=D:
 STOPPED HERE FOR NOW-------------------------------x
 
 In general, the acoustic parameters of individual calls mostly did not differ between single-bat and multi-bat contexts. Likewise, the windowed call-analysis revealed no major differences in received level and FM lowest frequency between single-bat and multi-bat and between multi-bat and virtual-multi-bat conditions. As theoretically expected, the dominant-frequency range in the windowed analysis, was larger in multi-bat conditions compared to single-bat conditions.
