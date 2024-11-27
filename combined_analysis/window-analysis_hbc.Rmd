@@ -184,6 +184,8 @@ qqnorm(raneffects.m3);qqline(raneffects.m3)
 qqnorm(raneffects2.m3);qqline(raneffects2.m3)
 
 ```
+
+
 The model assumptions are met okay'ly well - though the normality of the random effects is definitely a bit off. 
 
 

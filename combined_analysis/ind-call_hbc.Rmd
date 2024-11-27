@@ -194,7 +194,8 @@ qqnorm(ranef(cfdurn.lmm2)$rechour$`(Intercept)`);qqline(ranef(cfdurn.lmm2)$recho
 
 
 ```
-The residuals fit pretty well, let us now proceed to generate the posterior distribution. 
+
+The residuals fit pretty well after an inverse transform, let us now proceed to generate the posterior distribution. 
 
 ```{r cfdurn-post}
 
@@ -449,7 +450,7 @@ ifmreclev.fixefs.mean <- round(apply(fixef(ifmreclev.sim),2,mean),2)
 # only calculate dB increase -- and not ratios of dB's!!!
 ifmreclev.db.increase <- fixef(ifmreclev.sim)[,2]
 ifmreclev.db.hpd <- round(get.hpd(ifmreclev.db.increase),2)
-ifmreclev.db.map <- round(mean(ifmreclev.db.increase))
+ifmreclev.db.map <- round(mean(ifmreclev.db.increase), 2)
 ifmreclev.db.map.compint <- c(ifmreclev.db.map, ifmreclev.db.hpd)
 
 

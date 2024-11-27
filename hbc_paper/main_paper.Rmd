@@ -158,7 +158,7 @@ Signal analysis, data manipulation and visualisation were done in Python [@van19
 
 # Results
 
-We recorded echolocation and flight behaviour of mixed-species groups of the high-duty cycle bats *Rhinolophus euryale* and *R. mehelyi* as they flew alone and with other bats in a natural cave. The bats performed various flight behaviours in the cave, such as circling, approaches (when two or more bats flew towards each other) and following (one bat behind another) flights. A total of NUMBER HERE flight activities were annotated from the video, whose durations .
+We recorded echolocation and flight behaviour of mixed-species groups of the high-duty cycle bats *Rhinolophus euryale* and *R. mehelyi* as they flew alone and with other bats in a natural cave. The bats performed various flight behaviours in the cave, such as circling, approaches (when two or more bats flew towards each other) and following (one bat behind another) flights. A total of NUMBER HERE flight activities were annotated from the video, whose durations RANGED FROM X-Y.From these flight activities we were able to obtain XXYY synchronised audio clips, where were used in the individual and windowed call analysis. 
 
 
 STILL STUCK HERE -- THERE ARE SOME ARBIT LONG ANNOTATIONS -- NEED ACCESS TO THE VIDEO FILES....
@@ -234,12 +234,12 @@ colnames(cfdurn2_small) <- colnames(indcallsummary)
 indcallsummary <- rbind(indcallsummary[1,], cfdurn2_small,indcallsummary[2:13,])
 ```
 
-
-We measured 13 acoustic parameters of the initial and terminal frequency-modulated (iFM, tFM) and of the central constant-frequency (CF) component of 226 individual horseshoe bat echolocation calls (Figure \@ref(fig:indcallrawdata)). Most call parameters showed little or no difference between single-bat and multi-bat observations (Table \@ref(tab:incalldata)) with very small maximum a posteriori (MAP) estimates or compatibility intervals distributed either side of zero. The CF component of multi-bat calls showed slight reduction in duration between `r indcallsummary$diff_lower_95pcHPD[1]`-`r indcallsummary$diff_upper_95pcHPD[1]` ms (95% CoI). However, this apparent reduction in CF duration was not supported by the multi-call extension, indicating no change (Table \@ref(tab:incalldata) (multi-call extension)) between `r indcallsummary$diff_lower_95pcHPD[2]`-`r indcallsummary$diff_upper_95pcHPD[2]` ms (95% CoI). Multi-bat calls showe a slight decrease in amplitude of upto 0-4 dB in multi-bat calls, and a slight increase in tFM bandwidth of `r indcallsummary$diff_lower_95pcHPD[6]`-`r indcallsummary$diff_upper_95pcHPD[6]` kHz (95% CoI). All remaining had smaller differences between single and multi-bat contexts centered around zero Table \@ref(tab:incalldata). 
-
 ```{r indcallsampsizes2,echo=FALSE}
 indcall <- read.csv('../combined_analysis/indcall_final.csv')
 ```
+
+We measured 13 acoustic parameters of the initial and terminal frequency-modulated (iFM, tFM) and of the central constant-frequency (CF) component of `r nrow(indcall)` individual horseshoe bat echolocation calls ($N_{calls\ single\ bat}=$ `r nrow(subset(indcall, num_bats==1))`, $N_{calls\ multi\ bat}=$ `r nrow(subset(indcall, num_bats>1))`. . Most call parameters showed little or no difference between single-bat and multi-bat observations (Figure \@ref(fig:indcallrawdata), Table \@ref(tab:incalldata)) with very small maximum a posteriori (MAP) estimates or compatibility intervals distributed either side of zero. The CF component of multi-bat calls showed a duration difference of `r indcallsummary$diff_lower_95pcHPD[1]` to `r indcallsummary$diff_upper_95pcHPD[1]` ms (95% CoI). As stated before, this apparent drop in duration may have been due to a sampling bias that selected for shorter calls in multi-bat audio. The apparent reduction in CF duration from the original individual call analysis, was not supported by the multi-call extension, indicating negligible difference in CF duration (Table \@ref(tab:incalldata) (multi-call extension)) between `r indcallsummary$diff_lower_95pcHPD[2]` to `r indcallsummary$diff_upper_95pcHPD[2]` ms (95% CoI). Multi-bat calls showed a slight decrease in amplitude of upto 0-4 dB in multi-bat calls, and a slight increase in tFM bandwidth of `r indcallsummary$diff_lower_95pcHPD[6]`-`r indcallsummary$diff_upper_95pcHPD[6]` kHz (95% CoI). All remaining parmeters had negligible differences between single and multi-bat contexts centered around zero (see Table \@ref(tab:incalldata)). 
+
 
 ```{r indcallranges, include=FALSE, echo=FALSE}
 singleind <- subset(indcall, num_bats==1)
@@ -379,26 +379,31 @@ get.window.samplesizes <- function(df)
   {
   n_samples <- as.data.frame(table(df$groupsize))
   n_samples
-  }
+}
 
 
-domfreq_singlemulti_whole <- read.csv('../combined_analysis/obs_singlemulti_domfreq.csv')
-ndomfreq_singlemulti_whole <- get.window.samplesizes(domfreq_singlemulti_whole)
+reclevel_all <- read.csv('../combined_analysis/obsvirt_reclevel.csv')
+reclevel_all_samplesizes <- table(reclevel_all$group_status) # single, multi, virtual-multi
 
-domfreq_multivirt_whole <- read.csv('../combined_analysis/multivirtmulti_domfreq.csv')
-ndomfreq_multivirt_whole <- get.window.samplesizes(domfreq_multivirt_whole)
+lowerfreq_all <- read.csv('../combined_analysis/obsvirt_lowerfreq.csv')
+lowerfreq_all_samplesizes <- table(lowerfreq_all$group_status) # single, multi, virtual-multi
+
+domfreq_all <- read.csv('../combined_analysis/obsvirt_domfrange.csv')
+domfreq_all_samplesizes <- table(domfreq_all$group_status) # single, multi, virtual-multi
 ```
 
-For each window in a flight-activity audio we obtained received level and FM lower frequency ($Nfiles_{single}$=`r ndomfreq_singlemulti_whole[2,2]`,$Nfiles_{multi}=$ `r ndomfreq_singlemulti_whole[1,2]`). For each flight-activity audio we also measured the dominant-frequency range.
+For each window in a flight-activity and virtual audio we obtained received level ($N_{single,\ mutli-bat,\ virtual\ multi-bat\ windows}=$ `r reclevel_all_samplesizes`) and FM lower frequency ($N_{single,\ mutli-bat,\ virtual\ multi-bat\ FM\ components}=$ `r lowerfreq_all_samplesizes`), and dominant frequency range ($N_{single,\ mutli-bat,\ virtual\ multi-bat\ windows}=$ `r domfreq_all_samplesizes`).
 
-There was little difference in the received levels and FM lower frequency between multi and single bat contexts (received level: `r rearranged$'4'[1]`-`r rearranged$'5'[1]` dB 95% CoI, FM lower freq. `r rearranged$'4'[2]`-`r rearranged$'5'[2]` kHz 95% CoI) (Figure \@ref(fig:windowresultsgraph), Table \@ref(tab:windowresults)). 
+The windowed call analysis also showed overall little to no difference between single, multi and virtual multi-bat contexts in all of the parameters considered. 
 
-The mean dominant frequency range (Figure \@ref(fig:windowresultsgraph)) was between `r reclevel.diff.multisingle` kHz (95% CoI) larger in multi-bat conditions compared to the single-bat condition. The observed difference in dominant frequency range matches the  magnitude in simulations when bats do not show any special responses to each other (SI \@ref(simdomfreqranges)). Received level showed little difference between multi and single bat recordings (`r reclevel.diff.multisingle` dB 95% CoI) as well as did FM lower frequency (`r lowerfreq.diff.multisingle` kHz 95% CoI). 
-Compared to single-bat contexts, the dominant frequency range during multi-bat contexts was larger by `r rearranged$'4'[3]` – `r rearranged$'5'[3]` kHz (95% CoI).
+There was little difference in the received levels and FM lower frequency between multi and single bat contexts (received level: `r rearranged$'4'[1]`-`r rearranged$'5'[1]` dB 95% CoI, FM lower freq. `r rearranged$'4'[2]`-`r rearranged$'5'[2]` kHz 95% CoI) (Figure \@ref(fig:windowresultsgraph), Table \@ref(tab:windowresults)). The observed difference in dominant frequency range matches the  magnitude in simulations when bats do not show any special responses to each other (SI \@ref(simdomfreqranges)). Compared to single-bat contexts, the dominant frequency range during multi-bat contexts was larger by `r rearranged$'4'[3]` – `r rearranged$'5'[3]` kHz (95% CoI).
+
 
 We compared the observed multi-bat recordings to virtual-multi bat recordings to estimate if bats were adjusting their echolocation behaviour to the presence of conspecifics. There was little difference in received level and FM lower frequency (received level: `r rearranged$'4'[4]`-`r rearranged$'5'[4]` dB 95% CoI, FM lower freq. `r rearranged$'4'[5]`-`r rearranged$'5'[5]` kHz 95% CoI). The difference in dominant frequency range between observed and virtual multi-bat was low as well (`r domfreq.diff.multivirt` kHz 95% CoI) (Table \@ref(tab:windowresults). 
 
-All these results taken together suggest bats did not change their echolocation behaviour in the presence of conspecifics.
+
+
+The results of the two lines of analysis (individual and windowed calls) taken together suggest bats did not change their echolocation behaviour in the presence of conspecifics.
 
 
 ```{r windowresultsgraph, echo=FALSE,fig.cap='\\label{windowresultsgraph} Windowed analysis measurements and mean estimates: A) Dominant frequency range B) FM lower frequency C) Received level. The raw data points are plotted over a boxplot  (lines indicate 25,50 and 75th percentiles). The modelled mean estimates with the MAP (dot) and the 95% CoI (vertical bar). For most means, the central point engulfs the compatibility interval.'}
@@ -411,6 +416,21 @@ multivirt.wholewin <- subset(wholewindowresults,comparison=='multi-virtual multi
 
 
 # Discussion {#discussion}
+
+THE DISCUSSION NEEDS WORK HERE....
+
+```{r echo=FALSE}
+# Why did we not see anything? Discussing possibilities
+tfm.95pctile <- round(quantile(indcall$tfm_duration,0.95,na.rm=TRUE),1)
+dutycycle.range <- tfm.95pctile/c(40,50)
+dutycycle.sorted <-  sort(dutycycle.range)*100
+
+# load simulation results
+overlap.probs <- read.csv('associated_docs/2-3bat_tfm_overlap_prob.csv')
+overlap.probs2 <- subset(overlap.probs,num_bats==2)
+tfm.probs <- round(sort(overlap.probs2$tfm_overlap_prob),3)*100
+```
+
 
 High duty-cycle bats fly regularly with conspecifics and in cluttered environments [pers obs.;@rossiter2002relatedness;@denzinger2016guild]. While many FM bats alter their echolocation call parameters in the presence of conspecifics [REFSSS], this still remains unclear for CF-bats, particularly in the wild, even though they are more likely to suffer from acoustic interference due to their long call durations. We quantified the difference in horseshoe bat echolocation calls when alone and with conspecifics in the field. Our results do not support a biologically meaningful difference in echolocation calls with reference to group size for all of the call parameters measured using two different approaches. This may seem somewhat unexpected, especially considering the fact that bats in our field site were flying in an enclosed reverberant cave - which would only amplify the problem of masking in multi-bat echolocation. 
 
@@ -456,27 +476,11 @@ Despite the observed increase of individually analyzed received levels, there wa
 
 # Outlook {#outlook}
 
-```{r echo=FALSE}
-# Why did we not see anything? Discussing possibilities
-tfm.95pctile <- round(quantile(indcall$tfm_duration,0.95,na.rm=TRUE),1)
-dutycycle.range <- tfm.95pctile/c(40,50)
-dutycycle.sorted <-  sort(dutycycle.range)*100
 
-# load simulation results
-overlap.probs <- read.csv('associated_docs/2-3bat_tfm_overlap_prob.csv')
-overlap.probs2 <- subset(overlap.probs,num_bats==2)
-tfm.probs <- round(sort(overlap.probs2$tfm_overlap_prob),3)*100
-```
+Despite bats’ outstanding flexibility in adjusting call parameters to optimize sensory information, we found no obvious change in call parameters in free-flying CF-bats in small groups of up to four bats. This strongly suggests that free-flying CF-bats do not suffer from sensory problems when flying in small groups, even in reverberant environments. Our results add to the growing body of literature [@amichai2015calling;@cvikel2015board;@hase2018bats;@beleyur2019modeling;@mazar2020sensorimotor] showing that echolocation in (small) groups can be handled by a bat's general repertoire of sensory strategies used as individuals.
 
-Bats adjust many different call parameters in a task- and context-specific ways to adjust and optimize sensory information. Besides changes in temporal, spectral and amplitude parameters on the level of individual calls, some of which we analyzed in this study, bats also change parameters on the level of call sequence, such as call intervals and duty cycle [@amichai2015calling;@jarvis2013groups]. In contrast to single-bat contexts, measuring call intervals is challenging in multi-bat recordings due to difficulties in assigning calls to individuals and temporal overlap between multiple calls and echoes. 
+In short, the presence of jamming itself does not directly imply dire sensory or motor consequences. Aside from echolocating bats, recent studies show multiple weakly electric wave-type fish in their natural habitat associate in close proximity [@henninger2020tracking]. While active-sensing animals may indeed alter their sensory strategies in response to jamming [@bullock1972jamming;@amichai2015calling], we highlight the importance of observational studies in field settings to understand the frequency with which various sensory strategies are actually employed in ecological contexts.
 
-In summary, our results showed no obvious change in call parameters, suggesting that free-flying CF-bats do not suffer from sensory problems when flying in small groups (2-4 bats), even in reverberant environments. We propose that multiple reasons can explain why such situations are not very challenging, and why bats thus do not alter their calls.What are the possible explanations for the absence of a strong echolocation response in groups? Our data suggests that echolocation in groups with a few bats (2-4) bats may not be very challenging for multiple reasons. CF-FM bats rely use on the tFM component to detect the distance of objects around them for object ranging [@tian1997echolocation]. The tFM components are short ($\\leq$`r tfm.95pctile`ms, 95 percentile value), and likely emitted about every 40-50 ms which is equivalent to a tFM duty cycle between `r dutycycle.sorted[1]`-`r dutycycle.sorted[2]`%. When two bats fly togetherFor a pair of bats at these duty cycles, the probability that the tFM-component of one bat overlaps the other bat’s tFM-echo of one tFM echo being overlapped by another bat’s tFM call component is only relatively low at most between up to `r paste(tfm.probs[1],'-',tfm.probs[2])`% (see SI 0.10 for calculations). Even if a single tFM echo is overlapped by another call, a bat may still be able to detect it if the signal-to-noise ratio is sufficient.  Modelling showed that FM- bats can detect all of their echoes in small groups of up to 10 individualsare unlikely to face major detriments to their echolocation [@beleyur2019modeling]. FM bats integrate echoes across multiple calls and are thus resistant to occasional disruptions in echo arrival [@Salles202011719]. We suggest that the same resistance to jamming, should also apply in CF-FM bats using the FM component for ranging, explaining why the horseshoe bats here did not show call change their calls during group flights from solitary echolocation. 
-
-In contrast to our results, @fawcett2015echolocation observed an increased tFM duration and bandwidth in R. capensis flying in pairs in a novel flight room setting. Potential explanations for this difference might be potential species-differences and the test in a novel versus familiar environment. Since bats possess long-term spatial memory [@barchi2013spatial;@mohres1949versuche], the bats in our study might be sufficiently familiar with the cave to tolerate occasional echo masking, particularly in combination with multi-echo integration [@Salles202011719].
-
-In our opinion, the primary obstacle to furthering studies in group echolocation is technical, especially in analysing overlapping sounds. Here, we presented a series of workflows such as the windowed call analysis and measurement of CF durations in multi-bat contexts. To improve the reliability of call component measurement, we also developed the ```itsfm``` toolkit to segment call-components. Further work still remains to be done, as highlighted above, in the development of call-identity assignment when there are multiple overlapping calls recorded under reverberant conditions. 
-
-Bats alter and adjust their echolocation strategy to the specific sensory [@lewanzik2021task;@stidsholt2021hunting;@taub2020segregating]. Our results add to the growing body of literature [@jones1994individual;@gotze2016no;@cvikel2015board] showing that echolocation in (small) groups is not so special after all and can be solved by the bats’ general repertoire of sensory strategies for dealing with sensory challenges. While bats do indeed alter their echolocation behaviour in the face of sensory challenge in groups, it is important to consider that not all types of group-situations will lead to the same type of sensory challenge. Our results thus match the increasing evidence that jamming does not pose a problem for FM-bats [@amichai2015calling;@cvikel2015board;@gotze2016no;@beleyur2019modeling;@mazar2020sensorimotor] now extending this to high-duty cycle CF bats. We highlight the importance of observational studies in field settings to understand the frequency with which various sensory strategies are actually employed in ecological contexts.
 
 # Data and code availability
 All data and code used process data and generate the results and figures in the paper are available at the following Github repository: https://github.com/thejasvibr/mhbc-online/ and the Zenodo link *INSERT ZENODO LINK HERE*. 
@@ -485,7 +489,7 @@ All data and code used process data and generate the results and figures in the 
 The authors would like to specially thank the electronics team (Markus Abels, Hannes Sagunsky, Reinhard Biller) at the MPIO workshop for help preparing the electronic circuits to run the ON/OFF signal splitting. We would also like to thank Antoniya Hubancheva for logistical support, Stefan Greif for help collecting the data, the 2018 Tabachka field crew, Klaus Hochradel for the point-cloud scan of the cave and Diana Schoeppler and Hans-Ulrich Schnitzler for their helpful discussions. We also thank Manjari Jain for her support and and encouragement of the project. TB was funded by a DAAD doctoral fellowship, the IMPRS for Organismal Biology, and a Medium grant from the CASCB. HRG was funded by the Emmy Noether program of the DFG (German Research Foundation, grant no. 241711556).
 
 # Author Contributions 
-Author contributions in alphabetical order. Study design and conception: NMR, TB; Data collection: AK, NMR, TB;  Audio and video annotation: AK, NMR; Audio-video synchronisation: TB; Analysis: HRG, NMR, TB; Interpretation of results: HRG, NMR, TB;  Manuscript preparation: HRG, NMR, TB. 
+Author contributions in alphabetical order. Study design and conception: NM, TB; Data collection: AK, NM, TB;  Audio and video annotation: AK, NM; Audio-video synchronisation: TB; Analysis: HRG, NM, TB; Interpretation of results: HRG, NM, TB;  Manuscript preparation: HRG, NM, TB. 
 
 \newpage 
 
