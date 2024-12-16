@@ -33,7 +33,6 @@ get.hpd <- function(x,prange=0.95){HPDinterval(as.mcmc(x),prob=prange)}
 get.map.coi <- function(x){c(mean(x), get.hpd(x))}
 ```
 ```{r processing, echo=FALSE, message=FALSE, warning=FALSE}
-
 # let's load the split-measure data from the whole audio analysis 
 obs_splitmeasure_raw = read.csv('../annotation_audio_analysis/analysis/obs_nonsilent_measurements_20dBthreshold_wcentdomfreqs.csv')
 obs_splitmeasure_timestamp <- read.csv('./obs_splitmeasure_wtimestamp.csv')
@@ -59,6 +58,35 @@ get_rechour <- function(X,  virtual=FALSE){
 
 obs_splitmeasure_timestamp$rechour <- unlist(lapply(obs_splitmeasure_timestamp$video_annot_id,get_rechour))
 virt_splitmeasure$rechour <- unlist(lapply(virt_splitmeasure$video_annot_id,get_rechour,virtual=TRUE))
+```
+
+```{r cleaning-and-subsetting, echo=T, warning=F,message=F,results='hide'}
+# get annotations to remove just before splitting up the dataset into its component measurements
+annots_to_remove <- read.csv('annotations_to_remove.csv')$annots_to_remove
+
+
+annots.to.remove.present <- function(annotation.entry){
+  # check if the row.entry has any of the substrings of the removable annotations
+  remove.entry <- FALSE
+  for (each in annots_to_remove){
+    to.remove <- grepl(each, annotation.entry)
+    if (isTRUE(to.remove))
+    {
+      remove.entry <- TRUE
+    }
+  }
+  remove.entry
+}
+
+obs_splitmeasure_timestamp['rows_to_remove'] <- lapply(obs_splitmeasure_timestamp$video_annot_id, annots.to.remove.present)
+
+# check to see if all the rows are valid after the filtering
+all_valid_rows <- all(!obs_splitmeasure_timestamp$rows_to_remove)
+if (isTRUE(all_valid_rows)){ 
+  # don't do anything
+} else{
+    stop("There are some rows to be removed - this hasn't been coded in right now.")}
+
 
 # RMS data
 obs_reclevel <- subset(obs_splitmeasure_timestamp, measurement=='rms')
