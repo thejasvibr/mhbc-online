@@ -132,14 +132,13 @@ Each bat activity audio was split into consecutive 50 ms windows (See Figure \@r
 
 We created 'virtual multi-bat' data by combining single bat audio-files that were of similar durations (SI \@ref(virtualdetails)). This generated a 'null' dataset of multiple bats that were echolocating together without altering their calls in groups. We performed the same windowed call analysis on the virtual multi-bat audio as described above for the real multi-bat audio.
 
-
 # Statistical analysis {#stats}
 
 We observed up to four bats flying in the cave at the same time. Especially in the individual call dataset the number of recordings of multi-bat ($\geq$ 2 bats) calls was low (N=177, 40, 7, 2 for group sizes of 1, 2, 3, 4 respectively,), we thus combined all bat activity periods with $\geq$ 2 bats into a multi-bat class and compared ‘single’ and ‘multi’ bat ($\geq 2$ bats) calls in the individual call analysis. The same categorisation was used even for the windowed call analysis too. 
 
 To analyse differences in echolocation between single and multi-bat contexts we ran linear-mixed models (LMMs). Model fit was  checked by performing residual diagnostics. Model coefficients were estimated using a Bayesian approach with non-informative priors, and the 95% highest posterior-density compatibility intervals (CoI) were used in reporting. The compatibility interval represents the lower and upper borders of the posterior distribution of the coefficient estimates. We would like to highlight that a compatibility interval is not equivalent to a confidence interval, even though the numerical values may be similar under certain cases [@nalborczyk2019pragmatism]. Unlike confidence intervals, the compatibility interval allows a true probabilistic interpretation that the underlying parameter value falls within a range for the given dataset. 
 
-To interpret the change in echolocation behaviour we calculated the difference and ratio of estimated coefficients across group contexts. 
+To interpret the change in echolocation behaviour we calculated the difference and ratio of estimated coefficients between group and individual contexts. 
 
 ## Individual call analysis {#indcallstatanalysis}
 LMMs were run with each component measurement as response, group size as a categorical predictor (single, multi) and video-file ID as random intercept for all parameters.
@@ -156,11 +155,12 @@ Since individual bats emit unique CF frequencies [@schnitzler1976peripheral], we
 Signal analysis, data manipulation and visualisation were done in Python [@van1995python] through its scientific ecosystem: the scipy, numpy, matplotlib, soundfile and pandas packages [@2020SciPy;@numpy;@matplotlib;@soundfile;@pandas]. Reproducible analysis, documentation and presentation were enabled by the Jupyter Notebook and Rmarkdown projects[@jupyter;@rmarkdown]. Audio visualisation, preliminary measurements and single call annotations were done with Audacity [@audacity]. LMMs were run in R [@R4] and its statistical ecosystem: the 'lme4','arm' and 'coda' packages [@lme4;@arm;@coda]. 
 
 # Results
+```{r load-vid-audio-summary, include=FALSE,echo=FALSE}
+vidaudio_summary <- read.csv('..//combined_analysis//vid_and_audio_annotation_summary.csv')
 
-We recorded echolocation and flight behaviour of mixed-species groups of the high-duty cycle bats *Rhinolophus euryale* and *R. mehelyi* as they flew alone and with other bats in a natural cave. The bats performed various flight behaviours in the cave, such as circling, approaches (when two or more bats flew towards each other) and following (one bat behind another) flights. A total of NUMBER HERE flight activities were annotated from the video, whose durations RANGED FROM X-Y.From these flight activities we were able to obtain XXYY synchronised audio clips, where were used in the individual and windowed call analysis. 
+```
 
-
-STILL STUCK HERE -- THERE ARE SOME ARBIT LONG ANNOTATIONS -- NEED ACCESS TO THE VIDEO FILES....
+We recorded echolocation and flight behaviour of mixed-species groups of the high-duty cycle bats *Rhinolophus euryale* and *R. mehelyi* as they flew alone and with other bats in a natural cave. The bats performed various flight behaviours in the cave, such as circling, approaches (when two or more bats flew towards each other) and following (one bat behind another) flights. A total of `r vidaudio_summary$num_vid_annotations` flight activities were annotated from video, of which `r vidaudio_summary$num_sync_audiofiles` synchronised audio clips with only *Rhinolophus* calls were found. The synchronised audio clips ranged from `r vidaudio_summary$mindurn_audiofiles` - `r vidaudio_summary$maxdurn_audiofiles` s duration (median `r vidaudio_summary$mediandurn_audiofiles` s). The synchronised audio clips were used in the individual and windowed call analysis. 
 
 In general, the acoustic parameters of individual calls mostly did not differ between single-bat and multi-bat contexts. Likewise, the windowed call-analysis revealed no major differences in received level and FM lowest frequency between single-bat and multi-bat and between multi-bat and virtual-multi-bat conditions. As theoretically expected, the dominant-frequency range in the windowed analysis, was larger in multi-bat conditions compared to single-bat conditions.
 
